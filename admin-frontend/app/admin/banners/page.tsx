@@ -130,8 +130,8 @@ export default function BannersPage() {
 
                 <ImageUploader
                   label="Upload Image"
-                  value={banner?.imageUrl || ''}
-                  onChange={(url) => setBannerImage(order, url)}
+                  currentImage={banner?.imageUrl || ''}
+                  onUpload={(url) => setBannerImage(order, url)}
                   previewHeight={0}
                   id={`banner-${order}`}
                 />
