@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -15,14 +14,7 @@ const navLinks = [
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
   const pathname = usePathname();
-  const { user, logout } = useAuth();
-
-  const handleLogout = () => {
-    logout();
-    setShowUserMenu(false);
-  };
 
   return (
     <>
@@ -60,45 +52,6 @@ export function Navbar() {
                   </Link>
                 );
               })}
-            </div>
-
-            {/* Right actions */}
-            <div className="hidden md:flex items-center gap-3">
-              {user ? (
-                <div className="relative">
-                  <button
-                    onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center gap-2 rounded-full bg-blue-600 p-2 text-white hover:bg-blue-700 transition"
-                  >
-                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                      <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                  </button>
-
-                  {showUserMenu && (
-                    <div className="absolute right-0 mt-2 w-48 rounded-lg bg-white border border-slate-200 shadow-lg py-1">
-                      <div className="px-4 py-2 border-b border-slate-100">
-                        <p className="text-sm font-semibold text-slate-900">{user.name}</p>
-                        <p className="text-xs text-slate-500">{user.email}</p>
-                      </div>
-                      <button
-                        onClick={handleLogout}
-                        className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 transition"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <Link
-                  href="/auth"
-                  className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition"
-                >
-                  Login / Sign Up
-                </Link>
-              )}
             </div>
 
             {/* Mobile toggle */}
@@ -143,31 +96,6 @@ export function Navbar() {
                     </Link>
                   );
                 })}
-                {user ? (
-                  <>
-                    <div className="px-3 py-2 text-sm">
-                      <p className="font-semibold text-slate-900">{user.name}</p>
-                      <p className="text-xs text-slate-500">{user.email}</p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        setOpen(false);
-                      }}
-                      className="mt-1 inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 transition"
-                    >
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <Link
-                    href="/auth"
-                    onClick={() => setOpen(false)}
-                    className="mt-1 inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition"
-                  >
-                    Login / Sign Up
-                  </Link>
-                )}
               </div>
             </div>
           )}
