@@ -122,31 +122,29 @@ export default function Home() {
           <p className="text-base md:text-lg text-slate-600 leading-relaxed max-w-xl">
             Your trusted platform for government job alerts, exam prep, and curated resources to help you stay ahead.
           </p>
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            <Link
-              href="/auth"
-              className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition"
-            >
-              Get Started For Free
-            </Link>
+          <div className="flex flex-wrap items-center gap-4 pt-2">
             <a
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-black px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-black/90 transition"
-              href="#"
+              href="https://play.google.com/store/apps/details?id=com.yqkbnq.aofamv"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-transform hover:scale-105"
             >
-              <svg className="h-5 w-5" viewBox="0 0 512 512" fill="currentColor" aria-hidden>
-                <path d="M325.3 234.3 104 121.8c-7.6-3.9-16.4-3.7-23.7.7-7.3 4.4-11.7 11.9-11.7 20.3v226.4c0 8.4 4.4 15.9 11.7 20.3 4 2.4 8.4 3.7 12.9 3.7 3.7 0 7.5-.9 10.8-2.6l221.3-112.5c8.2-4.1 13.2-12 13.2-21.4.1-9.3-4.9-17.2-13.2-21.4z" />
-                <path d="M372.5 150.9 246.8 216l125.7 65.1c6.9 3.6 15.2 3.5 22-.3l82.9-44.7c7.4-4 11.8-11.4 11.8-19.8s-4.4-15.8-11.8-19.8l-82.9-44.7c-6.9-3.8-15.2-3.9-22-.9zM246.8 296l125.7 65.1c3.3 1.7 7.1 2.6 10.8 2.6 4.5 0 8.9-1.2 12.9-3.7l82.9-44.7c7.4-4 11.8-11.4 11.8-19.8 0-8.4-4.4-15.8-11.8-19.8l-82.9-44.7c-6.8-3.6-15.1-3.7-22-.1L246.8 256l-125.7 65.1c-8.2 4.3-13.2 12.2-13.2 21.5s5 17.2 13.2 21.5L246.8 429c3.4 1.8 7.2 2.6 10.8 2.6 4.6 0 9-1.2 13-3.6L326 384.5c7.6-4.2 12.3-11.9 12.3-20.3s-4.7-16.1-12.3-20.3l-79.2-43.9z" />
-              </svg>
-              Play Store
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" 
+                alt="Get it on Google Play"
+                className="h-12 w-auto"
+              />
             </a>
             <a
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-black px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-black/90 transition"
               href="#"
+              className="transition-transform hover:scale-105 opacity-50 cursor-not-allowed"
+              title="Coming soon on App Store"
             >
-              <svg className="h-5 w-5" viewBox="0 0 384 512" fill="currentColor" aria-hidden>
-                <path d="M318.7 268.7c-.3-35.2 15.8-61.8 48.2-81.4-18-26.2-45.2-40.6-82-43.1-34.4-2.5-72 20.1-85.5 20.1-14 0-47.7-19.2-73.8-19.2C76.6 146 27 187.6 27 266.4c0 25.6 4.7 52 14.1 79.2C52 372 90 448 130.2 447.7c25.6-.2 43.7-18.2 76.9-18.2 32.6 0 49.4 18.2 73.8 18.2 40.6-.6 75.8-70.4 89.3-102.5-56.6-24.5-51.5-71.6-51.5-76.5zM252.4 96.6c26.3-31.9 23.8-61 23-71.6-22.5 1.3-48.5 15.3-63.8 33.8-16.8 19.5-25 43.5-23 68 24.3 1.9 46.6-10.7 63.8-30.2z" />
-              </svg>
-              App Store
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" 
+                alt="Download on the App Store"
+                className="h-12 w-auto"
+              />
             </a>
           </div>
         </div>
