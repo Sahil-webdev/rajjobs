@@ -82,6 +82,8 @@ export default function Home() {
         `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/public/courses?limit=4`
       );
       const data = await response.json();
+      console.log('Courses from API:', data);
+      console.log('First course externalLink:', data[0]?.externalLink);
       setCourses(data);
     } catch (error) {
       console.error("Error fetching courses:", error);
@@ -341,6 +343,7 @@ export default function Home() {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition inline-block text-center"
+                          onClick={() => console.log('Clicking course:', course.title, 'Link:', course.externalLink || 'Using fallback')}
                         >
                           View Details
                         </a>
