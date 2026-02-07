@@ -27,6 +27,10 @@ const testSeriesSchema = new mongoose.Schema({
   isFree: {
     type: Boolean,
     default: false
+  },
+  externalLink: {
+    type: String,
+    default: ''
   }
 }, {
   timestamps: true

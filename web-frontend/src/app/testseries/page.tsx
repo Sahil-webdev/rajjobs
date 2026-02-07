@@ -10,6 +10,7 @@ interface TestSeries {
   priceOriginal: number;
   priceSale: number;
   isFree: boolean;
+  externalLink?: string;
 }
 
 const categories = [
@@ -88,7 +89,7 @@ function TestSeriesCard({ testSeries }: { testSeries: TestSeries }) {
             </div>
           )}
           <a 
-            href="https://play.google.com/store/apps/details?id=com.yqkbnq.aofamv&hl=en"
+            href={testSeries.externalLink || "https://play.google.com/store/apps/details?id=com.yqkbnq.aofamv&hl=en"}
             target="_blank"
             rel="noopener noreferrer"
             className={`${
@@ -97,7 +98,7 @@ function TestSeriesCard({ testSeries }: { testSeries: TestSeries }) {
                 : "bg-blue-600 hover:bg-blue-700"
             } text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors duration-200`}
           >
-            {testSeries.isFree ? "Start Free" : "Buy Now"}
+            View Details
           </a>
         </div>
       </div>

@@ -15,6 +15,7 @@ type Course = {
   priceSale: number;
   categories?: string[];
   createdAt: string;
+  externalLink?: string;
 };
 
 type Notification = {
@@ -33,6 +34,7 @@ type TestSeries = {
   priceSale: number;
   category: string;
   isFree: boolean;
+  externalLink?: string;
   createdAt: string;
 };
 
@@ -335,12 +337,12 @@ export default function Home() {
                           )}
                         </div>
                         <a 
-                          href="https://play.google.com/store/apps/details?id=com.yqkbnq.aofamv&hl=en"
+                          href={course.externalLink || "https://play.google.com/store/apps/details?id=com.yqkbnq.aofamv&hl=en"}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition inline-block text-center"
                         >
-                          Buy Now
+                          View Details
                         </a>
                       </div>
                     </div>
@@ -417,12 +419,12 @@ export default function Home() {
                           </div>
                         )}
                         <a 
-                          href="https://play.google.com/store/apps/details?id=com.yqkbnq.aofamv&hl=en"
+                          href={ts.externalLink || "https://play.google.com/store/apps/details?id=com.yqkbnq.aofamv&hl=en"}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition inline-block text-center"
                         >
-                          {ts.isFree ? 'Start Free' : 'Buy Now'}
+                          View Details
                         </a>
                       </div>
                     </div>

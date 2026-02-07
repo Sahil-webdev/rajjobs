@@ -9,7 +9,8 @@ const CourseSchema = new mongoose.Schema(
     priceOriginal: { type: Number, required: true },
     priceSale: { type: Number, required: true },
     categories: [{ type: String }],
-    instructor: { type: String }
+    instructor: { type: String },
+    externalLink: { type: String }
   },
   { timestamps: true }
 );

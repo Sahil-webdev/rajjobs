@@ -18,6 +18,7 @@ type FormState = {
   category: string;
   priceOriginal: number;
   priceSale: number;
+  externalLink?: string;
 };
 
 const initialForm: FormState = {
@@ -27,6 +28,7 @@ const initialForm: FormState = {
   category: 'SSC Exam',
   priceOriginal: 0,
   priceSale: 0,
+  externalLink: '',
 };
 
 export default function CoursesPage() {
@@ -125,6 +127,20 @@ export default function CoursesPage() {
               </small>
             </div>
 
+            <div className="form-group">
+              <label>External Link (View Details URL)</label>
+              <input
+                className="input"
+                type="url"
+                placeholder="e.g., https://example.com/course-details"
+                value={form.externalLink || ''}
+                onChange={(e) => setForm({ ...form, externalLink: e.target.value })}
+              />
+              <small style={{ color: '#6b7280', display: 'block', marginTop: 4 }}>
+                When users click "View Details", they will be redirected to this URL
+              </small>
+            </div>
+
             <ImageUploader
               label="Course Thumbnail (Recommended: 1050x600px)"
               currentImage={form.thumbnailUrl || ''}
@@ -207,9 +223,14 @@ export default function CoursesPage() {
 
           <div style={{ padding: 12, background: '#f3f4f6', borderRadius: 8 }}>
             <div style={{ fontWeight: 600, marginBottom: 8, color: '#111827' }}>{form.title || 'Course Title'}</div>
-            <div style={{ fontSize: 12, color: '#6b7280' }}>
+            <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8 }}>
               {form.description || 'Course description will appear here'}
             </div>
+            {form.externalLink && (
+              <div style={{ fontSize: 11, color: '#2563eb', marginTop: 8 }}>
+                🔗 Link: {form.externalLink}
+              </div>
+            )}
           </div>
         </div>
       </div>

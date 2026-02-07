@@ -11,6 +11,7 @@ type FormState = {
   priceSale: number | string;
   category: string;
   isFree: boolean;
+  externalLink?: string;
 };
 
 const initialForm: FormState = {
@@ -19,7 +20,8 @@ const initialForm: FormState = {
   priceOriginal: "",
   priceSale: "",
   category: "SSC",
-  isFree: false
+  isFree: false,
+  externalLink: ""
 };
 
 export default function TestSeriesPage() {
@@ -218,6 +220,21 @@ export default function TestSeriesPage() {
               />
               <span className="text-xs sm:text-sm font-medium text-slate-700">Mark as Free Test Series</span>
             </label>
+          </div>
+
+          {/* External Link */}
+          <div>
+            <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">
+              External Link (View Details URL)
+            </label>
+            <input
+              type="url"
+              className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              placeholder="e.g., https://example.com/test-series-details"
+              value={form.externalLink || ''}
+              onChange={(e) => setForm({ ...form, externalLink: e.target.value })}
+            />
+            <p className="mt-1 text-xs text-slate-500">When users click "View Details", they will be redirected to this URL</p>
           </div>
 
           {/* Buttons */}
