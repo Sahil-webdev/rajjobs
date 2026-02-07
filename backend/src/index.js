@@ -28,6 +28,7 @@ const publicExamDetails = require('./routes/public/exam-details');
 const publicCourses = require('./routes/public/courses');
 const publicTestSeries = require('./routes/public/test-series');
 const publicEnquiry = require('./routes/public/enquiry');
+const publicNotifications = require('./routes/public/notifications');
 
 const PORT = process.env.PORT;
 
@@ -88,6 +89,7 @@ app.use('/api/public/exam-details', publicExamDetails);
 app.use('/api/public/courses', publicCourses);
 app.use('/api/public/test-series', publicTestSeries);
 app.use('/api/public/enquiry', publicEnquiry);
+app.use('/api/public/notifications', publicNotifications);
 
 // Example protected admin route
 app.get('/api/admin/dashboard', verifyAccessToken, requireAdmin, (req, res) => {

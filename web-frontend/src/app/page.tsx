@@ -17,6 +17,14 @@ type Course = {
   createdAt: string;
 };
 
+type Notification = {
+  _id: string;
+  title: string;
+  category: string;
+  link: string;
+  date: string;
+};
+
 type TestSeries = {
   _id: string;
   title: string;
@@ -31,6 +39,7 @@ type TestSeries = {
 export default function Home() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [testSeries, setTestSeries] = useState<TestSeries[]>([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
   const [examCounts, setExamCounts] = useState({
     SSC: 0,
     UPSC: 0,
@@ -40,11 +49,30 @@ export default function Home() {
     Banking: 0
   });
 
+  // Banner carousel images
+  const banners = [
+    { id: 1, image: "/banner1.jpeg", alt: "Government Jobs 2024" },
+    { id: 2, image: "/banner2.jpeg", alt: "SSC & Railway Exams" },
+    { id: 3, image: "/banner1.jpeg", alt: "Best Courses for UPSC" },
+    { id: 4, image: "/banner2.jpeg", alt: "Banking Exam Preparation" },
+    { id: 5, image: "/banner1.jpeg", alt: "Defence Recruitment 2024" },
+    { id: 6, image: "/banner2.jpeg", alt: "Teacher Eligibility Test" },
+  ];
+
   useEffect(() => {
     fetchExamCounts();
     fetchCourses();
     fetchTestSeries();
   }, []);
+
+  // Auto-scroll carousel every 8 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % banners.length);
+    }, 8000);
+
+    return () => clearInterval(timer);
+  }, [banners.length]);
 
   const fetchCourses = async () => {
     try {
@@ -104,61 +132,79 @@ export default function Home() {
     { title: "Banking", count: `${examCounts.Banking}+ Exams`, color: "bg-cyan-50", icon: "🏦", link: "/exams?category=Banking" },
   ];
 
-  const notifications = [
-    { tag: "Army", title: "Indian Army Agniveer Rally Schedule", date: "Dec 11, 2024" },
-    { tag: "Teacher", title: "CTET December 2024 Answer Key Released", date: "Dec 10, 2024" },
-    { tag: "SSC", title: "SSC CGL Tier-2 Result Expected Soon", date: "Dec 9, 2024" },
-    { tag: "Railway", title: "RRB Group D PET Schedule Released", date: "Dec 8, 2024" },
-  ];
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  useEffect(() => {
+    // Fetch notifications from API
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/public/notifications?limit=4`)
+      .then(res => res.json())
+      .then(data => setNotifications(data))
+      .catch(err => console.error('Error fetching notifications:', err));
+  }, []);
 
   return (
     <main className="bg-white">
-      <section className="mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 py-8 md:flex-row md:items-center md:gap-12 md:py-10">
-        {/* Left text */}
-        <div className="w-full md:w-1/2 space-y-4">
-          <h1 className="text-4xl md:text-5xl font-bold leading-tight text-slate-900">
-            Welcome to <span className="text-blue-600">Raj Jobs</span>
-          </h1>
-          <p className="text-base md:text-lg text-slate-600 leading-relaxed max-w-xl">
-            Your trusted platform for government job alerts, exam prep, and curated resources to help you stay ahead.
-          </p>
-          <div className="flex flex-wrap items-center gap-4 pt-2">
-            <a
-              href="https://play.google.com/store/apps/details?id=com.yqkbnq.aofamv"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-transform hover:scale-105"
-            >
-              <img 
-                src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" 
-                alt="Get it on Google Play"
-                className="h-12 w-auto"
-              />
-            </a>
-            <a
-              href="#"
-              className="transition-transform hover:scale-105 opacity-50 cursor-not-allowed"
-              title="Coming soon on App Store"
-            >
-              <img 
-                src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" 
-                alt="Download on the App Store"
-                className="h-12 w-auto"
-              />
-            </a>
-          </div>
-        </div>
+      {/* Banner Carousel */}
+      <section className="w-full bg-white pt-4">
+        <div className="relative mx-auto max-w-[1920px] px-4 sm:px-6">
+          <div className="relative h-[320px] md:h-[400px] overflow-hidden rounded-xl bg-slate-900">
+            {/* Slides */}
+            <div className="relative w-full h-full">
+              {banners.map((banner, index) => (
+                <div
+                  key={banner.id}
+                  className="absolute inset-0 transition-transform duration-700 ease-in-out"
+                  style={{
+                    transform: `translateX(${(index - currentSlide) * 100}%)`,
+                  }}
+                >
+                  <img
+                    src={banner.image}
+                    alt={banner.alt}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                </div>
+              ))}
+            </div>
 
-        {/* Right image */}
-        <div className="w-full md:w-1/2 flex justify-center">
-          <Image
-            src="/bg.png"
-            alt="Students preparing for exams"
-            width={520}
-            height={380}
-            className="w-full max-w-md rounded-2xl shadow-lg"
-            priority
-          />
+            {/* Navigation dots */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+              {banners.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentSlide(index)}
+                  className={`w-3 h-3 rounded-full transition-all ${
+                    index === currentSlide
+                      ? "bg-white w-8"
+                      : "bg-white/50 hover:bg-white/75"
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+
+            {/* Previous/Next buttons */}
+            <button
+              onClick={() => setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length)}
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-3 rounded-full transition-all z-10"
+              aria-label="Previous slide"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={() => setCurrentSlide((prev) => (prev + 1) % banners.length)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-3 rounded-full transition-all z-10"
+              aria-label="Next slide"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
         </div>
       </section>
 
@@ -204,14 +250,20 @@ export default function Home() {
               <div className="relative h-[360px] overflow-hidden">
                 <div className="absolute inset-0 fade-mask" aria-hidden></div>
                 <div className="scroll-vertical space-y-3 px-4 py-4 cursor-pointer">
-                  {[...notifications, ...notifications].map((item, idx) => (
-                    <div key={idx} className="rounded-xl border border-slate-100 bg-white/70 p-3 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                  {notifications.map((item, idx) => (
+                    <a
+                      key={item._id || idx}
+                      href={item.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block rounded-xl border border-slate-100 bg-white/70 p-3 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-md hover:border-blue-200 transition-all"
+                    >
                       <div className="flex items-center gap-2 text-xs font-semibold text-blue-600">
-                        <span className="rounded-full bg-blue-50 px-2 py-0.5 text-blue-700">{item.tag}</span>
-                        <span className="text-slate-400">{item.date}</span>
+                        <span className="rounded-full bg-blue-50 px-2 py-0.5 text-blue-700">{item.category}</span>
+                        <span className="text-slate-400">{new Date(item.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       </div>
                       <div className="mt-1 text-sm font-medium text-slate-900">{item.title}</div>
-                    </div>
+                    </a>
                   ))}
                 </div>
               </div>
@@ -229,22 +281,22 @@ export default function Home() {
               Explore More Courses <span aria-hidden>→</span>
             </Link>
           </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {courses.length === 0 ? (
               <div className="col-span-full text-center py-12 text-slate-500">
                 No courses available yet. Check back soon!
               </div>
             ) : (
-              courses.map((course) => {
+              courses.slice(0, 3).map((course) => {
                 const discount = course.priceOriginal > 0 
                   ? Math.round(((course.priceOriginal - course.priceSale) / course.priceOriginal) * 100)
                   : 0;
                 const category = course.categories?.[0] || 'Course';
                 
                 return (
-                  <div key={course._id} className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-lg">
+                  <div key={course._id} className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-lg">
                     {course.thumbnailUrl ? (
-                      <div className="relative aspect-[1050/600]">
+                      <div className="relative h-48">
                         <img 
                           src={course.thumbnailUrl} 
                           alt={course.title}
@@ -252,11 +304,11 @@ export default function Home() {
                         />
                       </div>
                     ) : (
-                      <div className="relative aspect-[1050/600] bg-gradient-to-br from-blue-600 to-blue-700 p-4 flex items-center justify-center">
+                      <div className="relative h-48 bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center">
                         <h3 className="text-xl font-bold text-white text-center">{category}</h3>
                       </div>
                     )}
-                    <div className="p-4">
+                    <div className="flex flex-col flex-1 p-5">
                       <div className="flex items-center gap-2 mb-3">
                         <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
                           {category}
@@ -267,10 +319,15 @@ export default function Home() {
                           </span>
                         )}
                       </div>
-                      <h4 className="mb-3 text-base font-semibold text-slate-900 line-clamp-1">
+                      <h4 className="mb-2 text-lg font-semibold text-slate-900 line-clamp-1">
                         {course.title}
                       </h4>
-                      <div className="flex items-center justify-between">
+                      {course.description && (
+                        <p className="mb-4 text-sm text-slate-600 line-clamp-2">
+                          {course.description}
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between mt-auto">
                         <div className="flex items-baseline gap-2">
                           <span className="text-xl font-bold text-slate-900">₹{course.priceSale}</span>
                           {course.priceOriginal > course.priceSale && (

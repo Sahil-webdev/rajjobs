@@ -6,8 +6,8 @@ import api, { setAuthToken } from '../../lib/api';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('admin@rajjobs.test');
-  const [password, setPassword] = useState('Password123!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -47,7 +47,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@rajjobs.test"
+                placeholder="Enter your email"
                 required
               />
             </div>
@@ -71,15 +71,6 @@ export default function LoginPage() {
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
-
-          <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid #e5e7eb', textAlign: 'center' }}>
-            <p style={{ fontSize: 12, color: '#9ca3af', marginBottom: 0 }}>
-              Default credentials for testing
-            </p>
-            <p style={{ fontSize: 11, color: '#d1d5db', marginBottom: 0 }}>
-              admin@rajjobs.test / Password123!
-            </p>
-          </div>
         </div>
       </div>
     </div>

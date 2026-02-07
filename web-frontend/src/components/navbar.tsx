@@ -20,10 +20,10 @@ export function Navbar() {
     <>
       <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-20 items-center justify-between">
+          <div className="flex h-16 items-center justify-between">
             {/* Logo */}
             <Link href="/" className="relative flex items-center justify-center h-full py-2">
-              <div className="relative h-14 w-35">
+              <div className="relative h-12 w-35">
                 <Image 
                   src="/logo3.png" 
                   alt="Raj Jobs" 

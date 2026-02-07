@@ -110,6 +110,21 @@ export default function CoursesPage() {
               />
             </div>
 
+            <div className="form-group">
+              <label>Course Description</label>
+              <textarea
+                className="input"
+                placeholder="Enter a brief description of the course (2-3 lines recommended)"
+                value={form.description || ''}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                rows={3}
+                style={{ resize: 'vertical', minHeight: '80px' }}
+              />
+              <small style={{ color: '#6b7280', display: 'block', marginTop: 4 }}>
+                This will be displayed on the homepage and courses page (2 lines max on cards)
+              </small>
+            </div>
+
             <ImageUploader
               label="Course Thumbnail (Recommended: 1050x600px)"
               currentImage={form.thumbnailUrl || ''}

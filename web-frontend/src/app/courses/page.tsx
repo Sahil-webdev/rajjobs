@@ -114,7 +114,7 @@ export default function CoursesPage() {
 
         {/* Course Cards Grid */}
         {!loading && filteredCourses.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCourses.map((course) => {
               const discount = course.priceOriginal > 0 
                 ? Math.round(((course.priceOriginal - course.priceSale) / course.priceOriginal) * 100)
@@ -122,9 +122,9 @@ export default function CoursesPage() {
               const category = course.categories?.[0] || 'Course';
 
               return (
-                <div key={course._id} className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-lg">
+                <div key={course._id} className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-lg">
                   {course.thumbnailUrl ? (
-                    <div className="relative aspect-[1050/600]">
+                    <div className="relative h-48">
                       <img 
                         src={course.thumbnailUrl} 
                         alt={course.title}
@@ -132,11 +132,11 @@ export default function CoursesPage() {
                       />
                     </div>
                   ) : (
-                    <div className="relative aspect-[1050/600] bg-gradient-to-br from-blue-600 to-blue-700 p-4 flex items-center justify-center">
+                    <div className="relative h-48 bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center">
                       <h3 className="text-xl font-bold text-white text-center">{category}</h3>
                     </div>
                   )}
-                  <div className="p-4">
+                  <div className="flex flex-col flex-1 p-5">
                     <div className="flex items-center gap-2 mb-3">
                       <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
                         {category}
@@ -147,10 +147,15 @@ export default function CoursesPage() {
                         </span>
                       )}
                     </div>
-                    <h4 className="mb-3 text-base font-semibold text-slate-900 line-clamp-1">
+                    <h4 className="mb-2 text-lg font-semibold text-slate-900 line-clamp-1">
                       {course.title}
                     </h4>
-                    <div className="flex items-center justify-between">
+                    {course.description && (
+                      <p className="mb-4 text-sm text-slate-600 line-clamp-2">
+                        {course.description}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between mt-auto">
                       <div className="flex items-baseline gap-2">
                         <span className="text-xl font-bold text-slate-900">₹{course.priceSale}</span>
                         {course.priceOriginal > course.priceSale && (

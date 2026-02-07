@@ -12,9 +12,17 @@ router.get('/', asyncHandler(async (req, res) => {
 
 // POST /api/admin/notifications
 router.post('/', asyncHandler(async (req, res) => {
-  const { title, message, type, audience, isActive } = req.body;
-  if (!title || !message) return res.status(400).json({ message: 'title and message required' });
-  const notification = await Notification.create({ title, message, type, audience, isActive });
+  const { title, category, link, date, isActive } = req.body;
+  if (!title || !category || !link) {
+    return res.status(400).json({ message: 'title, category and link are required' });
+  }
+  const notification = await Notification.create({ 
+    title, 
+    category, 
+    link, 
+    date: date || new Date(),
+    isActive: isActive !== undefined ? isActive : true 
+  });
   res.status(201).json(notification);
 }));
 
