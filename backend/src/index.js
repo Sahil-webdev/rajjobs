@@ -9,9 +9,6 @@ const { verifyAccessToken, requireAdmin } = require('./middleware/auth');
 const errorHandler = require('./middleware/errorHandler');
 
 const adminCourses = require('./routes/admin/courses');
-const adminUsers = require('./routes/admin/users');
-const adminEnrollments = require('./routes/admin/enrollments');
-const adminOrders = require('./routes/admin/orders');
 const adminBanners = require('./routes/admin/banners');
 const adminNotifications = require('./routes/admin/notifications');
 const adminSettings = require('./routes/admin/settings');
@@ -69,9 +66,6 @@ app.use('/api/auth', authRoutes);
 
 // Admin protected routes
 app.use('/api/admin/courses', verifyAccessToken, requireAdmin, adminCourses);
-app.use('/api/admin/users', verifyAccessToken, requireAdmin, adminUsers);
-app.use('/api/admin/enrollments', verifyAccessToken, requireAdmin, adminEnrollments);
-app.use('/api/admin/orders', verifyAccessToken, requireAdmin, adminOrders);
 app.use('/api/admin/banners', verifyAccessToken, requireAdmin, adminBanners);
 app.use('/api/admin/notifications', verifyAccessToken, requireAdmin, adminNotifications);
 app.use('/api/admin/settings', verifyAccessToken, requireAdmin, adminSettings);

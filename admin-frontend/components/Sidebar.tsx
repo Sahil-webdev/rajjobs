@@ -45,26 +45,6 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                             📝 Test Series
                         </Link>
                     </li>
-                    <li className="sidebar-nav-item">
-                        <Link href="/admin/users" className={isActive('/admin/users') ? 'active' : ''} onClick={handleLinkClick}>
-                            👥 Users
-                        </Link>
-                    </li>
-                    <li className="sidebar-nav-item">
-                        <Link href="/admin/enrollments" className={isActive('/admin/enrollments') ? 'active' : ''} onClick={handleLinkClick}>
-                            ✅ Enrollments
-                        </Link>
-                    </li>
-                    <li className="sidebar-nav-item">
-                        <Link href="/admin/orders" className={isActive('/admin/orders') ? 'active' : ''} onClick={handleLinkClick}>
-                            💳 Orders & Payments
-                        </Link>
-                    </li>
-                    <li className="sidebar-nav-item">
-                        <Link href="/admin/enquiries" className={isActive('/admin/enquiries') ? 'active' : ''} onClick={handleLinkClick}>
-                            💬 Enquiries
-                        </Link>
-                    </li>
 
                     <li className="sidebar-section-title">Content</li>
                     <li className="sidebar-nav-item">
