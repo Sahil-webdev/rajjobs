@@ -45,6 +45,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                             📝 Test Series
                         </Link>
                     </li>
+                    <li className="sidebar-nav-item">
+                        <Link href="/admin/enquiries" className={isActive('/admin/enquiries') ? 'active' : ''} onClick={handleLinkClick}>
+                            💬 Enquiries
+                        </Link>
+                    </li>
 
                     <li className="sidebar-section-title">Content</li>
                     <li className="sidebar-nav-item">
