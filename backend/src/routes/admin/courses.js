@@ -25,7 +25,8 @@ router.post('/', asyncHandler(async (req, res) => {
     priceOriginal,
     priceSale,
     categories,
-    instructor
+    instructor,
+    externalLink
   } = req.body;
 
   if (!title || !priceOriginal || !priceSale) {
@@ -44,7 +45,8 @@ router.post('/', asyncHandler(async (req, res) => {
     priceOriginal,
     priceSale,
     categories,
-    instructor
+    instructor,
+    externalLink
   });
 
   res.status(201).json(course);
