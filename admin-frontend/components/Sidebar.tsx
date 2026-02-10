@@ -70,6 +70,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
                     <li className="sidebar-section-title">Settings</li>
                     <li className="sidebar-nav-item">
+                        <Link href="/admin/profile" className={isActive('/admin/profile') ? 'active' : ''} onClick={handleLinkClick}>
+                            👤 My Profile
+                        </Link>
+                    </li>
+                    <li className="sidebar-nav-item">
                         <Link href="/admin/settings" className={isActive('/admin/settings') ? 'active' : ''} onClick={handleLinkClick}>
                             ⚙️ Settings
                         </Link>

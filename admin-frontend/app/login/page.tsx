@@ -63,6 +63,16 @@ export default function LoginPage() {
                 placeholder="Enter your password"
                 required
               />
+              <div style={{ marginTop: 8, textAlign: 'right' }}>
+                <a 
+                  href="/forgot-password" 
+                  style={{ fontSize: 13, color: '#3b82f6', textDecoration: 'none' }}
+                  onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                  onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+                >
+                  Forgot Password?
+                </a>
+              </div>
             </div>
 
             {error && <div className="error-message">{error}</div>}
