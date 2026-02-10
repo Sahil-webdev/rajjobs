@@ -17,6 +17,9 @@ const adminExamDetails = require('./routes/admin/exam-details');
 const adminFileUpload = require('./routes/admin/file-upload');
 const adminTestSeries = require('./routes/admin/test-series');
 const adminEnquiries = require('./routes/admin/enquiries');
+const adminSetup = require('./routes/admin/setup');
+const adminPasswordReset = require('./routes/admin/password-reset');
+const adminProfile = require('./routes/admin/profile');
 
 const publicBanners = require('./routes/public/banners');
 const publicExamDetails = require('./routes/public/exam-details');
@@ -62,7 +65,12 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use('/api/auth', authRoutes);
 
+// Public admin setup routes (no auth required)
+app.use('/api/admin/setup', adminSetup);
+app.use('/api/admin/password-reset', adminPasswordReset);
+
 // Admin protected routes
+app.use('/api/admin/profile', verifyAccessToken, requireAdmin, adminProfile);
 app.use('/api/admin/courses', verifyAccessToken, requireAdmin, adminCourses);
 app.use('/api/admin/banners', verifyAccessToken, requireAdmin, adminBanners);
 app.use('/api/admin/notifications', verifyAccessToken, requireAdmin, adminNotifications);

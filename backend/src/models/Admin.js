@@ -4,7 +4,8 @@ const AdminSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true }, // hashed
-  role: { type: String, default: 'admin' },
+  mobile: { type: String, required: true }, // for OTP
+  role: { type: String, enum: ['super_admin', 'admin'], default: 'admin' },
   isActive: { type: Boolean, default: true },
   refreshTokenHash: { type: String },
   createdAt: { type: Date, default: Date.now }
