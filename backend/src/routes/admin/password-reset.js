@@ -3,34 +3,35 @@ const router = express.Router();
 const Admin = require('../../models/Admin');
 const OTP = require('../../models/OTP');
 const { hashPassword } = require('../../utils/hash');
-const { sendOTP, generateOTP } = require('../../utils/sms');
+const { sendOTPEmail, generateOTP } = require('../../utils/email');
 const asyncHandler = require('../../utils/asyncHandler');
 
-// Step 1: Send OTP to mobile for password reset
+// Step 1: Send OTP to email for password reset
 router.post('/send-otp', asyncHandler(async (req, res) => {
-  const { mobile } = req.body;
+  const { email } = req.body;
 
-  if (!mobile) {
-    return res.status(400).json({ message: 'Mobile number is required' });
+  if (!email) {
+    return res.status(400).json({ message: 'Email address is required' });
   }
 
-  // Validate mobile number
-  if (!/^[6-9]\d{9}$/.test(mobile)) {
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
     return res.status(400).json({ 
-      message: 'Invalid mobile number. Please enter a valid 10-digit number' 
+      message: 'Invalid email address format' 
     });
   }
 
-  // Check if admin with this mobile exists
-  const admin = await Admin.findOne({ mobile });
+  // Check if admin with this email exists
+  const admin = await Admin.findOne({ email });
   if (!admin) {
     return res.status(404).json({ 
-      message: 'No admin account found with this mobile number' 
+      message: 'No admin account found with this email address' 
     });
   }
 
-  // Delete any existing OTPs for this mobile
-  await OTP.deleteMany({ mobile, purpose: 'password_reset' });
+  // Delete any existing OTPs for this email
+  await OTP.deleteMany({ email, purpose: 'password_reset' });
 
   // Generate new OTP
   const otp = generateOTP();
@@ -38,35 +39,35 @@ router.post('/send-otp', asyncHandler(async (req, res) => {
 
   // Save OTP to database
   await OTP.create({
-    mobile,
+    email,
     otp,
     purpose: 'password_reset',
     expiresAt,
     verified: false
   });
 
-  // Send OTP via SMS
-  const smsResult = await sendOTP(mobile, otp);
+  // Send OTP via Email
+  const emailResult = await sendOTPEmail(email, otp);
 
   res.json({
-    message: 'OTP sent successfully to your mobile number',
+    message: 'OTP sent successfully to your email address',
     expiresIn: '10 minutes',
-    mobile: mobile.replace(/(\d{2})\d{6}(\d{2})/, '$1******$2'), // Mask mobile
-    smsMode: smsResult.mode || 'sent' // development/production/fallback
+    email: email.replace(/(.{2})(.*)(@.*)/, '$1****$3'), // Mask email
+    emailMode: emailResult.mode || 'sent' // console/email/console-fallback
   });
 }));
 
 // Step 2: Verify OTP
 router.post('/verify-otp', asyncHandler(async (req, res) => {
-  const { mobile, otp } = req.body;
+  const { email, otp } = req.body;
 
-  if (!mobile || !otp) {
-    return res.status(400).json({ message: 'Mobile number and OTP are required' });
+  if (!email || !otp) {
+    return res.status(400).json({ message: 'Email address and OTP are required' });
   }
 
   // Find OTP
   const otpRecord = await OTP.findOne({
-    mobile,
+    email,
     otp,
     purpose: 'password_reset',
     verified: false,
@@ -91,11 +92,11 @@ router.post('/verify-otp', asyncHandler(async (req, res) => {
 
 // Step 3: Reset password with verified OTP
 router.post('/reset-password', asyncHandler(async (req, res) => {
-  const { mobile, otp, newPassword } = req.body;
+  const { email, otp, newPassword } = req.body;
 
-  if (!mobile || !otp || !newPassword) {
+  if (!email || !otp || !newPassword) {
     return res.status(400).json({ 
-      message: 'Mobile number, OTP, and new password are required' 
+      message: 'Email address, OTP, and new password are required' 
     });
   }
 
@@ -108,7 +109,7 @@ router.post('/reset-password', asyncHandler(async (req, res) => {
 
   // Find verified OTP
   const otpRecord = await OTP.findOne({
-    mobile,
+    email,
     otp,
     purpose: 'password_reset',
     verified: true,
@@ -122,7 +123,7 @@ router.post('/reset-password', asyncHandler(async (req, res) => {
   }
 
   // Find admin
-  const admin = await Admin.findOne({ mobile });
+  const admin = await Admin.findOne({ email });
   if (!admin) {
     return res.status(404).json({ message: 'Admin not found' });
   }
@@ -136,7 +137,7 @@ router.post('/reset-password', asyncHandler(async (req, res) => {
   await admin.save();
 
   // Delete OTP after successful password reset
-  await OTP.deleteMany({ mobile, purpose: 'password_reset' });
+  await OTP.deleteMany({ email, purpose: 'password_reset' });
 
   res.json({
     message: 'Password reset successful! You can now login with your new password.',

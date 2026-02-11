@@ -1,8 +1,11 @@
 "use client";
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import api, { setAuthToken } from '../../lib/api';
+import axios from 'axios';
+
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -10,6 +13,26 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    checkSetupStatus();
+  }, []);
+
+  const checkSetupStatus = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/admin/setup/check`);
+      
+      if (response.data.setupRequired) {
+        // Setup required, redirect to setup page
+        router.push('/setup');
+      }
+    } catch (error) {
+      console.error("Setup check failed:", error);
+    } finally {
+      setChecking(false);
+    }
+  };
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -27,6 +50,17 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  if (checking) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', color: '#666' }}>
+          <div style={{ marginBottom: '10px', fontSize: '24px' }}>🔄</div>
+          <div>Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #f8f9fb 0%, #f0f4f8 100%)' }}>

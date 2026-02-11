@@ -8,8 +8,8 @@ const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
-  const [step, setStep] = useState(1); // 1: Enter Mobile, 2: Verify OTP, 3: Reset Password
-  const [mobile, setMobile] = useState("");
+  const [step, setStep] = useState(1); // 1: Enter Email, 2: Verify OTP, 3: Reset Password
+  const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -22,14 +22,15 @@ export default function ForgotPasswordPage() {
     setError("");
     setMessage("");
 
-    if (!/^[6-9]\d{9}$/.test(mobile)) {
-      setError("Please enter a valid 10-digit mobile number");
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address");
       return;
     }
 
     try {
       setLoading(true);
-      const response = await axios.post(`${API_URL}/api/admin/password-reset/send-otp`, { mobile });
+      const response = await axios.post(`${API_URL}/api/admin/password-reset/send-otp`, { email });
       setMessage(response.data.message);
       setStep(2);
     } catch (error: any) {
@@ -51,7 +52,7 @@ export default function ForgotPasswordPage() {
 
     try {
       setLoading(true);
-      const response = await axios.post(`${API_URL}/api/admin/password-reset/verify-otp`, { mobile, otp });
+      const response = await axios.post(`${API_URL}/api/admin/password-reset/verify-otp`, { email, otp });
       setMessage(response.data.message);
       setStep(3);
     } catch (error: any) {
@@ -79,7 +80,7 @@ export default function ForgotPasswordPage() {
     try {
       setLoading(true);
       const response = await axios.post(`${API_URL}/api/admin/password-reset/reset-password`, {
-        mobile,
+        email,
         otp,
         newPassword,
       });
@@ -103,8 +104,8 @@ export default function ForgotPasswordPage() {
             Reset Password
           </h1>
           <p style={{ color: "#64748b", fontSize: "14px" }}>
-            {step === 1 && "Enter your mobile number to receive OTP"}
-            {step === 2 && "Enter the OTP sent to your mobile"}
+            {step === 1 && "Enter your email to receive OTP"}
+            {step === 2 && "Enter the OTP sent to your email"}
             {step === 3 && "Create your new password"}
           </p>
         </div>
@@ -125,18 +126,18 @@ export default function ForgotPasswordPage() {
           ))}
         </div>
 
-        {/* Step 1: Enter Mobile */}
+        {/* Step 1: Enter Email */}
         {step === 1 && (
           <form onSubmit={handleSendOTP}>
             <div style={{ marginBottom: "20px" }}>
               <label style={{ display: "block", fontSize: "14px", fontWeight: "600", color: "#374151", marginBottom: "8px" }}>
-                Mobile Number
+                Email Address
               </label>
               <input
-                type="tel"
-                value={mobile}
-                onChange={(e) => setMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                placeholder="Enter 10-digit mobile number"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email address"
                 style={{ width: "100%", padding: "12px 16px", border: "2px solid #e5e7eb", borderRadius: "8px", fontSize: "14px", outline: "none" }}
                 onFocus={(e) => (e.currentTarget.style.borderColor = "#667eea")}
                 onBlur={(e) => (e.currentTarget.style.borderColor = "#e5e7eb")}
@@ -154,7 +155,7 @@ export default function ForgotPasswordPage() {
               disabled={loading}
               style={{ width: "100%", background: loading ? "#9ca3af" : "#667eea", color: "white", border: "none", borderRadius: "8px", padding: "14px", fontSize: "16px", fontWeight: "600", cursor: loading ? "not-allowed" : "pointer" }}
             >
-              {loading ? "Sending OTP..." : "Send OTP"}
+              {loading ? "Sending OTP..." : "Send OTP to Email"}
             </button>
 
             <button
@@ -190,7 +191,7 @@ export default function ForgotPasswordPage() {
                 onBlur={(e) => (e.currentTarget.style.borderColor = "#e5e7eb")}
               />
               <small style={{ color: "#64748b", fontSize: "12px", display: "block", marginTop: "4px", textAlign: "center" }}>
-                OTP sent to {mobile.replace(/(\d{2})\d{6}(\d{2})/, "$1******$2")}
+                OTP sent to {email.replace(/(.{2})(.*)(@.*)/, "$1****$3")}
               </small>
             </div>
 
@@ -213,7 +214,7 @@ export default function ForgotPasswordPage() {
               onClick={() => setStep(1)}
               style={{ width: "100%", background: "transparent", color: "#667eea", border: "2px solid #667eea", borderRadius: "8px", padding: "14px", fontSize: "14px", fontWeight: "600", cursor: "pointer", marginTop: "12px" }}
             >
-              Change Mobile Number
+              Change Email Address
             </button>
           </form>
         )}

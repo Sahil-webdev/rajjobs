@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const OTPSchema = new mongoose.Schema({
-  mobile: { type: String, required: true },
+  email: { type: String, required: true },
   otp: { type: String, required: true },
   purpose: { type: String, enum: ['password_reset'], required: true },
   expiresAt: { type: Date, required: true },

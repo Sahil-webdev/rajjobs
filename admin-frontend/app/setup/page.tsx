@@ -19,6 +19,8 @@ export default function InitialSetupPage() {
   });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     checkSetupStatus();
@@ -86,8 +88,11 @@ export default function InitialSetupPage() {
 
   if (loading) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}>
-        <div style={{ color: "white", fontSize: "18px" }}>Loading...</div>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', color: '#666' }}>
+          <div style={{ marginBottom: '10px', fontSize: '24px' }}>🔄</div>
+          <div>Loading...</div>
+        </div>
       </div>
     );
   }
@@ -97,121 +102,174 @@ export default function InitialSetupPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
-      <div style={{ maxWidth: "500px", width: "100%", background: "white", borderRadius: "16px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)", padding: "40px" }}>
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: "32px" }}>
-          <div style={{ fontSize: "48px", marginBottom: "16px" }}>🚀</div>
-          <h1 style={{ fontSize: "28px", fontWeight: "700", color: "#1e293b", marginBottom: "8px" }}>
-            Initial Setup
-          </h1>
-          <p style={{ color: "#64748b", fontSize: "14px" }}>
-            Create your Super Admin account to get started
-          </p>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", fontSize: "14px", fontWeight: "600", color: "#374151", marginBottom: "8px" }}>
-              Full Name *
-            </label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Enter your full name"
-              style={{ width: "100%", padding: "12px 16px", border: "2px solid #e5e7eb", borderRadius: "8px", fontSize: "14px", outline: "none", transition: "border-color 0.2s" }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#667eea")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "#e5e7eb")}
-            />
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #f8f9fb 0%, #f0f4f8 100%)', padding: '20px' }}>
+      <div style={{ width: '100%', maxWidth: 480 }}>
+        <div className="card">
+          {/* Header */}
+          <div style={{ textAlign: 'center', marginBottom: 32 }}>
+            <h1 style={{ fontSize: 28, marginBottom: 8, color: '#3b82f6' }}>RajJobs</h1>
+            <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 4 }}>Initial Setup</h2>
+            <p style={{ color: '#6b7280', marginBottom: 0, fontSize: 14 }}>
+              Create your Super Admin account
+            </p>
           </div>
 
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", fontSize: "14px", fontWeight: "600", color: "#374151", marginBottom: "8px" }}>
-              Email Address *
-            </label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              placeholder="admin@example.com"
-              style={{ width: "100%", padding: "12px 16px", border: "2px solid #e5e7eb", borderRadius: "8px", fontSize: "14px", outline: "none", transition: "border-color 0.2s" }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#667eea")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "#e5e7eb")}
-            />
+          {/* Info Box */}
+          <div style={{ 
+            background: '#eff6ff', 
+            border: '1px solid #bfdbfe', 
+            borderRadius: '8px', 
+            padding: '12px 16px', 
+            marginBottom: 24 
+          }}>
+            <p style={{ color: '#1e40af', fontSize: 13, margin: 0, lineHeight: '1.6' }}>
+              ℹ️ This is a one-time setup. Keep your credentials safe!
+            </p>
           </div>
 
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", fontSize: "14px", fontWeight: "600", color: "#374151", marginBottom: "8px" }}>
-              Mobile Number *
-            </label>
-            <input
-              type="tel"
-              value={formData.mobile}
-              onChange={(e) => setFormData({ ...formData, mobile: e.target.value.replace(/\D/g, "").slice(0, 10) })}
-              placeholder="10-digit mobile number"
-              style={{ width: "100%", padding: "12px 16px", border: "2px solid #e5e7eb", borderRadius: "8px", fontSize: "14px", outline: "none", transition: "border-color 0.2s" }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#667eea")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "#e5e7eb")}
-            />
-            <small style={{ color: "#64748b", fontSize: "12px", display: "block", marginTop: "4px" }}>
-              Used for OTP verification and password reset
-            </small>
-          </div>
-
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", fontSize: "14px", fontWeight: "600", color: "#374151", marginBottom: "8px" }}>
-              Password *
-            </label>
-            <input
-              type="password"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              placeholder="Minimum 8 characters"
-              style={{ width: "100%", padding: "12px 16px", border: "2px solid #e5e7eb", borderRadius: "8px", fontSize: "14px", outline: "none", transition: "border-color 0.2s" }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#667eea")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "#e5e7eb")}
-            />
-          </div>
-
-          <div style={{ marginBottom: "24px" }}>
-            <label style={{ display: "block", fontSize: "14px", fontWeight: "600", color: "#374151", marginBottom: "8px" }}>
-              Confirm Password *
-            </label>
-            <input
-              type="password"
-              value={formData.confirmPassword}
-              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-              placeholder="Re-enter your password"
-              style={{ width: "100%", padding: "12px 16px", border: "2px solid #e5e7eb", borderRadius: "8px", fontSize: "14px", outline: "none", transition: "border-color 0.2s" }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#667eea")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "#e5e7eb")}
-            />
-          </div>
-
-          {error && (
-            <div style={{ background: "#fee2e2", border: "1px solid #fecaca", borderRadius: "8px", padding: "12px", marginBottom: "20px" }}>
-              <p style={{ color: "#dc2626", fontSize: "14px", margin: 0 }}>❌ {error}</p>
+          {/* Form */}
+          <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 16 }} autoComplete="off">
+            <div className="form-group">
+              <label htmlFor="name">Full Name</label>
+              <input
+                className="input"
+                id="name"
+                name="setup-name"
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Enter your full name"
+                autoComplete="off"
+                required
+              />
             </div>
-          )}
 
-          <button
-            type="submit"
-            disabled={submitting}
-            style={{ width: "100%", background: submitting ? "#9ca3af" : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", color: "white", border: "none", borderRadius: "8px", padding: "14px", fontSize: "16px", fontWeight: "600", cursor: submitting ? "not-allowed" : "pointer", transition: "transform 0.2s" }}
-            onMouseEnter={(e) => !submitting && (e.currentTarget.style.transform = "translateY(-2px)")}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
-          >
-            {submitting ? "Creating Account..." : "Create Super Admin Account"}
-          </button>
-        </form>
+            <div className="form-group">
+              <label htmlFor="email">Email Address</label>
+              <input
+                className="input"
+                id="email"
+                name="setup-email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="admin@example.com"
+                autoComplete="off"
+                required
+              />
+            </div>
 
-        {/* Info Box */}
-        <div style={{ marginTop: "24px", background: "#f0f9ff", border: "1px solid #bfdbfe", borderRadius: "8px", padding: "16px" }}>
-          <p style={{ color: "#1e40af", fontSize: "13px", margin: 0, lineHeight: "1.6" }}>
-            ℹ️ <strong>Note:</strong> This is a one-time setup. After creating your Super Admin account, this page will not be accessible again. Keep your credentials safe!
-          </p>
+            <div className="form-group">
+              <label htmlFor="mobile">Mobile Number</label>
+              <input
+                className="input"
+                id="mobile"
+                name="setup-mobile"
+                type="tel"
+                value={formData.mobile}
+                onChange={(e) => setFormData({ ...formData, mobile: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+                placeholder="10-digit mobile number"
+                autoComplete="off"
+                required
+                maxLength={10}
+              />
+              <small style={{ color: '#6b7280', fontSize: 12, display: 'block', marginTop: 4 }}>
+                Used for OTP verification and password reset
+              </small>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  className="input"
+                  id="password"
+                  name="setup-password"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  placeholder="Minimum 8 characters"
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                  style={{ paddingRight: '40px' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '18px',
+                    color: '#6b7280',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                </button>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="confirmPassword">Confirm Password</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  className="input"
+                  id="confirmPassword"
+                  name="setup-confirm-password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  placeholder="Re-enter your password"
+                  autoComplete="new-password"
+                  required
+                  style={{ paddingRight: '40px' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '18px',
+                    color: '#6b7280',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  title={showConfirmPassword ? "Hide password" : "Show password"}
+                >
+                  {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                </button>
+              </div>
+            </div>
+
+            {error && <div className="error-message">{error}</div>}
+
+            <button 
+              className="button" 
+              type="submit" 
+              disabled={submitting}
+              style={{ marginTop: 8 }}
+            >
+              {submitting ? 'Creating Account...' : 'Create Super Admin Account'}
+            </button>
+          </form>
         </div>
       </div>
     </div>
