@@ -144,68 +144,39 @@ export default function Home() {
       .catch(err => console.error('Error fetching notifications:', err));
   }, []);
 
+
   return (
     <main className="bg-white">
-      {/* Banner Carousel */}
-      <section className="w-full bg-white pt-4">
-        <div className="relative mx-auto max-w-[1920px] px-4 sm:px-6">
-          <div className="relative h-[320px] md:h-[400px] overflow-hidden rounded-xl bg-slate-900">
-            {/* Slides */}
-            <div className="relative w-full h-full">
-              {banners.map((banner, index) => (
-                <div
-                  key={banner.id}
-                  className="absolute inset-0 transition-transform duration-700 ease-in-out"
-                  style={{
-                    transform: `translateX(${(index - currentSlide) * 100}%)`,
-                  }}
-                >
-                  <img
-                    src={banner.image}
-                    alt={banner.alt}
-                    className="w-full h-full object-cover"
-                  />
-                  {/* Overlay gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                </div>
-              ))}
-            </div>
-
-            {/* Navigation dots */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-              {banners.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentSlide(index)}
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    index === currentSlide
-                      ? "bg-white w-8"
-                      : "bg-white/50 hover:bg-white/75"
-                  }`}
-                  aria-label={`Go to slide ${index + 1}`}
-                />
-              ))}
-            </div>
-
-            {/* Previous/Next buttons */}
-            <button
-              onClick={() => setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length)}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-3 rounded-full transition-all z-10"
-              aria-label="Previous slide"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              onClick={() => setCurrentSlide((prev) => (prev + 1) % banners.length)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-3 rounded-full transition-all z-10"
-              aria-label="Next slide"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
+      {/* Hero Section (Classic) */}
+      <section className="w-full bg-gradient-to-br from-blue-50 to-blue-100 py-10 md:py-20">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center px-4 gap-10 md:gap-0">
+          {/* Left: Text */}
+          <div className="flex-1 text-center md:text-left">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-blue-900 mb-4 leading-tight">
+              Welcome to <span className="text-blue-600">RajJobs</span>
+            </h1>
+            <p className="text-lg md:text-xl text-slate-700 mb-6 max-w-xl">
+              India’s trusted platform for <span className="font-semibold text-blue-700">competitive exams</span>,
+              <span className="font-semibold text-blue-700"> government jobs</span> &
+              <span className="font-semibold text-blue-700"> study material</span>.
+              Get latest updates, courses, test series, and more — all in one place!
+            </p>
+            <Link href="/courses">
+              <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg transition-all">
+                Explore Courses
+              </button>
+            </Link>
+          </div>
+          {/* Right: Graphic */}
+          <div className="flex-1 flex justify-center md:justify-end mt-10 md:mt-0">
+            <Image
+              src="/globe.svg"
+              alt="RajJobs Hero Graphic"
+              width={400}
+              height={400}
+              className="w-[260px] h-[260px] md:w-[350px] md:h-[350px] lg:w-[400px] lg:h-[400px] object-contain drop-shadow-xl"
+              priority
+            />
           </div>
         </div>
       </section>
