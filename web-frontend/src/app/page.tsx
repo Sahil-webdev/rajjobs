@@ -41,7 +41,7 @@ type TestSeries = {
 export default function Home() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [testSeries, setTestSeries] = useState<TestSeries[]>([]);
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [heroImageIdx, setHeroImageIdx] = useState(0);
   const [examCounts, setExamCounts] = useState({
     SSC: 0,
     UPSC: 0,
@@ -51,15 +51,19 @@ export default function Home() {
     Banking: 0
   });
 
-  // Banner carousel images
-  const banners = [
-    { id: 1, image: "/banner1.jpeg", alt: "Government Jobs 2024" },
-    { id: 2, image: "/banner2.jpeg", alt: "SSC & Railway Exams" },
-    { id: 3, image: "/banner1.jpeg", alt: "Best Courses for UPSC" },
-    { id: 4, image: "/banner2.jpeg", alt: "Banking Exam Preparation" },
-    { id: 5, image: "/banner1.jpeg", alt: "Defence Recruitment 2024" },
-    { id: 6, image: "/banner2.jpeg", alt: "Teacher Eligibility Test" },
-  ];
+  // Hero section right-side carousel images
+    const heroImages = [
+      { src: "/g1.png", alt: "RajJobs Hero Graphic 1" },
+      { src: "/g3.png", alt: "RajJobs Hero Graphic 2" },
+    ];
+
+  // Fade carousel for hero graphic
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroImageIdx((prev) => (prev + 1) % heroImages.length);
+    }, 4000); // 4 seconds per image
+    return () => clearInterval(timer);
+  }, [heroImages.length]);
 
   useEffect(() => {
     fetchExamCounts();
@@ -67,14 +71,7 @@ export default function Home() {
     fetchTestSeries();
   }, []);
 
-  // Auto-scroll carousel every 8 seconds
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % banners.length);
-    }, 8000);
-
-    return () => clearInterval(timer);
-  }, [banners.length]);
+    // Removed old banners carousel effect, not needed
 
   const fetchCourses = async () => {
     try {
@@ -126,12 +123,12 @@ export default function Home() {
   };
 
   const exams = [
-    { title: "SSC", count: `${examCounts.SSC}+ Exams`, color: "bg-blue-50", icon: "🛡️", link: "/exams?category=SSC" },
-    { title: "UPSC", count: `${examCounts.UPSC}+ Exams`, color: "bg-indigo-50", icon: "🏛️", link: "/exams?category=UPSC" },
-    { title: "Railway", count: `${examCounts.Railway}+ Exams`, color: "bg-sky-50", icon: "🚆", link: "/exams?category=Railway" },
-    { title: "Defence", count: `${examCounts.Defence}+ Exams`, color: "bg-teal-50", icon: "🎖️", link: "/exams?category=Defence" },
-    { title: "Teacher", count: `${examCounts.Teacher}+ Exams`, color: "bg-amber-50", icon: "📚", link: "/exams?category=Teacher" },
-    { title: "Banking", count: `${examCounts.Banking}+ Exams`, color: "bg-cyan-50", icon: "🏦", link: "/exams?category=Banking" },
+    { title: "SSC", count: `${examCounts.SSC}+ Exams`, color: "bg-blue-50", img: "/ssc.png", link: "/exams?category=SSC" },
+    { title: "UPSC", count: `${examCounts.UPSC}+ Exams`, color: "bg-indigo-50", img: "/upsc.png", link: "/exams?category=UPSC" },
+    { title: "Railway", count: `${examCounts.Railway}+ Exams`, color: "bg-sky-50", img: "/railway.png", link: "/exams?category=Railway" },
+    { title: "Defence", count: `${examCounts.Defence}+ Exams`, color: "bg-teal-50", img: "/defence.png", link: "/exams?category=Defence" },
+    { title: "Teacher", count: `${examCounts.Teacher}+ Exams`, color: "bg-amber-50", img: "/teacher.png", link: "/exams?category=Teacher" },
+    { title: "Banking", count: `${examCounts.Banking}+ Exams`, color: "bg-cyan-50", img: "/bank.png", link: "/exams?category=Banking" },
   ];
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -148,35 +145,88 @@ export default function Home() {
   return (
     <main className="bg-white">
       {/* Hero Section (Classic) */}
-      <section className="w-full bg-gradient-to-br from-blue-50 to-blue-100 py-10 md:py-20">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center px-4 gap-10 md:gap-0">
+      <section className="w-full bg-white py-10 md:pb-10 md:pt-0">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center px-4 gap-10 md:gap-0 min-h-[420px] md:min-h-[500px]">
           {/* Left: Text */}
-          <div className="flex-1 text-center md:text-left">
-            <h1 className="text-4xl md:text-5xl font-extrabold text-blue-900 mb-4 leading-tight">
-              Welcome to <span className="text-blue-600">RajJobs</span>
+          <div className="flex-1 flex flex-col justify-center text-center md:text-left h-full pt-20">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-black mb-4 leading-tight">
+              Welcome to <span className="text-blue-800">RajJobs</span>
             </h1>
-            <p className="text-lg md:text-xl text-slate-700 mb-6 max-w-xl">
-              India’s trusted platform for <span className="font-semibold text-blue-700">competitive exams</span>,
-              <span className="font-semibold text-blue-700"> government jobs</span> &
-              <span className="font-semibold text-blue-700"> study material</span>.
-              Get latest updates, courses, test series, and more — all in one place!
+            <p className="text-lg md:text-[16px] text-gray-500 mb-3 max-w-xl">
+              India’s Trusted Platform For <span className="">Competitive Exams</span>,
+              <span className=""> Government Jobs</span> &
+              <span className=""> Study Material</span>.
+              Get Latest Updates, Courses, Test Series, and More — All in One Place!
             </p>
-            <Link href="/courses">
-              <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg transition-all">
-                Explore Courses
-              </button>
-            </Link>
+            {/* Play Store & App Store Buttons (side by side, left aligned) */}
+            <div className="mb-4 flex flex-row items-center gap-2 justify-center md:justify-start w-full">
+              <a
+                href="https://play.google.com/store/apps/details?id=com.yqkbnq.aofamv"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Get it on Google Play"
+                className="inline-block"
+              >
+                <img
+                  src="/playstore-badge.png"
+                  alt="Get it on Google Play"
+                  style={{ height: 90 }}
+                />
+              </a>
+              <a
+                href="#"
+                tabIndex={-1}
+                aria-label="App Store badge"
+                className="inline-block pointer-events-none opacity-80"
+              >
+                <img
+                  src="/appstore-badge.png"
+                  alt="Download on the App Store"
+                  style={{ height: 48 }}
+                />
+              </a>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-center md:justify-start">
+              {/* Combined App Store and Play Store Badges */}
+              <div className="flex gap-0">
+                {/* App Store badge (no link) */}
+                <span style={{display:'inline-block',overflow:'hidden',borderRadius:'8px'}}>
+                  <Image
+                    src="/badges-combined.png"
+                    alt="App Store and Google Play badges"
+                    width={237}
+                    height={64}
+                    style={{display:'block'}}
+                  />
+                </span>
+                {/* Transparent overlay for Play Store badge link */}
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.yqkbnq.aofamv"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Get it on Google Play"
+                  style={{position:'absolute',left:'119px',top:'0',width:'118px',height:'64px',zIndex:2,display:'block'}}
+                >
+                  <span style={{display:'block',width:'100%',height:'100%'}}></span>
+                </a>
+              </div>
+            </div>
           </div>
-          {/* Right: Graphic */}
+          {/* Right: Fade Carousel Graphic (positioned as before) */}
           <div className="flex-1 flex justify-center md:justify-end mt-10 md:mt-0">
-            <Image
-              src="/globe.svg"
-              alt="RajJobs Hero Graphic"
-              width={400}
-              height={400}
-              className="w-[260px] h-[260px] md:w-[350px] md:h-[350px] lg:w-[400px] lg:h-[400px] object-contain drop-shadow-xl"
-              priority
-            />
+            <div className="relative w-[320px] h-[320px] md:w-[420px] md:h-[420px] lg:w-[500px] lg:h-[500px]">
+              {heroImages.map((img, idx) => (
+                <Image
+                  key={img.src}
+                  src={img.src}
+                  alt={img.alt}
+                  fill
+                  className={`object-contain drop-shadow-xl transition-opacity duration-1000 ${heroImageIdx === idx ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+                  priority={idx === 0}
+                  style={{transitionProperty:'opacity'}}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -200,7 +250,13 @@ export default function Home() {
                   className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition"
                 >
                   <div className="flex flex-col items-center gap-3 text-center">
-                    <div className={`flex h-16 w-16 items-center justify-center rounded-full text-2xl ${exam.color} text-blue-600`}>{exam.icon}</div>
+                    <div className={`flex h-16 w-16 items-center justify-center rounded-full ${exam.color} text-blue-600`}>
+                      {exam.img ? (
+                        <Image src={exam.img} alt={exam.title + " Logo"} width={44} height={44} />
+                      ) : (
+                        <span className="text-2xl">{exam.icon}</span>
+                      )}
+                    </div>
                     <div>
                       <div className="text-lg font-semibold text-slate-900">{exam.title}</div>
                       <div className="text-sm text-slate-500">{exam.count}</div>
