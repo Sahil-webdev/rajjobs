@@ -135,23 +135,16 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex gap-3 text-sm text-slate-400">
                 <svg className="h-5 w-5 flex-shrink-0 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
-                <span>123, Education Street, Jaipur, Rajasthan - 302001</span>
-              </li>
-              <li className="flex gap-3 text-sm text-slate-400">
-                <svg className="h-5 w-5 flex-shrink-0 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                 </svg>
-                <span>+91 98765 43210</span>
+                <span>+91 9376933777, +91 9376933777</span>
               </li>
               <li className="flex gap-3 text-sm text-slate-400">
                 <svg className="h-5 w-5 flex-shrink-0 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <rect x="2" y="4" width="20" height="16" rx="2" />
                   <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                 </svg>
-                <span>info@rajjobs.com</span>
+                <span>rajjobs1248@gmail.com</span>
               </li>
             </ul>
           </div>
@@ -163,17 +156,6 @@ export default function Footer() {
         <div className="mx-auto max-w-6xl px-4 py-6">
           <div className="flex flex-col items-center justify-between gap-4 text-sm text-slate-400 md:flex-row">
             <p>© 2024 Raj Jobs. All rights reserved.</p>
-            <div className="flex items-center gap-6">
-              <Link href="/privacy" className="transition hover:text-blue-400">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="transition hover:text-blue-400">
-                Terms of Service
-              </Link>
-              <Link href="/refund" className="transition hover:text-blue-400">
-                Refund Policy
-              </Link>
-            </div>
           </div>
         </div>
       </div>

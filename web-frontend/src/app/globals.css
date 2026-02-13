@@ -35,7 +35,7 @@ body {
 }
 
 .scroll-vertical {
-  animation: scroll-vertical 18s linear infinite;
+  animation: scroll-vertical 6s linear infinite;
 }
 
 .scroll-vertical:hover {

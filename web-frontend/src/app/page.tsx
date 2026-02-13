@@ -123,7 +123,7 @@ export default function Home() {
   };
 
   const exams = [
-    { title: "SSC", count: `${examCounts.SSC}+ Exams`, color: "bg-blue-50", img: "/ssc.png", icon: "", link: "/exams?category=SSC" },
+    { title: "SSC", count: `${examCounts.SSC}+ Exams`, color: "bg-blue-50", img: "/ssc2.png", icon: "", link: "/exams?category=SSC" },
     { title: "UPSC", count: `${examCounts.UPSC}+ Exams`, color: "bg-indigo-50", img: "/upsc.png", icon: "", link: "/exams?category=UPSC" },
     { title: "Railway", count: `${examCounts.Railway}+ Exams`, color: "bg-sky-50", img: "/railway.png", icon: "", link: "/exams?category=Railway" },
     { title: "Defence", count: `${examCounts.Defence}+ Exams`, color: "bg-teal-50", img: "/defence.png", icon: "", link: "/exams?category=Defence" },
@@ -626,7 +626,7 @@ export default function Home() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-slate-900 mb-1">Comprehensive Study Material</h3>
-                    <p className="text-sm text-slate-600">Access 10,000+ video lectures, PDFs, notes, and previous year question papers.</p>
+                    <p className="text-sm text-slate-600">Access video lectures, PDFs, notes, and previous year question papers.</p>
                   </div>
                 </div>
 
