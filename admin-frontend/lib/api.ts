@@ -13,17 +13,35 @@ export function setAuthToken(token: string | null) {
   }
 }
 
+// Add request interceptor to automatically include token from localStorage
+api.interceptors.request.use(
+  (config) => {
+    // Always try to get token from localStorage before making request
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Add response interceptor to handle auth errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 || error.response?.status === 403) {
-      // Token expired or invalid - clear storage and redirect to login
+      // Token expired or invalid - clear storage
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('accessToken');
-        setAuthToken(null);
-        // Only redirect if not already on login page
-        if (!window.location.pathname.includes('/login')) {
+        // Check if this is a /me endpoint call (auth check)
+        const isAuthCheck = error.config?.url?.includes('/auth/me');
+        
+        // Only redirect if we're in admin panel (not on login/setup pages)
+        if (isAuthCheck && window.location.pathname.includes('/admin/')) {
+          localStorage.removeItem('accessToken');
+          setAuthToken(null);
           window.location.href = '/login';
         }
       }

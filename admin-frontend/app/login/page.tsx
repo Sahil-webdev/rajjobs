@@ -39,14 +39,33 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     try {
+      console.log('🔐 Attempting login...');
       const res = await api.post('/api/auth/login', { email, password });
       const token = res.data?.accessToken;
-      setAuthToken(token);
+      
+      console.log('✅ Login successful, token received:', token ? 'Yes' : 'No');
+      
+      if (!token) {
+        throw new Error('No access token received');
+      }
+      
+      // Set token in localStorage first
       localStorage.setItem('accessToken', token);
-      router.push('/admin/dashboard');
+      console.log('💾 Token saved to localStorage');
+      
+      // Then set in API headers
+      setAuthToken(token);
+      console.log('📡 Token set in API headers');
+      
+      // Small delay to ensure everything is set
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      console.log('🚀 Redirecting to dashboard...');
+      // Use window.location for hard navigation to ensure token is properly set
+      window.location.href = '/admin/dashboard';
     } catch (err: any) {
+      console.error('❌ Login error:', err);
       setError(err?.response?.data?.message || 'Login failed');
-    } finally {
       setLoading(false);
     }
   };

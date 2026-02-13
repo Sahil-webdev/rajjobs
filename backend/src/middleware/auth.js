@@ -36,9 +36,23 @@ async function attachAdmin(req, res, next) {
 }
 
 function requireAdmin(req, res, next) {
-  if (!req.admin || req.admin.role !== 'admin') {
-    return res.status(403).json({ message: 'Forbidden' });
+  console.log('🔒 Checking admin role...', req.admin);
+  
+  if (!req.admin) {
+    console.log('❌ No admin object found');
+    return res.status(403).json({ message: 'Forbidden - Not authenticated' });
   }
+  
+  // Accept both 'admin' and 'super_admin' roles, default to admin if role is missing
+  const role = req.admin.role || 'admin';
+  console.log('👤 Admin role:', role);
+  
+  if (role !== 'admin' && role !== 'super_admin') {
+    console.log('❌ Invalid role:', role);
+    return res.status(403).json({ message: 'Forbidden - Insufficient permissions' });
+  }
+  
+  console.log('✅ Admin role verified');
   next();
 }
 

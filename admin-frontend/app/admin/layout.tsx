@@ -27,22 +27,37 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    if (!token) {
-      router.replace('/login');
-      return;
-    }
-    setAuthToken(token);
-    api
-      .get('/api/auth/me')
-      .then((res) => {
+    const verifyAuth = async () => {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+      console.log('🔐 Admin Layout: Checking authentication...');
+      console.log('📝 Token exists:', token ? 'Yes' : 'No');
+      
+      if (!token) {
+        console.log('❌ No token found, redirecting to login');
+        router.replace('/login');
+        return;
+      }
+      
+      // Set token before making request
+      setAuthToken(token);
+      console.log('✅ Token set in headers');
+      
+      try {
+        console.log('📡 Fetching admin profile...');
+        const res = await api.get('/api/auth/me');
+        console.log('✅ Admin profile fetched successfully:', res.data);
         setAdmin(res.data);
         setLoading(false);
-      })
-      .catch(() => {
+      } catch (err: any) {
+        console.error('❌ Failed to fetch admin profile:', err.response?.status, err.response?.data);
+        console.log('🗑️ Clearing invalid token and redirecting to login');
         localStorage.removeItem('accessToken');
+        setAuthToken(null);
         router.replace('/login');
-      });
+      }
+    };
+    
+    verifyAuth();
   }, [router]);
 
   if (loading) {

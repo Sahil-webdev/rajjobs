@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import api from '../../../lib/api';
+import api, { setAuthToken } from '../../../lib/api';
 import ImageUploader from '../../../components/ImageUploader';
 
 type Course = {
@@ -37,6 +37,14 @@ export default function CoursesPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // Ensure token is set before making any API calls
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      setAuthToken(token);
+    }
+  }, []);
 
   const load = () => {
     api.get('/api/admin/courses').then((res) => setCourses(res.data)).catch(() => {});
