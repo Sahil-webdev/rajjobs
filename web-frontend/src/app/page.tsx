@@ -123,12 +123,12 @@ export default function Home() {
   };
 
   const exams = [
-    { title: "SSC", count: `${examCounts.SSC}+ Exams`, color: "bg-blue-50", img: "/ssc.png", link: "/exams?category=SSC" },
-    { title: "UPSC", count: `${examCounts.UPSC}+ Exams`, color: "bg-indigo-50", img: "/upsc.png", link: "/exams?category=UPSC" },
-    { title: "Railway", count: `${examCounts.Railway}+ Exams`, color: "bg-sky-50", img: "/railway.png", link: "/exams?category=Railway" },
-    { title: "Defence", count: `${examCounts.Defence}+ Exams`, color: "bg-teal-50", img: "/defence.png", link: "/exams?category=Defence" },
-    { title: "Teacher", count: `${examCounts.Teacher}+ Exams`, color: "bg-amber-50", img: "/teacher.png", link: "/exams?category=Teacher" },
-    { title: "Banking", count: `${examCounts.Banking}+ Exams`, color: "bg-cyan-50", img: "/bank.png", link: "/exams?category=Banking" },
+    { title: "SSC", count: `${examCounts.SSC}+ Exams`, color: "bg-blue-50", img: "/ssc.png", icon: "", link: "/exams?category=SSC" },
+    { title: "UPSC", count: `${examCounts.UPSC}+ Exams`, color: "bg-indigo-50", img: "/upsc.png", icon: "", link: "/exams?category=UPSC" },
+    { title: "Railway", count: `${examCounts.Railway}+ Exams`, color: "bg-sky-50", img: "/railway.png", icon: "", link: "/exams?category=Railway" },
+    { title: "Defence", count: `${examCounts.Defence}+ Exams`, color: "bg-teal-50", img: "/defence.png", icon: "", link: "/exams?category=Defence" },
+    { title: "Teacher", count: `${examCounts.Teacher}+ Exams`, color: "bg-amber-50", img: "/teacher.png", icon: "", link: "/exams?category=Teacher" },
+    { title: "Banking", count: `${examCounts.Banking}+ Exams`, color: "bg-cyan-50", img: "/bank.png", icon: "", link: "/exams?category=Banking" },
   ];
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
