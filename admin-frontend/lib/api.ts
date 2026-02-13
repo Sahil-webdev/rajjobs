@@ -13,4 +13,23 @@ export function setAuthToken(token: string | null) {
   }
 }
 
+// Add response interceptor to handle auth errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      // Token expired or invalid - clear storage and redirect to login
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('accessToken');
+        setAuthToken(null);
+        // Only redirect if not already on login page
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = '/login';
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;
