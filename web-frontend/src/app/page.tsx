@@ -42,6 +42,7 @@ export default function Home() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [testSeries, setTestSeries] = useState<TestSeries[]>([]);
   const [heroImageIdx, setHeroImageIdx] = useState(0);
+  const [showAppStoreModal, setShowAppStoreModal] = useState(false);
   const [examCounts, setExamCounts] = useState({
     SSC: 0,
     UPSC: 0,
@@ -159,57 +160,35 @@ export default function Home() {
               Get Latest Updates, Courses, Test Series, and More — All in One Place!
             </p>
             {/* Play Store & App Store Buttons (side by side, left aligned) */}
-            <div className="mb-4 flex flex-row items-center gap-2 justify-center md:justify-start w-full">
+            <div className="flex flex-row items-center gap-3 justify-center md:justify-start w-full">
               <a
                 href="https://play.google.com/store/apps/details?id=com.yqkbnq.aofamv"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Get it on Google Play"
-                className="inline-block"
+                className="inline-block hover:opacity-90 transition-opacity"
               >
                 <img
                   src="/playstore-badge.png"
                   alt="Get it on Google Play"
-                  style={{ height: 90 }}
+                  style={{ height: 110 }}
                 />
               </a>
               <a
                 href="#"
-                tabIndex={-1}
-                aria-label="App Store badge"
-                className="inline-block pointer-events-none opacity-80"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowAppStoreModal(true);
+                }}
+                aria-label="Download on the App Store"
+                className="inline-block hover:opacity-90 transition-opacity cursor-pointer"
               >
                 <img
                   src="/appstore-badge.png"
                   alt="Download on the App Store"
-                  style={{ height: 48 }}
+                  style={{ height: 55 }}
                 />
               </a>
-            </div>
-            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-center md:justify-start">
-              {/* Combined App Store and Play Store Badges */}
-              <div className="flex gap-0">
-                {/* App Store badge (no link) */}
-                <span style={{display:'inline-block',overflow:'hidden',borderRadius:'8px'}}>
-                  <Image
-                    src="/badges-combined.png"
-                    alt="App Store and Google Play badges"
-                    width={237}
-                    height={64}
-                    style={{display:'block'}}
-                  />
-                </span>
-                {/* Transparent overlay for Play Store badge link */}
-                <a
-                  href="https://play.google.com/store/apps/details?id=com.yqkbnq.aofamv"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Get it on Google Play"
-                  style={{position:'absolute',left:'119px',top:'0',width:'118px',height:'64px',zIndex:2,display:'block'}}
-                >
-                  <span style={{display:'block',width:'100%',height:'100%'}}></span>
-                </a>
-              </div>
             </div>
           </div>
           {/* Right: Fade Carousel Graphic (positioned as before) */}
@@ -679,6 +658,101 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* App Store Download Modal */}
+      {showAppStoreModal && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowAppStoreModal(false)}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative animate-fadeIn"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setShowAppStoreModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Close modal"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Modal Header */}
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                <svg className="w-7 h-7 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 22 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.09997 22C7.78997 22.05 6.79997 20.68 5.95997 19.47C4.24997 17 2.93997 12.45 4.69997 9.39C5.56997 7.87 7.12997 6.91 8.81997 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.09 16.67C20.06 16.74 19.67 18.11 18.71 19.5ZM13 3.5C13.73 2.67 14.94 2.04 15.94 2C16.07 3.17 15.6 4.35 14.9 5.19C14.21 6.04 13.07 6.7 11.95 6.61C11.8 5.46 12.36 4.26 13 3.5Z"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">Download from App Store</h3>
+                <p className="text-sm text-gray-500">Follow these steps</p>
+              </div>
+            </div>
+
+            {/* Steps */}
+            <div className="space-y-5">
+              {/* Step 1 */}
+              <div className="flex gap-4">
+                <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                  1
+                </div>
+                <div className="flex-1">
+                  <p className="text-gray-700 font-medium mb-2">Click the link below to download the app:</p>
+                  <a
+                    href="https://apps.apple.com/in/app/my-coaching-by-appx/id1662307591"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download App
+                  </a>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="flex gap-4">
+                <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                  2
+                </div>
+                <div className="flex-1">
+                  <p className="text-gray-700 font-medium mb-2">Enter the Organization ID:</p>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 px-4 py-2.5 bg-gray-100 border border-gray-200 rounded-lg text-gray-900 font-mono text-base font-semibold">
+                      7710238
+                    </code>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText('7710238');
+                        alert('Organization ID copied to clipboard!');
+                      }}
+                      className="px-3 py-2.5 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+                      title="Copy to clipboard"
+                    >
+                      <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Note */}
+            <div className="mt-6 p-3 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <span className="font-semibold">Note:</span> You'll be asked to enter the Organization ID during the app setup process.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
