@@ -151,7 +151,7 @@ export default function Home() {
           {/* Left: Text */}
           <div className="flex-1 flex flex-col justify-center text-center md:text-left h-full pt-20">
             <h1 className="text-4xl md:text-5xl font-extrabold text-black mb-4 leading-tight">
-              Welcome to <span className="text-blue-800">RajJobs</span>
+              Welcome to <span className="text-[#2B3586]">RajJobs</span>
             </h1>
             <p className="text-lg md:text-[16px] text-gray-500 mb-3 max-w-xl">
               India’s Trusted Platform For <span className="">Competitive Exams</span>,
