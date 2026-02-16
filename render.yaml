@@ -1,4 +1,5 @@
 services:
+  # Backend API Service
   - type: web
     name: rajjobs-backend
     env: node
@@ -10,3 +11,32 @@ services:
         value: production
       - key: SMS_ENABLED
         value: false
+
+  # Web Frontend (Public Website)
+  - type: web
+    name: rajjobs-frontend
+    env: node
+    rootDir: web-frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://rajjobs-backend.onrender.com
+
+  # Admin Frontend (Admin Panel)
+  - type: web
+    name: rajjobs-admin
+    env: node
+    rootDir: admin-frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://rajjobs-backend.onrender.com
+      - key: NEXT_PUBLIC_BACKEND_URL
+        value: https://rajjobs-backend.onrender.com
+

@@ -92,3 +92,42 @@ body {
 .animate-fadeIn {
   animation: fadeIn 0.2s ease-out;
 }
+
+/* 3D Perspective and Animation Delays */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.delay-150 {
+  animation-delay: 150ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-400 {
+  animation-delay: 400ms;
+}
+
+.delay-500 {
+  animation-delay: 500ms;
+}
+
+/* 3D Rotate Effect */
+@keyframes rotate-y-6 {
+  0%, 100% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(6deg);
+  }
+}
+
+.hover\:rotate-y-6:hover {
+  animation: rotate-y-6 2s ease-in-out infinite;
+}

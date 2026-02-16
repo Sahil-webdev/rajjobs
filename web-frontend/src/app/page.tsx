@@ -442,131 +442,115 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Mobile App Banner */}
-      <section className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 py-10 relative overflow-hidden">
-        {/* Background Pattern */}
+      {/* Mobile App Banner - Redesigned */}
+      <section className="bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 py-8 md:py-12 relative overflow-hidden">
+        {/* Subtle Background Pattern */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-24 h-24 border-4 border-white rounded-full"></div>
-          <div className="absolute bottom-10 right-10 w-28 h-28 border-4 border-white rounded-full"></div>
-          <div className="absolute top-1/2 left-1/3 w-20 h-20 border-4 border-white rounded-full"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
         </div>
 
         <div className="mx-auto max-w-6xl px-4 relative z-10">
-          <div className="flex flex-col items-center gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
             {/* Left Content */}
             <div className="flex-1 text-center md:text-left">
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-white">
+              {/* Badge */}
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-white border border-white/30">
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
                 </svg>
-                Download Our Mobile App
+                Download Now
               </div>
+              
+              {/* Title */}
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">
-                Learn Anytime, Anywhere with <span className="text-yellow-300">Raj Jobs App</span>
+                Learn Anytime, Anywhere with <br className="hidden md:block" />
+                <span className="text-yellow-300">Raj Jobs Mobile App</span>
               </h2>
-              <p className="text-sm md:text-base text-blue-100 mb-4 max-w-xl">
-                Get access to 10,000+ video lectures, mock tests, current affairs, and study materials. Download now and start your preparation journey!
+              
+              {/* Description */}
+              <p className="text-sm md:text-base text-white/90 mb-5 max-w-lg">
+                Access 10,000+ video lectures, mock tests, current affairs & study materials on the go.
               </p>
               
-              <div className="flex flex-wrap items-center gap-2 justify-center md:justify-start">
+              {/* Download Buttons */}
+              <div className="flex flex-wrap items-center gap-3 justify-center md:justify-start mb-5">
                 <a
-                  href="#"
-                  className="inline-flex items-center gap-2 rounded-lg bg-black px-4 py-2.5 text-white shadow-lg hover:bg-black/90 transition group"
+                  href="https://play.google.com/store/apps/details?id=com.yqkbnq.aofamv"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-white text-gray-900 px-4 py-2.5 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
                 >
                   <svg className="h-6 w-6" viewBox="0 0 512 512" fill="currentColor">
                     <path d="M325.3 234.3 104 121.8c-7.6-3.9-16.4-3.7-23.7.7-7.3 4.4-11.7 11.9-11.7 20.3v226.4c0 8.4 4.4 15.9 11.7 20.3 4 2.4 8.4 3.7 12.9 3.7 3.7 0 7.5-.9 10.8-2.6l221.3-112.5c8.2-4.1 13.2-12 13.2-21.4.1-9.3-4.9-17.2-13.2-21.4z"/>
                   </svg>
                   <div className="text-left">
-                    <div className="text-[9px] font-medium opacity-90">GET IT ON</div>
+                    <div className="text-[9px] font-medium text-gray-600">GET IT ON</div>
                     <div className="text-sm font-bold">Google Play</div>
                   </div>
                 </a>
                 
                 <a
                   href="#"
-                  className="inline-flex items-center gap-2 rounded-lg bg-black px-4 py-2.5 text-white shadow-lg hover:bg-black/90 transition group"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowAppStoreModal(true);
+                  }}
+                  className="inline-flex items-center gap-2 rounded-xl bg-white text-gray-900 px-4 py-2.5 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 cursor-pointer"
                 >
                   <svg className="h-6 w-6" viewBox="0 0 384 512" fill="currentColor">
                     <path d="M318.7 268.7c-.3-35.2 15.8-61.8 48.2-81.4-18-26.2-45.2-40.6-82-43.1-34.4-2.5-72 20.1-85.5 20.1-14 0-47.7-19.2-73.8-19.2C76.6 146 27 187.6 27 266.4c0 25.6 4.7 52 14.1 79.2C52 372 90 448 130.2 447.7c25.6-.2 43.7-18.2 76.9-18.2 32.6 0 49.4 18.2 73.8 18.2 40.6-.6 75.8-70.4 89.3-102.5-56.6-24.5-51.5-71.6-51.5-76.5zM252.4 96.6c26.3-31.9 23.8-61 23-71.6-22.5 1.3-48.5 15.3-63.8 33.8-16.8 19.5-25 43.5-23 68 24.3 1.9 46.6-10.7 63.8-30.2z"/>
                   </svg>
                   <div className="text-left">
-                    <div className="text-[9px] font-medium opacity-90">Download on the</div>
+                    <div className="text-[9px] font-medium text-gray-600">Download on the</div>
                     <div className="text-sm font-bold">App Store</div>
                   </div>
                 </a>
               </div>
 
-              <div className="mt-4 flex items-center gap-4 justify-center md:justify-start text-white">
+              {/* Stats */}
+              <div className="flex items-center gap-4 justify-center md:justify-start text-white text-sm">
                 <div className="flex items-center gap-2">
-                  <div className="flex -space-x-2">
-                    <div className="h-7 w-7 rounded-full bg-yellow-400 border-2 border-white"></div>
-                    <div className="h-7 w-7 rounded-full bg-green-400 border-2 border-white"></div>
-                    <div className="h-7 w-7 rounded-full bg-pink-400 border-2 border-white"></div>
+                  <div className="flex -space-x-1">
+                    <div className="h-6 w-6 rounded-full bg-yellow-400 border-2 border-white"></div>
+                    <div className="h-6 w-6 rounded-full bg-green-400 border-2 border-white"></div>
+                    <div className="h-6 w-6 rounded-full bg-blue-400 border-2 border-white"></div>
                   </div>
-                  <div className="text-sm">
-                    <div className="font-bold">50K+</div>
-                    <div className="text-xs text-blue-200">Active Users</div>
-                  </div>
+                  <span className="font-semibold">50K+ Users</span>
                 </div>
-                <div className="h-8 w-px bg-white/30"></div>
-                <div className="text-sm">
-                  <div className="flex items-center gap-1">
-                    <svg className="h-5 w-5 text-yellow-300" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                    </svg>
-                    <span className="font-bold">4.8</span>
-                  </div>
-                  <div className="text-xs text-blue-200">App Rating</div>
+                <div className="h-4 w-px bg-white/40"></div>
+                <div className="flex items-center gap-1">
+                  <svg className="h-5 w-5 text-yellow-300" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                  </svg>
+                  <span className="font-semibold">4.8 Rating</span>
                 </div>
               </div>
             </div>
 
-            {/* Right Image - Phone Mockup */}
+            {/* Right Image - Mobile Phone */}
             <div className="flex-shrink-0 relative">
-              <div className="relative w-48 h-[340px] md:w-56 md:h-[400px]">
-                {/* Phone Frame */}
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] shadow-2xl border-[6px] border-slate-700 overflow-hidden">
-                  {/* Screen */}
-                  <div className="absolute inset-2 bg-white rounded-[1.5rem] overflow-hidden">
-                    {/* Notch */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-4 bg-slate-900 rounded-b-2xl z-10"></div>
-                    
-                    {/* App Screenshot Content */}
-                    <div className="w-full h-full bg-gradient-to-b from-blue-50 to-white">
-                      <div className="p-4 pt-7">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="h-6 w-6 rounded-lg bg-blue-600"></div>
-                          <div className="flex items-center gap-2">
-                            <div className="h-6 w-6 rounded-full bg-slate-200"></div>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <div className="h-20 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg"></div>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="h-16 rounded-lg bg-slate-100"></div>
-                            <div className="h-16 rounded-lg bg-slate-100"></div>
-                          </div>
-                          <div className="space-y-1.5">
-                            <div className="h-10 rounded-lg bg-white shadow-sm border border-slate-100"></div>
-                            <div className="h-10 rounded-lg bg-white shadow-sm border border-slate-100"></div>
-                            <div className="h-10 rounded-lg bg-white shadow-sm border border-slate-100"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Side Buttons */}
-                  <div className="absolute right-0 top-24 w-1 h-12 bg-slate-700 rounded-l"></div>
-                  <div className="absolute right-0 top-40 w-1 h-16 bg-slate-700 rounded-l"></div>
+              <div className="relative w-[240px] h-[340px] md:w-[280px] md:h-[400px]">
+                {/* Glow Effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 via-orange-400 to-pink-500 rounded-[2.5rem] blur-2xl opacity-40"></div>
+                
+                {/* Phone Image */}
+                <div className="absolute inset-0">
+                  <Image
+                    src="/mobileapp.png"
+                    alt="Raj Jobs Mobile App"
+                    fill
+                    className="object-contain drop-shadow-2xl"
+                    priority
+                  />
                 </div>
 
-                {/* Floating Elements */}
-                <div className="absolute -top-2 -left-2 bg-green-500 text-white rounded-lg px-3 py-1.5 shadow-lg text-[10px] font-bold animate-bounce">
+                {/* Floating Badges - Minimal */}
+                <div className="absolute -top-2 -left-2 bg-green-500 text-white rounded-lg px-3 py-1 shadow-lg text-xs font-bold">
                   FREE
                 </div>
-                <div className="absolute -bottom-1 -right-1 bg-orange-500 text-white rounded-full h-12 w-12 flex items-center justify-center shadow-lg font-bold text-xs">
+                
+                <div className="absolute top-12 -right-2 bg-orange-500 text-white rounded-lg px-2 py-1 shadow-lg text-xs font-bold">
                   NEW
                 </div>
               </div>

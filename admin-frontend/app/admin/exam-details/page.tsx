@@ -130,6 +130,7 @@ export default function ExamDetailsPage() {
             <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#10b981' }}>
               {examDetails.filter((e) => e.status === "published").length}
             </div>
+            <div style={{ fontSize: '11px', color: '#10b981', marginTop: '4px' }}>✓ Visible on Website</div>
           </div>
         </div>
         <div className="card">
@@ -138,9 +139,33 @@ export default function ExamDetailsPage() {
             <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#6b7280' }}>
               {examDetails.filter((e) => e.status === "draft").length}
             </div>
+            <div style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px' }}>⚠️ Hidden from Website</div>
           </div>
         </div>
       </div>
+
+      {/* Info Alert */}
+      {examDetails.filter((e) => e.status === "draft").length > 0 && (
+        <div style={{ 
+          background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', 
+          border: '1px solid #fbbf24',
+          borderRadius: '12px', 
+          padding: '16px 20px', 
+          marginBottom: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
+          <div style={{ fontSize: '24px' }}>💡</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: '600', color: '#92400e', marginBottom: '4px' }}>Exams in Draft Status</div>
+            <div style={{ fontSize: '13px', color: '#78350f' }}>
+              You have {examDetails.filter((e) => e.status === "draft").length} exam(s) in draft mode. 
+              Click the <strong>"Publish"</strong> button on each exam card to make them visible on the website.
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="card" style={{ marginBottom: '24px' }}>

@@ -20,7 +20,7 @@ export default function ExamDetailFormPage() {
     category: "SSC",
     metaDescription: "",
     posterImage: "",
-    status: "draft" as "draft" | "published",
+    status: "published" as "draft" | "published",
     postedBy: "Admin",
     
     enabledSections: {
@@ -276,6 +276,9 @@ export default function ExamDetailFormPage() {
                   <option value="draft">📝 Draft</option>
                   <option value="published">✅ Published</option>
                 </select>
+                <small style={{ display: 'block', marginTop: '6px', color: '#6b7280', fontSize: '12px' }}>
+                  ℹ️ Only <strong>Published</strong> exams will be visible on the website. Draft exams are hidden from public view.
+                </small>
               </div>
             </div>
           </div>

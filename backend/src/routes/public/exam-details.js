@@ -9,12 +9,20 @@ const asyncHandler = require('../../utils/asyncHandler');
 router.get('/', asyncHandler(async (req, res) => {
   const { category } = req.query;
   
+  console.log('📥 Exam Details API called');
+  console.log('📂 Requested category:', category || 'ALL');
+  
   let query = { status: 'published' };
   if (category) query.category = category;
+  
+  console.log('🔍 Query:', query);
   
   const examDetails = await ExamDetail.find(query)
     .sort({ lastUpdated: -1 })
     .select('title slug category metaDescription posterImage lastUpdated');
+  
+  console.log('📊 Found exams:', examDetails.length);
+  console.log('📝 Exam titles:', examDetails.map(e => e.title));
   
   res.json({
     success: true,

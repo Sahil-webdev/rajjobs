@@ -5,15 +5,21 @@ import { notFound } from "next/navigation";
 // Fetch exam data from backend
 const getExamData = async (slug: string) => {
   try {
-    const response = await fetch(`http://localhost:4000/api/public/exam-details/${slug}`);
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/public/exam-details/${slug}`;
+    console.log('🔍 Fetching exam from:', apiUrl);
+    
+    const response = await fetch(apiUrl);
+    console.log('📡 Response status:', response.status);
+    
     const result = await response.json();
+    console.log('✅ API Response:', result);
     
     if (result.success) {
       return result.data;
     }
     return null;
   } catch (error) {
-    console.error('Error fetching exam data:', error);
+    console.error('❌ Error fetching exam data:', error);
     return null;
   }
 };

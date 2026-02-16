@@ -32,19 +32,31 @@ export default function ExamsPage() {
     const fetchExams = async () => {
       try {
         setLoading(true);
-        console.log('Fetching exams for category:', selectedCategory);
-        const response = await fetch(`http://localhost:4000/api/public/exam-details?category=${selectedCategory}`);
+        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/public/exam-details?category=${selectedCategory}`;
+        console.log('🔍 Fetching exams from:', apiUrl);
+        console.log('📂 Selected category:', selectedCategory);
+        
+        const response = await fetch(apiUrl);
+        console.log('📡 Response status:', response.status);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const result = await response.json();
-        console.log('API Response:', result);
+        console.log('✅ API Response:', result);
+        console.log('📊 Total exams received:', result.data?.length || 0);
         
         if (result.success) {
-          console.log('Setting exams data:', result.data);
-          setExamsData(result.data);
+          console.log('✨ Setting exams data:', result.data);
+          setExamsData(result.data || []);
         } else {
-          console.log('API returned success:false');
+          console.log('❌ API returned success:false');
+          setExamsData([]);
         }
       } catch (error) {
-        console.error('Error fetching exams:', error);
+        console.error('❌ Error fetching exams:', error);
+        setExamsData([]);
       } finally {
         setLoading(false);
       }
