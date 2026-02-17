@@ -1,3 +1,6 @@
 node_modules/
-.env
 uploads/
+
+# Local environment overrides (per-developer)
+.env.local
+.env.*.local

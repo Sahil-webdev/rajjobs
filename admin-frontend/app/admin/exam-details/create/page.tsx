@@ -3,6 +3,22 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import ImageUploader from "../../../../components/ImageUploader";
+import SEOEditor from "../../../../components/SEOEditor";
+
+interface SEOData {
+  focusKeyword: string;
+  lsiKeywords: string[];
+  metaTitle: string;
+  metaKeywords: string[];
+  imageAltTexts: {
+    posterImage: string;
+  };
+  seoScore: number;
+  keywordDensity?: {
+    focusKeyword: number;
+  };
+  readabilityScore: number;
+}
 
 export default function ExamDetailFormPage() {
   const router = useRouter();
@@ -75,7 +91,19 @@ export default function ExamDetailFormPage() {
     importantLinks: [] as Array<{label: string, url: string, icon: string, type?: 'url' | 'pdf'}>,
     faqs: [] as Array<{question: string, answer: string}>,
     tags: [] as string[],
-    relatedPosts: [] as Array<{title: string, slug: string, category: string}>
+    relatedPosts: [] as Array<{title: string, slug: string, category: string}>,
+    
+    seoData: {
+      focusKeyword: "",
+      lsiKeywords: [] as string[],
+      metaTitle: "",
+      metaKeywords: [] as string[],
+      imageAltTexts: {
+        posterImage: ""
+      },
+      seoScore: 0,
+      readabilityScore: 0
+    } as SEOData
   });
 
   useEffect(() => {
@@ -689,6 +717,354 @@ export default function ExamDetailFormPage() {
             </div>
           )}
 
+          {/* Salary Section */}
+          {formData.enabledSections.salary && (
+            <div className="card">
+              <h3 style={{ marginBottom: 16, color: '#10b981' }}>💵 Salary Details</h3>
+              <div className="form-group">
+                <label>Pay Scale</label>
+                <input
+                  className="input"
+                  value={formData.salary.payScale}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    salary: { ...formData.salary, payScale: e.target.value }
+                  })}
+                  placeholder="Level 7 (₹44,900 - ₹1,42,400)"
+                />
+              </div>
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>Post-wise Salary</label>
+                {formData.salary.details.map((item, idx) => (
+                  <div key={idx} style={{ marginBottom: 12, padding: 12, background: '#f0fdf4', borderRadius: 8, border: '1px solid #86efac' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
+                      <input
+                        className="input"
+                        placeholder="Post name"
+                        value={item.post}
+                        onChange={(e) => {
+                          const updated = [...formData.salary.details];
+                          updated[idx].post = e.target.value;
+                          setFormData({
+                            ...formData,
+                            salary: { ...formData.salary, details: updated }
+                          });
+                        }}
+                        style={{ fontSize: 13 }}
+                      />
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                        <input
+                          className="input"
+                          placeholder="Pay Level"
+                          value={item.payLevel}
+                          onChange={(e) => {
+                            const updated = [...formData.salary.details];
+                            updated[idx].payLevel = e.target.value;
+                            setFormData({
+                              ...formData,
+                              salary: { ...formData.salary, details: updated }
+                            });
+                          }}
+                          style={{ fontSize: 13 }}
+                        />
+                        <input
+                          className="input"
+                          placeholder="Salary amount"
+                          value={item.salary}
+                          onChange={(e) => {
+                            const updated = [...formData.salary.details];
+                            updated[idx].salary = e.target.value;
+                            setFormData({
+                              ...formData,
+                              salary: { ...formData.salary, details: updated }
+                            });
+                          }}
+                          style={{ fontSize: 13 }}
+                        />
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          salary: {
+                            ...formData.salary,
+                            details: formData.salary.details.filter((_, i) => i !== idx)
+                          }
+                        });
+                      }}
+                      style={{ marginTop: 8, padding: '4px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}
+                    >
+                      ✕ Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    salary: {
+                      ...formData.salary,
+                      details: [...formData.salary.details, { post: "", payLevel: "", salary: "" }]
+                    }
+                  });
+                }}
+                style={{ marginBottom: 12 }}
+              >
+                + Add Post
+              </button>
+              <div className="form-group">
+                <label>Additional Benefits</label>
+                <textarea
+                  className="input"
+                  rows={2}
+                  value={formData.salary.benefits}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    salary: { ...formData.salary, benefits: e.target.value }
+                  })}
+                  placeholder="DA, HRA, TA, Medical facilities, etc."
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Syllabus Section */}
+          {formData.enabledSections.syllabus && (
+            <div className="card">
+              <h3 style={{ marginBottom: 16, color: '#f59e0b' }}>📚 Syllabus</h3>
+              <div style={{ marginBottom: 12 }}>
+                {formData.syllabus.tier1.map((item, idx) => (
+                  <div key={idx} style={{ marginBottom: 12, padding: 12, background: '#fffbeb', borderRadius: 8, border: '1px solid #fde68a' }}>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                      <input
+                        className="input"
+                        placeholder="Subject name"
+                        value={item.subject}
+                        onChange={(e) => {
+                          const updated = [...formData.syllabus.tier1];
+                          updated[idx].subject = e.target.value;
+                          setFormData({
+                            ...formData,
+                            syllabus: { ...formData.syllabus, tier1: updated }
+                          });
+                        }}
+                        style={{ flex: 1, fontSize: 13, fontWeight: 600 }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData({
+                            ...formData,
+                            syllabus: {
+                              ...formData.syllabus,
+                              tier1: formData.syllabus.tier1.filter((_, i) => i !== idx)
+                            }
+                          });
+                        }}
+                        style={{ padding: '0 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer' }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <textarea
+                      className="input"
+                      rows={3}
+                      placeholder="Topics covered (comma separated)"
+                      value={item.topics}
+                      onChange={(e) => {
+                        const updated = [...formData.syllabus.tier1];
+                        updated[idx].topics = e.target.value;
+                        setFormData({
+                          ...formData,
+                          syllabus: { ...formData.syllabus, tier1: updated }
+                        });
+                      }}
+                      style={{ fontSize: 13 }}
+                    />
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    syllabus: {
+                      ...formData.syllabus,
+                      tier1: [...formData.syllabus.tier1, { subject: "", topics: "" }]
+                    }
+                  });
+                }}
+              >
+                + Add Subject
+              </button>
+            </div>
+          )}
+
+          {/* Selection Process */}
+          {formData.enabledSections.selectionProcess && (
+            <div className="card">
+              <h3 style={{ marginBottom: 16, color: '#8b5cf6' }}>🎯 Selection Process</h3>
+              <div style={{ marginBottom: 12 }}>
+                {formData.selectionProcess.map((item, idx) => (
+                  <div key={idx} style={{ marginBottom: 12, padding: 12, background: '#faf5ff', borderRadius: 8, border: '1px solid #e9d5ff' }}>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                      <input
+                        className="input"
+                        placeholder="Stage (e.g., Written Exam, Interview)"
+                        value={item.stage}
+                        onChange={(e) => {
+                          const updated = [...formData.selectionProcess];
+                          updated[idx].stage = e.target.value;
+                          setFormData({ ...formData, selectionProcess: updated });
+                        }}
+                        style={{ flex: 1, fontSize: 13, fontWeight: 600 }}
+                      />
+                      <input
+                        className="input"
+                        placeholder="Status"
+                        value={item.status}
+                        onChange={(e) => {
+                          const updated = [...formData.selectionProcess];
+                          updated[idx].status = e.target.value;
+                          setFormData({ ...formData, selectionProcess: updated });
+                        }}
+                        style={{ width: 120, fontSize: 13 }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData({
+                            ...formData,
+                            selectionProcess: formData.selectionProcess.filter((_, i) => i !== idx)
+                          });
+                        }}
+                        style={{ padding: '0 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer' }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <textarea
+                      className="input"
+                      rows={2}
+                      placeholder="Description of this stage"
+                      value={item.description}
+                      onChange={(e) => {
+                        const updated = [...formData.selectionProcess];
+                        updated[idx].description = e.target.value;
+                        setFormData({ ...formData, selectionProcess: updated });
+                      }}
+                      style={{ fontSize: 13 }}
+                    />
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    selectionProcess: [...formData.selectionProcess, { stage: "", description: "", status: "" }]
+                  });
+                }}
+              >
+                + Add Stage
+              </button>
+            </div>
+          )}
+
+          {/* Previous Year Cutoff */}
+          {formData.enabledSections.previousCutoff && (
+            <div className="card">
+              <h3 style={{ marginBottom: 16, color: '#ef4444' }}>📊 Previous Year Cutoff</h3>
+              <div style={{ marginBottom: 12 }}>
+                {formData.previousCutoff.map((item, idx) => (
+                  <div key={idx} style={{ marginBottom: 12, padding: 12, background: '#fef2f2', borderRadius: 8, border: '1px solid #fecaca' }}>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                      <input
+                        className="input"
+                        placeholder="Category (General/OBC/SC/ST)"
+                        value={item.category}
+                        onChange={(e) => {
+                          const updated = [...formData.previousCutoff];
+                          updated[idx].category = e.target.value;
+                          setFormData({ ...formData, previousCutoff: updated });
+                        }}
+                        style={{ flex: 1, fontSize: 13, fontWeight: 600 }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData({
+                            ...formData,
+                            previousCutoff: formData.previousCutoff.filter((_, i) => i !== idx)
+                          });
+                        }}
+                        style={{ padding: '0 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer' }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+                      <input
+                        className="input"
+                        placeholder="Tier 1"
+                        value={item.tier1}
+                        onChange={(e) => {
+                          const updated = [...formData.previousCutoff];
+                          updated[idx].tier1 = e.target.value;
+                          setFormData({ ...formData, previousCutoff: updated });
+                        }}
+                        style={{ fontSize: 13 }}
+                      />
+                      <input
+                        className="input"
+                        placeholder="Tier 2"
+                        value={item.tier2}
+                        onChange={(e) => {
+                          const updated = [...formData.previousCutoff];
+                          updated[idx].tier2 = e.target.value;
+                          setFormData({ ...formData, previousCutoff: updated });
+                        }}
+                        style={{ fontSize: 13 }}
+                      />
+                      <input
+                        className="input"
+                        placeholder="Tier 3"
+                        value={item.tier3}
+                        onChange={(e) => {
+                          const updated = [...formData.previousCutoff];
+                          updated[idx].tier3 = e.target.value;
+                          setFormData({ ...formData, previousCutoff: updated });
+                        }}
+                        style={{ fontSize: 13 }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    previousCutoff: [...formData.previousCutoff, { category: "", tier1: "", tier2: "", tier3: "" }]
+                  });
+                }}
+              >
+                + Add Category
+              </button>
+            </div>
+          )}
+
           {/* Application Fees */}
           {formData.enabledSections.applicationFees && (
             <div className="card">
@@ -899,7 +1275,7 @@ export default function ExamDetailFormPage() {
                                 return;
                               }
                               
-                              const response = await fetch('http://localhost:4000/api/admin/file/upload-pdf', {
+                              const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://rajjobs-backend.onrender.com'}/api/admin/file/upload-pdf`, {
                                 method: 'POST',
                                 headers: {
                                   'Authorization': `Bearer ${token}`
@@ -1029,6 +1405,60 @@ export default function ExamDetailFormPage() {
             </div>
           )}
 
+        </div>
+
+        {/* SEO Optimization Section */}
+        <div style={{ marginTop: 32 }}>
+          <SEOEditor
+            seoData={formData.seoData}
+            examTitle={formData.title}
+            metaDescription={formData.metaDescription}
+            onChange={(seoData) => setFormData({ ...formData, seoData })}
+            onAnalyze={async () => {
+              try {
+                const token = localStorage.getItem('accessToken');
+                const response = await fetch(
+                  `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/seo/analyze`,
+                  {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                      content: formData,
+                      focusKeyword: formData.seoData.focusKeyword,
+                      metaTitle: formData.seoData.metaTitle,
+                      metaDescription: formData.metaDescription
+                    })
+                  }
+                );
+                
+                const data = await response.json();
+                if (data.success) {
+                  setFormData({
+                    ...formData,
+                    seoData: {
+                      ...formData.seoData,
+                      seoScore: data.analysis.seoScore,
+                      keywordDensity: {
+                        focusKeyword: parseFloat(data.analysis.keywordDensity.value)
+                      },
+                      readabilityScore: data.analysis.readability.score,
+                      lsiKeywords: data.analysis.lsiSuggestions.length > 0 
+                        ? [...formData.seoData.lsiKeywords, ...data.analysis.lsiSuggestions.slice(0, 3)]
+                        : formData.seoData.lsiKeywords
+                    }
+                  });
+                  setSuccess('SEO analysis completed!');
+                  setTimeout(() => setSuccess(''), 3000);
+                }
+              } catch (err) {
+                setError('Failed to analyze SEO');
+              }
+            }}
+          />
         </div>
 
         {/* Submit Button */}

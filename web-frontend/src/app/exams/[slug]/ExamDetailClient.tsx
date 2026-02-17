@@ -1,65 +1,12 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { notFound } from "next/navigation";
 
-// Fetch exam data from backend
-const getExamData = async (slug: string) => {
-  try {
-    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/public/exam-details/${slug}`;
-    console.log('🔍 Fetching exam from:', apiUrl);
-    
-    const response = await fetch(apiUrl);
-    console.log('📡 Response status:', response.status);
-    
-    const result = await response.json();
-    console.log('✅ API Response:', result);
-    
-    if (result.success) {
-      return result.data;
-    }
-    return null;
-  } catch (error) {
-    console.error('❌ Error fetching exam data:', error);
-    return null;
-  }
-};
+import React from "react";
 
-export default function ExamDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-  const [examData, setExamData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const unwrappedParams = React.use(params);
+interface ExamDetailClientProps {
+  examData: any;
+}
 
-  useEffect(() => {
-    const fetchData = async () => {
-      console.log('Fetching exam with slug:', unwrappedParams.slug);
-      const data = await getExamData(unwrappedParams.slug);
-      console.log('Exam data received:', data);
-      if (!data) {
-        console.log('No data found, calling notFound()');
-        notFound();
-      }
-      setExamData(data);
-      setLoading(false);
-    };
-
-    fetchData();
-  }, [unwrappedParams.slug]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-slate-600">Loading exam details...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!examData) {
-    notFound();
-  }
-
+export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="mx-auto max-w-4xl px-4 py-6">
@@ -292,94 +239,6 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
                   <p className="text-xs text-slate-700">{examData.salary.benefits}</p>
                 </div>
               )}
-            </div>
-          </div>
-        )}
-
-        {/* Syllabus */}
-        {examData.enabledSections?.syllabus && examData.syllabus?.tier1 && examData.syllabus.tier1.length > 0 && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <span>📚</span> Syllabus
-              </h2>
-            </div>
-            <div className="p-5 space-y-3">
-              {examData.syllabus.tier1.map((item: any, idx: number) => (
-                <div key={idx} className="border border-slate-200 rounded-lg overflow-hidden">
-                  <div className="bg-amber-50 px-3 py-2 border-b border-amber-200">
-                    <h3 className="font-bold text-sm text-slate-900">{item.subject}</h3>
-                  </div>
-                  <div className="p-3 bg-white">
-                    <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{item.topics}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Selection Process */}
-        {examData.enabledSections?.selectionProcess && examData.selectionProcess && examData.selectionProcess.length > 0 && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <span>🎯</span> Selection Process
-              </h2>
-            </div>
-            <div className="p-5">
-              <div className="space-y-3">
-                {examData.selectionProcess.map((item: any, idx: number) => (
-                  <div key={idx} className="border border-purple-200 rounded-lg overflow-hidden bg-purple-50">
-                    <div className="px-3 py-2 bg-purple-100 border-b border-purple-200 flex items-center justify-between">
-                      <h3 className="font-bold text-sm text-slate-900">{item.stage}</h3>
-                      {item.status && (
-                        <span className="px-2 py-0.5 bg-white text-purple-700 text-xs font-semibold rounded-full border border-purple-300">
-                          {item.status}
-                        </span>
-                      )}
-                    </div>
-                    <div className="p-3">
-                      <p className="text-sm text-slate-700 leading-relaxed">{item.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Previous Year Cutoff */}
-        {examData.enabledSections?.previousCutoff && examData.previousCutoff && examData.previousCutoff.length > 0 && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <span>📊</span> Previous Year Cutoff
-              </h2>
-            </div>
-            <div className="p-5">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-slate-100">
-                      <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 border border-slate-200">Category</th>
-                      <th className="px-3 py-2 text-center text-sm font-semibold text-slate-700 border border-slate-200">Tier 1</th>
-                      <th className="px-3 py-2 text-center text-sm font-semibold text-slate-700 border border-slate-200">Tier 2</th>
-                      <th className="px-3 py-2 text-center text-sm font-semibold text-slate-700 border border-slate-200">Tier 3</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {examData.previousCutoff.map((item: any, idx: number) => (
-                      <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
-                        <td className="px-3 py-2 text-sm font-semibold text-slate-900 border border-slate-200">{item.category}</td>
-                        <td className="px-3 py-2 text-sm text-center text-slate-900 border border-slate-200">{item.tier1 || '-'}</td>
-                        <td className="px-3 py-2 text-sm text-center text-slate-900 border border-slate-200">{item.tier2 || '-'}</td>
-                        <td className="px-3 py-2 text-sm text-center text-slate-900 border border-slate-200">{item.tier3 || '-'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
             </div>
           </div>
         )}

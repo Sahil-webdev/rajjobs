@@ -20,6 +20,7 @@ const adminEnquiries = require('./routes/admin/enquiries');
 const adminSetup = require('./routes/admin/setup');
 const adminPasswordReset = require('./routes/admin/password-reset');
 const adminProfile = require('./routes/admin/profile');
+const adminSeo = require('./routes/admin/seo');
 
 const publicBanners = require('./routes/public/banners');
 const publicExamDetails = require('./routes/public/exam-details');
@@ -35,7 +36,7 @@ const app = express();
 const originCandidates = [
   process.env.CORS_ORIGINS,
   process.env.FRONTEND_URL,
-  'http://localhost:3000,http://localhost:3001,http://localhost:3002',
+  'https://rajjobs.com,https://admin.rajjobs.com,https://www.rajjobs.com',
 ]
   .filter(Boolean)
   .join(',')
@@ -80,6 +81,7 @@ app.use('/api/admin/exam-details', verifyAccessToken, requireAdmin, adminExamDet
 app.use('/api/admin/file', verifyAccessToken, requireAdmin, adminFileUpload);
 app.use('/api/admin/test-series', verifyAccessToken, requireAdmin, adminTestSeries);
 app.use('/api/admin/enquiries', verifyAccessToken, requireAdmin, adminEnquiries);
+app.use('/api/admin/seo', verifyAccessToken, requireAdmin, adminSeo);
 
 // Public routes
 app.use('/api/public/banners', publicBanners);

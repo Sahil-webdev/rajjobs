@@ -33,6 +33,108 @@ const examDetailSchema = new mongoose.Schema({
     default: 'draft'
   },
 
+  // SEO Fields
+  seoData: {
+    // Focus Keyword - Main keyword for the page
+    focusKeyword: {
+      type: String,
+      default: '',
+      maxlength: 100
+    },
+    
+    // LSI Keywords - Related keywords
+    lsiKeywords: {
+      type: [String],
+      default: []
+    },
+    
+    // Meta Title (overrides default title for SEO)
+    metaTitle: {
+      type: String,
+      default: '',
+      maxlength: 60
+    },
+    
+    // Meta Keywords
+    metaKeywords: {
+      type: [String],
+      default: []
+    },
+    
+    // Image Alt Texts
+    imageAltTexts: {
+      posterImage: {
+        type: String,
+        default: ''
+      },
+      additionalImages: [{
+        url: String,
+        altText: String
+      }]
+    },
+    
+    // Canonical URL
+    canonicalUrl: {
+      type: String,
+      default: ''
+    },
+    
+    // Schema Markup (JSON-LD string)
+    schemaMarkup: {
+      type: String,
+      default: ''
+    },
+    
+    // SEO Analytics
+    seoScore: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100
+    },
+    
+    keywordDensity: {
+      focusKeyword: {
+        type: Number,
+        default: 0
+      },
+      lsiKeywords: {
+        type: Map,
+        of: Number,
+        default: {}
+      }
+    },
+    
+    readabilityScore: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100
+    },
+    
+    // OpenGraph Data
+    openGraph: {
+      title: String,
+      description: String,
+      image: String,
+      type: {
+        type: String,
+        default: 'article'
+      }
+    },
+    
+    // Twitter Card Data
+    twitterCard: {
+      card: {
+        type: String,
+        default: 'summary_large_image'
+      },
+      title: String,
+      description: String,
+      image: String
+    }
+  },
+
   // Section visibility flags
   enabledSections: {
     quickHighlights: { type: Boolean, default: true },
