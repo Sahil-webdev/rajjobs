@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import ImageUploader from "../../../../components/ImageUploader";
 import SEOEditor from "../../../../components/SEOEditor";
+import RichTextEditor from "../../../../components/RichTextEditor";
 
 interface SEOData {
   focusKeyword: string;
@@ -638,47 +639,21 @@ export default function ExamDetailFormPage() {
           {formData.enabledSections.ageLimit && (
             <div className="card">
               <h3 style={{ marginBottom: 16, color: '#8b5cf6' }}>🎂 Age Limit</h3>
-              <div className="form-group">
-                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                    <input
-                      type="radio"
-                      name="ageLimitStyle"
-                      checked={formData.ageLimit.listStyle === 'bullets'}
-                      onChange={() => setFormData({
-                        ...formData,
-                        ageLimit: { ...formData.ageLimit, listStyle: 'bullets' }
-                      })}
-                    />
-                    <span>• Bullet Points</span>
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                    <input
-                      type="radio"
-                      name="ageLimitStyle"
-                      checked={formData.ageLimit.listStyle === 'numbers'}
-                      onChange={() => setFormData({
-                        ...formData,
-                        ageLimit: { ...formData.ageLimit, listStyle: 'numbers' }
-                      })}
-                    />
-                    <span>1. Numbered List</span>
-                  </label>
-                </div>
-                <textarea
-                  className="input"
-                  rows={4}
-                  value={formData.ageLimit.content}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    ageLimit: { ...formData.ageLimit, content: e.target.value }
-                  })}
-                  placeholder="Enter age limit details - each line will be a separate point:&#10;Minimum Age: 18 years&#10;Maximum Age: 30 years&#10;Age relaxation for SC/ST: 5 years&#10;Age relaxation for OBC: 3 years"
-                />
-                <small style={{ color: '#6b7280', fontSize: 12 }}>
-                  💡 Tip: Each new line will become a {formData.ageLimit.listStyle === 'bullets' ? 'bullet point' : 'numbered item'} on the website
-                </small>
-              </div>
+              <RichTextEditor
+                label=""
+                value={formData.ageLimit.content}
+                onChange={(value) => setFormData({
+                  ...formData,
+                  ageLimit: { ...formData.ageLimit, content: value }
+                })}
+                listStyle={formData.ageLimit.listStyle}
+                onListStyleChange={(style) => setFormData({
+                  ...formData,
+                  ageLimit: { ...formData.ageLimit, listStyle: style }
+                })}
+                showListStyleToggle={true}
+                placeholder="Enter age limit details - each line will be a separate point:\nMinimum Age: 18 years\nMaximum Age: 30 years\nAge relaxation for SC/ST: 5 years\nAge relaxation for OBC: 3 years"
+              />
             </div>
           )}
 
@@ -686,47 +661,21 @@ export default function ExamDetailFormPage() {
           {formData.enabledSections.requiredDocuments && (
             <div className="card">
               <h3 style={{ marginBottom: 16, color: '#f59e0b' }}>📄 Required Documents</h3>
-              <div className="form-group">
-                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                    <input
-                      type="radio"
-                      name="requiredDocsStyle"
-                      checked={formData.requiredDocuments.listStyle === 'bullets'}
-                      onChange={() => setFormData({
-                        ...formData,
-                        requiredDocuments: { ...formData.requiredDocuments, listStyle: 'bullets' }
-                      })}
-                    />
-                    <span>• Bullet Points</span>
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                    <input
-                      type="radio"
-                      name="requiredDocsStyle"
-                      checked={formData.requiredDocuments.listStyle === 'numbers'}
-                      onChange={() => setFormData({
-                        ...formData,
-                        requiredDocuments: { ...formData.requiredDocuments, listStyle: 'numbers' }
-                      })}
-                    />
-                    <span>1. Numbered List</span>
-                  </label>
-                </div>
-                <textarea
-                  className="input"
-                  rows={5}
-                  value={formData.requiredDocuments.content}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    requiredDocuments: { ...formData.requiredDocuments, content: e.target.value }
-                  })}
-                  placeholder="Enter required documents - each line will be a separate point:&#10;10th Mark Sheet&#10;12th Mark Sheet&#10;Graduation Certificate&#10;Caste Certificate (if applicable)&#10;Recent Passport Size Photograph&#10;Signature"
-                />
-                <small style={{ color: '#6b7280', fontSize: 12 }}>
-                  💡 Tip: Each new line will become a {formData.requiredDocuments.listStyle === 'bullets' ? 'bullet point' : 'numbered item'} on the website
-                </small>
-              </div>
+              <RichTextEditor
+                label=""
+                value={formData.requiredDocuments.content}
+                onChange={(value) => setFormData({
+                  ...formData,
+                  requiredDocuments: { ...formData.requiredDocuments, content: value }
+                })}
+                listStyle={formData.requiredDocuments.listStyle}
+                onListStyleChange={(style) => setFormData({
+                  ...formData,
+                  requiredDocuments: { ...formData.requiredDocuments, listStyle: style }
+                })}
+                showListStyleToggle={true}
+                placeholder="Enter required documents - each line will be a separate point:\n10th Mark Sheet\n12th Mark Sheet\nGraduation Certificate\nCaste Certificate (if applicable)\nRecent Passport Size Photograph\nSignature"
+              />
             </div>
           )}
 
@@ -815,47 +764,21 @@ export default function ExamDetailFormPage() {
           {formData.enabledSections.salary && (
             <div className="card">
               <h3 style={{ marginBottom: 16, color: '#10b981' }}>💵 Salary Details</h3>
-              <div className="form-group">
-                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                    <input
-                      type="radio"
-                      name="salaryStyle"
-                      checked={formData.salary.listStyle === 'bullets'}
-                      onChange={() => setFormData({
-                        ...formData,
-                        salary: { ...formData.salary, listStyle: 'bullets' }
-                      })}
-                    />
-                    <span>• Bullet Points</span>
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                    <input
-                      type="radio"
-                      name="salaryStyle"
-                      checked={formData.salary.listStyle === 'numbers'}
-                      onChange={() => setFormData({
-                        ...formData,
-                        salary: { ...formData.salary, listStyle: 'numbers' }
-                      })}
-                    />
-                    <span>1. Numbered List</span>
-                  </label>
-                </div>
-                <textarea
-                  className="input"
-                  rows={6}
-                  value={formData.salary.content}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    salary: { ...formData.salary, content: e.target.value }
-                  })}
-                  placeholder="Enter salary details - each line will be a separate point:&#10;Pay Level: Level 7&#10;Pay Scale: ₹44,900 - ₹1,42,400&#10;Grade Pay: ₹4,600&#10;Additional Benefits: DA, HRA, TA&#10;Medical Facilities: As per government norms"
-                />
-                <small style={{ color: '#6b7280', fontSize: 12 }}>
-                  💡 Tip: Each new line will become a {formData.salary.listStyle === 'bullets' ? 'bullet point' : 'numbered item'} on the website
-                </small>
-              </div>
+              <RichTextEditor
+                label=""
+                value={formData.salary.content}
+                onChange={(value) => setFormData({
+                  ...formData,
+                  salary: { ...formData.salary, content: value }
+                })}
+                listStyle={formData.salary.listStyle}
+                onListStyleChange={(style) => setFormData({
+                  ...formData,
+                  salary: { ...formData.salary, listStyle: style }
+                })}
+                showListStyleToggle={true}
+                placeholder="Enter salary details - each line will be a separate point:\nPay Level: Level 7\nPay Scale: ₹44,900 - ₹1,42,400\nGrade Pay: ₹4,600\nAdditional Benefits: DA, HRA, TA\nMedical Facilities: As per government norms"
+              />
             </div>
           )}
 
@@ -1153,47 +1076,21 @@ export default function ExamDetailFormPage() {
           {formData.enabledSections.howToApply && (
             <div className="card">
               <h3 style={{ marginBottom: 16, color: '#06b6d4' }}>📝 How to Apply</h3>
-              <div className="form-group">
-                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                    <input
-                      type="radio"
-                      name="howToApplyStyle"
-                      checked={formData.howToApply.listStyle === 'bullets'}
-                      onChange={() => setFormData({
-                        ...formData,
-                        howToApply: { ...formData.howToApply, listStyle: 'bullets' }
-                      })}
-                    />
-                    <span>• Bullet Points</span>
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                    <input
-                      type="radio"
-                      name="howToApplyStyle"
-                      checked={formData.howToApply.listStyle === 'numbers'}
-                      onChange={() => setFormData({
-                        ...formData,
-                        howToApply: { ...formData.howToApply, listStyle: 'numbers' }
-                      })}
-                    />
-                    <span>1. Numbered Steps</span>
-                  </label>
-                </div>
-                <textarea
-                  className="input"
-                  rows={6}
-                  value={formData.howToApply.content}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    howToApply: { ...formData.howToApply, content: e.target.value }
-                  })}
-                  placeholder="Enter application steps - each line will be a separate step:&#10;Visit the official website&#10;Click on 'Apply Online' link&#10;Register with email and mobile number&#10;Fill the application form carefully&#10;Upload required documents&#10;Pay application fee&#10;Submit and take printout"
-                />
-                <small style={{ color: '#6b7280', fontSize: 12 }}>
-                  💡 Tip: Each new line will become a {formData.howToApply.listStyle === 'numbers' ? 'numbered step' : 'bullet point'} on the website
-                </small>
-              </div>
+              <RichTextEditor
+                label=""
+                value={formData.howToApply.content}
+                onChange={(value) => setFormData({
+                  ...formData,
+                  howToApply: { ...formData.howToApply, content: value }
+                })}
+                listStyle={formData.howToApply.listStyle}
+                onListStyleChange={(style) => setFormData({
+                  ...formData,
+                  howToApply: { ...formData.howToApply, listStyle: style }
+                })}
+                showListStyleToggle={true}
+                placeholder="Enter application steps - each line will be a separate step:\nVisit the official website\nClick on 'Apply Online' link\nRegister with email and mobile number\nFill the application form carefully\nUpload required documents\nPay application fee\nSubmit and take printout"
+              />
             </div>
           )}
 

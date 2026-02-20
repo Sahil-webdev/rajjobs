@@ -7,19 +7,31 @@ interface RichTextEditorProps {
   onChange: (value: string) => void;
   placeholder?: string;
   label?: string;
+  listStyle?: "bullets" | "numbers";
+  onListStyleChange?: (style: "bullets" | "numbers") => void;
+  showListStyleToggle?: boolean;
 }
 
 export default function RichTextEditor({
   value,
   onChange,
   placeholder = "Enter description...",
-  label = "Description"
+  label = "Description",
+  listStyle = "bullets",
+  onListStyleChange,
+  showListStyleToggle = false
 }: RichTextEditorProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [textContent, setTextContent] = useState("");
   const [bulletPoints, setBulletPoints] = useState<string[]>([]);
+  const [localListStyle, setLocalListStyle] = useState<"bullets" | "numbers">(listStyle);
 
-  // Extract bullet points from HTML on mount
+  // Sync local list style with prop
+  useEffect(() => {
+    setLocalListStyle(listStyle);
+  }, [listStyle]);
+
+  // Extract bullet points from HTML on mount and detect list type
   useEffect(() => {
     if (value) {
       const tempDiv = document.createElement('div');
@@ -27,6 +39,15 @@ export default function RichTextEditor({
       const listItems = tempDiv.querySelectorAll('li');
       
       if (listItems.length > 0) {
+        // Detect if it's ordered (ol) or unordered (ul) list
+        const isOrderedList = tempDiv.querySelector('ol') !== null;
+        const detectedStyle = isOrderedList ? 'numbers' : 'bullets';
+        
+        setLocalListStyle(detectedStyle);
+        if (onListStyleChange) {
+          onListStyleChange(detectedStyle);
+        }
+        
         const points = Array.from(listItems).map(li => li.textContent || '');
         const text = points.join('\n');
         setTextContent(text);
@@ -43,9 +64,17 @@ export default function RichTextEditor({
 
   const handleSave = () => {
     if (bulletPoints.length > 0) {
-      const html = `<ul>${bulletPoints.map(point => `<li>${point.trim()}</li>`).join('')}</ul>`;
+      const listTag = localListStyle === 'bullets' ? 'ul' : 'ol';
+      const html = `<${listTag}>${bulletPoints.map(point => `<li>${point.trim()}</li>`).join('')}</${listTag}>`;
       onChange(html);
       setIsModalOpen(false);
+    }
+  };
+
+  const handleListStyleChange = (style: "bullets" | "numbers") => {
+    setLocalListStyle(style);
+    if (onListStyleChange) {
+      onListStyleChange(style);
     }
   };
 
@@ -89,30 +118,56 @@ export default function RichTextEditor({
         {getCurrentBulletCount() > 0 ? (
           <div>
             <div style={{ 
-              fontSize: '13px', 
-              fontWeight: '600', 
-              color: '#10b981',
-              marginBottom: '12px',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              justifyContent: 'space-between'
+              gap: '10px',
+              padding: '8px 14px',
+              background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+              borderRadius: '8px',
+              marginBottom: '16px',
+              border: '1px solid #86efac',
+              boxShadow: '0 2px 4px rgba(34, 197, 94, 0.1)'
             }}>
-              <span>✅ {getCurrentBulletCount()} Bullet Points Added</span>
+              <span style={{
+                fontSize: '13px',
+                fontWeight: '600',
+                color: '#15803d',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                <span style={{ fontSize: '16px' }}>✅</span>
+                {getCurrentBulletCount()} {value.includes('<ol>') ? 'Numbers' : 'Bullets'}
+              </span>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(true)}
                 style={{
-                  padding: '6px 14px',
-                  background: '#3b82f6',
+                  padding: '5px 12px',
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                   color: 'white',
                   border: 'none',
                   borderRadius: '6px',
-                  fontSize: '13px',
+                  fontSize: '12px',
                   fontWeight: '600',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.4)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.3)';
                 }}
               >
-                ✏️ Edit
+                <span style={{ fontSize: '14px' }}>✏️</span>
+                Edit
               </button>
             </div>
             <div 
@@ -146,10 +201,10 @@ export default function RichTextEditor({
                 color: '#1e40af',
                 marginBottom: '8px'
               }}>
-                Click to Add Bullet Points
+                Click to Add Points
               </div>
               <div style={{ fontSize: '13px', color: '#6b7280' }}>
-                Paste your content and it will automatically convert to bullet points!
+                Paste your content and convert to bullets or numbers!
               </div>
             </div>
           </button>
@@ -202,19 +257,92 @@ export default function RichTextEditor({
                 fontWeight: '700',
                 color: 'white'
               }}>
-                ✨ Bullet Points Editor
+                ✨ {localListStyle === 'bullets' ? 'Bullet Points' : 'Numbered List'} Editor
               </h3>
               <p style={{ 
                 margin: '8px 0 0 0', 
                 fontSize: '14px',
                 color: '#e0e7ff'
               }}>
-                Paste your content below - Each line will become a bullet point!
+                Paste your content below - Each line will become a {localListStyle === 'bullets' ? 'bullet point' : 'numbered item'}!
               </p>
             </div>
 
             {/* Modal Body */}
             <div style={{ padding: '24px' }}>
+              {/* List Style Toggle */}
+              {showListStyleToggle && (
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '10px',
+                  background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+                  borderRadius: '10px',
+                  marginBottom: '16px',
+                  border: '1px solid #cbd5e1',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
+                }}>
+                  <span style={{ fontWeight: '600', color: '#475569', fontSize: '13px', whiteSpace: 'nowrap' }}>
+                    📋 Style:
+                  </span>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <label style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '5px', 
+                      cursor: 'pointer',
+                      padding: '6px 12px',
+                      background: localListStyle === 'bullets' ? 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' : 'white',
+                      color: localListStyle === 'bullets' ? 'white' : '#64748b',
+                      borderRadius: '6px',
+                      border: localListStyle === 'bullets' ? '1px solid #0284c7' : '1px solid #e2e8f0',
+                      fontWeight: '600',
+                      fontSize: '12px',
+                      transition: 'all 0.2s',
+                      boxShadow: localListStyle === 'bullets' ? '0 2px 6px rgba(14, 165, 233, 0.3)' : 'none',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      <input
+                        type="radio"
+                        name="listStyleModal"
+                        checked={localListStyle === 'bullets'}
+                        onChange={() => handleListStyleChange('bullets')}
+                        style={{ display: 'none' }}
+                      />
+                      <span style={{ fontSize: '14px' }}>•</span>
+                      <span>Bullets</span>
+                    </label>
+                    <label style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '5px', 
+                      cursor: 'pointer',
+                      padding: '6px 12px',
+                      background: localListStyle === 'numbers' ? 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' : 'white',
+                      color: localListStyle === 'numbers' ? 'white' : '#64748b',
+                      borderRadius: '6px',
+                      border: localListStyle === 'numbers' ? '1px solid #0284c7' : '1px solid #e2e8f0',
+                      fontWeight: '600',
+                      fontSize: '12px',
+                      transition: 'all 0.2s',
+                      boxShadow: localListStyle === 'numbers' ? '0 2px 6px rgba(14, 165, 233, 0.3)' : 'none',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      <input
+                        type="radio"
+                        name="listStyleModal"
+                        checked={localListStyle === 'numbers'}
+                        onChange={() => handleListStyleChange('numbers')}
+                        style={{ display: 'none' }}
+                      />
+                      <span style={{ fontSize: '13px', fontWeight: '700' }}>1.</span>
+                      <span>Numbers</span>
+                    </label>
+                  </div>
+                </div>
+              )}
+
               {/* Instructions */}
               <div style={{
                 background: '#fef3c7',
@@ -229,9 +357,9 @@ export default function RichTextEditor({
                 <div style={{ color: '#78350f', fontSize: '13px', lineHeight: '1.7' }}>
                   1️⃣ Copy your content from anywhere (Word, Excel, PDF, etc.)<br/>
                   2️⃣ Paste it in the text area below<br/>
-                  3️⃣ Each line will automatically become a bullet point<br/>
+                  3️⃣ Each line will automatically become a {localListStyle === 'bullets' ? 'bullet point' : 'numbered item'}<br/>
                   4️⃣ See live preview on the right side<br/>
-                  5️⃣ Click "Save Bullet Points" when done!
+                  5️⃣ Click "Save {localListStyle === 'bullets' ? 'Bullet Points' : 'Numbered List'}" when done!
                 </div>
               </div>
 
@@ -291,7 +419,7 @@ export default function RichTextEditor({
                     color: '#6b7280',
                     fontWeight: '600'
                   }}>
-                    📊 Total: <strong style={{color: '#10b981'}}>{bulletPoints.length}</strong> bullet points will be created
+                    📊 Total: <strong style={{color: '#10b981'}}>{bulletPoints.length}</strong> {localListStyle === 'bullets' ? 'bullet points' : 'numbered items'} will be created
                   </div>
                 </div>
 
@@ -319,21 +447,38 @@ export default function RichTextEditor({
                     }}
                   >
                     {bulletPoints.length > 0 ? (
-                      <ul style={{
-                        paddingLeft: '1.5em',
-                        margin: 0,
-                        listStyleType: 'disc',
-                        color: '#374151'
-                      }}>
-                        {bulletPoints.map((point, index) => (
-                          <li key={index} style={{ 
-                            margin: '0.6em 0',
-                            paddingLeft: '0.4em'
-                          }}>
-                            {point}
-                          </li>
-                        ))}
-                      </ul>
+                      localListStyle === 'bullets' ? (
+                        <ul style={{
+                          paddingLeft: '1.5em',
+                          margin: 0,
+                          listStyleType: 'disc',
+                          color: '#374151'
+                        }}>
+                          {bulletPoints.map((point, index) => (
+                            <li key={index} style={{ 
+                              margin: '0.6em 0',
+                              paddingLeft: '0.4em'
+                            }}>
+                              {point}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <ol style={{
+                          paddingLeft: '1.5em',
+                          margin: 0,
+                          color: '#374151'
+                        }}>
+                          {bulletPoints.map((point, index) => (
+                            <li key={index} style={{ 
+                              margin: '0.6em 0',
+                              paddingLeft: '0.4em'
+                            }}>
+                              {point}
+                            </li>
+                          ))}
+                        </ol>
+                      )
                     ) : (
                       <p style={{ color: '#9ca3af', textAlign: 'center', paddingTop: '50px' }}>
                         Preview will appear here as you type...
@@ -417,7 +562,7 @@ export default function RichTextEditor({
                   }
                 }}
               >
-                ✓ Save Bullet Points ({bulletPoints.length})
+                ✓ Save {localListStyle === 'bullets' ? 'Bullet Points' : 'Numbered List'} ({bulletPoints.length})
               </button>
             </div>
           </div>
@@ -441,8 +586,15 @@ export default function RichTextEditor({
           margin: 0.75em 0;
           list-style-type: disc;
         }
+
+        .form-group ol {
+          padding-left: 1.5em;
+          margin: 0.75em 0;
+          list-style-type: decimal;
+        }
         
-        .form-group ul li {
+        .form-group ul li,
+        .form-group ol li {
           margin: 0.6em 0;
           padding-left: 0.4em;
           line-height: 1.6;
