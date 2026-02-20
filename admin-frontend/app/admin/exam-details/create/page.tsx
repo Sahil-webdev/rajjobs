@@ -53,9 +53,20 @@ export default function ExamDetailFormPage() {
       applicationFees: true,
       importantLinks: true,
       faqs: true,
+      tags: true,
     },
     
-    quickHighlights: {} as Record<string, string>,
+    quickHighlights: {
+      "Organization Name": "",
+      "Post Name": "",
+      "Total Vacancy": "",
+      "Qualification": "",
+      "Age Limit": "",
+      "Application Fees": "",
+      "Salary": "",
+      "Start Date": "",
+      "Last Date": ""
+    } as Record<string, string>,
     importantDates: [] as Array<{event: string, date: string}>,
     vacancyDetails: { 
       description: "", 
@@ -367,8 +378,25 @@ export default function ExamDetailFormPage() {
               <div style={{ marginBottom: 12 }}>
                 {Object.entries(formData.quickHighlights).map(([key, value]) => (
                   <div key={key} style={{ display: 'flex', gap: 8, marginBottom: 8, padding: 8, background: '#f9fafb', borderRadius: 6 }}>
-                    <input className="input" value={key} disabled style={{ flex: 1, fontSize: 13 }} />
-                    <input className="input" value={value} disabled style={{ flex: 1, fontSize: 13 }} />
+                    <input 
+                      className="input" 
+                      value={key} 
+                      readOnly 
+                      style={{ flex: 1, fontSize: 13, background: '#e5e7eb', cursor: 'not-allowed' }} 
+                      title="Key cannot be edited"
+                    />
+                    <input 
+                      className="input" 
+                      value={value} 
+                      onChange={(e) => {
+                        setFormData({
+                          ...formData,
+                          quickHighlights: { ...formData.quickHighlights, [key]: e.target.value }
+                        });
+                      }}
+                      placeholder="Enter value..."
+                      style={{ flex: 1, fontSize: 13 }} 
+                    />
                     <button
                       type="button"
                       onClick={() => {
@@ -377,6 +405,7 @@ export default function ExamDetailFormPage() {
                         setFormData({ ...formData, quickHighlights: newHighlights });
                       }}
                       style={{ padding: '0 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer' }}
+                      title="Remove this field"
                     >
                       ✕
                     </button>
@@ -387,17 +416,20 @@ export default function ExamDetailFormPage() {
                 type="button"
                 className="button secondary"
                 onClick={() => {
-                  const key = prompt("Enter key (e.g., Organization):");
-                  const value = prompt("Enter value:");
-                  if (key && value) {
+                  const key = prompt("Enter new field name (e.g., Official Website):");
+                  if (key && key.trim()) {
+                    if (formData.quickHighlights[key]) {
+                      alert("This field already exists!");
+                      return;
+                    }
                     setFormData({
                       ...formData,
-                      quickHighlights: { ...formData.quickHighlights, [key]: value }
+                      quickHighlights: { ...formData.quickHighlights, [key.trim()]: "" }
                     });
                   }
                 }}
               >
-                + Add Highlight
+                + Add New Field
               </button>
             </div>
           )}
@@ -1275,7 +1307,7 @@ export default function ExamDetailFormPage() {
                                 return;
                               }
                               
-                              const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://rajjobs-backend.onrender.com'}/api/admin/file/upload-pdf`, {
+                              const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/file/upload-pdf`, {
                                 method: 'POST',
                                 headers: {
                                   'Authorization': `Bearer ${token}`
@@ -1402,6 +1434,110 @@ export default function ExamDetailFormPage() {
               >
                 + Add FAQ
               </button>
+            </div>
+          )}
+
+          {/* Tags */}
+          {formData.enabledSections.tags && (
+            <div className="card">
+              <h3 style={{ marginBottom: 16, color: '#ec4899' }}>🏷️ Tags</h3>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+                  {formData.tags.map((tag, idx) => (
+                    <div 
+                      key={idx} 
+                      style={{ 
+                        display: 'inline-flex', 
+                        alignItems: 'center', 
+                        gap: 6, 
+                        padding: '6px 12px', 
+                        background: 'linear-gradient(135deg, #fce7f3, #fbcfe8)', 
+                        borderRadius: 20, 
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: '#be185d',
+                        border: '1px solid #f9a8d4'
+                      }}
+                    >
+                      <span>{tag}</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData({
+                            ...formData,
+                            tags: formData.tags.filter((_, i) => i !== idx)
+                          });
+                        }}
+                        style={{ 
+                          background: 'transparent', 
+                          border: 'none', 
+                          color: '#be185d', 
+                          cursor: 'pointer', 
+                          padding: 0,
+                          fontSize: 16,
+                          fontWeight: 'bold',
+                          lineHeight: 1
+                        }}
+                        title="Remove tag"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                {formData.tags.length === 0 && (
+                  <p style={{ color: '#9ca3af', fontSize: 13, fontStyle: 'italic', textAlign: 'center', padding: '20px 0' }}>
+                    No tags added yet. Click below to add tags.
+                  </p>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  className="input"
+                  placeholder="Enter tag name and press Enter..."
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const input = e.currentTarget;
+                      const tag = input.value.trim();
+                      if (tag && !formData.tags.includes(tag)) {
+                        setFormData({
+                          ...formData,
+                          tags: [...formData.tags, tag]
+                        });
+                        input.value = '';
+                      } else if (formData.tags.includes(tag)) {
+                        alert('This tag already exists!');
+                      }
+                    }
+                  }}
+                  style={{ flex: 1, fontSize: 13 }}
+                />
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={(e) => {
+                    const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                    const tag = input.value.trim();
+                    if (tag && !formData.tags.includes(tag)) {
+                      setFormData({
+                        ...formData,
+                        tags: [...formData.tags, tag]
+                      });
+                      input.value = '';
+                    } else if (!tag) {
+                      alert('Please enter a tag name!');
+                    } else {
+                      alert('This tag already exists!');
+                    }
+                  }}
+                >
+                  + Add Tag
+                </button>
+              </div>
+              <small style={{ display: 'block', marginTop: 8, color: '#6b7280', fontSize: 12 }}>
+                💡 Tip: Add 10-15 relevant tags for better search visibility
+              </small>
             </div>
           )}
 

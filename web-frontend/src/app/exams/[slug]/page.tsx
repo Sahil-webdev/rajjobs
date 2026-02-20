@@ -62,7 +62,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-4xl px-4 py-6">
+      <div className="mx-auto max-w-2xl px-4 py-6">
         
         {/* Title & Meta */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-5">
@@ -78,8 +78,8 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
               Posted by: <span className="font-semibold text-slate-900">{examData.postedBy || "Admin"}</span>
             </span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3">{examData.title}</h1>
-          <p className="text-slate-700 text-base leading-relaxed">{examData.metaDescription}</p>
+          <h1 className="text-xl md:text-2xl font-bold text-slate-900 mb-3">{examData.title}</h1>
+          <p className="text-slate-700 text-sm leading-relaxed">{examData.metaDescription}</p>
         </div>
 
         {/* Banner Image */}
@@ -97,7 +97,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         {examData.enabledSections?.quickHighlights && examData.quickHighlights && Object.keys(examData.quickHighlights).length > 0 && (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <span>⚡</span> Quick Highlights
               </h2>
             </div>
@@ -120,7 +120,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         {examData.enabledSections?.importantDates && examData.importantDates && examData.importantDates.length > 0 && (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <span>📅</span> Important Dates
               </h2>
             </div>
@@ -149,7 +149,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         {examData.enabledSections?.vacancyDetails && examData.vacancyDetails && (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <span>👥</span> Vacancy Details
               </h2>
             </div>
@@ -183,20 +183,20 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         {examData.enabledSections?.eligibility && examData.eligibility && (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <span>✅</span> Eligibility Criteria
               </h2>
             </div>
             <div className="p-5 space-y-4">
               {examData.eligibility.qualification && (
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 mb-2">Educational Qualification</h3>
+                  <h3 className="text-sm font-bold text-slate-900 mb-2">Educational Qualification</h3>
                   <p className="text-sm text-slate-700 leading-relaxed">{examData.eligibility.qualification}</p>
                 </div>
               )}
               {examData.eligibility.ageLimit && (
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 mb-2">Age Limit</h3>
+                  <h3 className="text-sm font-bold text-slate-900 mb-2">Age Limit</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
                       <div className="text-xs text-slate-600 mb-1">Minimum Age</div>
@@ -215,7 +215,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
               )}
               {examData.eligibility.nationality && (
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 mb-2">Nationality</h3>
+                  <h3 className="text-sm font-bold text-slate-900 mb-2">Nationality</h3>
                   <p className="text-sm text-slate-700">{examData.eligibility.nationality}</p>
                 </div>
               )}
@@ -227,7 +227,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         {examData.enabledSections?.examPattern && examData.examPattern && examData.examPattern.length > 0 && (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <span>📝</span> Exam Pattern
               </h2>
             </div>
@@ -257,14 +257,14 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         {examData.enabledSections?.salary && examData.salary && (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <span>💰</span> Salary Structure
               </h2>
             </div>
             <div className="p-5">
               {examData.salary.payScale && (
                 <div className="mb-3">
-                  <p className="text-slate-900 font-semibold text-base">{examData.salary.payScale}</p>
+                  <p className="text-slate-900 font-semibold text-sm">{examData.salary.payScale}</p>
                 </div>
               )}
               {examData.salary.details && examData.salary.details.length > 0 && (
@@ -300,7 +300,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         {examData.enabledSections?.syllabus && examData.syllabus?.tier1 && examData.syllabus.tier1.length > 0 && (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <span>📚</span> Syllabus
               </h2>
             </div>
@@ -323,7 +323,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         {examData.enabledSections?.selectionProcess && examData.selectionProcess && examData.selectionProcess.length > 0 && (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <span>🎯</span> Selection Process
               </h2>
             </div>
@@ -353,7 +353,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         {examData.enabledSections?.previousCutoff && examData.previousCutoff && examData.previousCutoff.length > 0 && (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <span>📊</span> Previous Year Cutoff
               </h2>
             </div>
@@ -388,7 +388,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         {examData.enabledSections?.applicationFees && examData.applicationFees && (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <span>💳</span> Application Fees
               </h2>
             </div>
@@ -426,7 +426,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         {examData.enabledSections?.howToApply && examData.howToApply && examData.howToApply.length > 0 && (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <span>📝</span> How to Apply
               </h2>
             </div>
@@ -451,7 +451,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         {examData.enabledSections?.importantLinks && examData.importantLinks && examData.importantLinks.length > 0 && (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <span>🔗</span> Important Links
               </h2>
             </div>
@@ -489,7 +489,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         {examData.enabledSections?.faqs && examData.faqs && examData.faqs.length > 0 && (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <span>❓</span> Frequently Asked Questions
               </h2>
             </div>
@@ -513,7 +513,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         {examData.tags && examData.tags.length > 0 && (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <span>🏷️</span> Tags
               </h2>
             </div>

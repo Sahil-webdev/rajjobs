@@ -149,7 +149,8 @@ const examDetailSchema = new mongoose.Schema({
     previousCutoff: { type: Boolean, default: false },
     applicationFees: { type: Boolean, default: true },
     importantLinks: { type: Boolean, default: true },
-    faqs: { type: Boolean, default: true }
+    faqs: { type: Boolean, default: true },
+    tags: { type: Boolean, default: true }
   },
 
   // Quick Highlights

@@ -36,7 +36,7 @@ const app = express();
 const originCandidates = [
   process.env.CORS_ORIGINS,
   process.env.FRONTEND_URL,
-  'https://rajjobs.com,https://admin.rajjobs.com,https://www.rajjobs.com',
+  'http://localhost:3000,http://localhost:3001,http://localhost:3002',
 ]
   .filter(Boolean)
   .join(',')

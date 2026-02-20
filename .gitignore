@@ -2,11 +2,17 @@
 node_modules/
 **/node_modules/
 
-# Environment variables
+# Environment variables (development only)
+# Allow .env.production for deployment
 .env
 **/.env
 .env.local
+**/.env.local
 .env*.local
+
+# But allow production env files
+!.env.production
+!**/.env.production
 
 # Build outputs
 dist/

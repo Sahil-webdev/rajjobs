@@ -1,338 +1,271 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import api, { setAuthToken } from '../../../lib/api';
-import ImageUploader from '../../../components/ImageUploader';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-type Course = {
+interface Course {
   _id: string;
   title: string;
-  priceOriginal: number;
-  priceSale: number;
-};
-
-type FormState = {
-  title: string;
+  slug: string;
   thumbnailUrl?: string;
   description?: string;
-  category: string;
+  category?: string;
   priceOriginal: number;
   priceSale: number;
+  categories?: string[];
+  instructor?: string;
   externalLink?: string;
-};
-
-const initialForm: FormState = {
-  title: '',
-  thumbnailUrl: '',
-  description: '',
-  category: 'SSC Exam',
-  priceOriginal: 0,
-  priceSale: 0,
-  externalLink: '',
-};
+  createdAt: string;
+}
 
 export default function CoursesPage() {
+  const router = useRouter();
   const [courses, setCourses] = useState<Course[]>([]);
-  const [form, setForm] = useState<FormState>(initialForm);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
-  // Ensure token is set before making any API calls
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      setAuthToken(token);
-    }
-  }, []);
-
-  const load = () => {
-    api.get('/api/admin/courses').then((res) => setCourses(res.data)).catch(() => {});
-  };
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState({ category: "", search: "" });
 
   useEffect(() => {
-    load();
-  }, []);
+    fetchCourses();
+  }, [filter]);
 
-  const submit = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!form.title || form.priceOriginal === 0 || form.priceSale === 0) {
-      setError('Title and prices are required');
-      return;
-    }
-    setLoading(true);
-    setError('');
-    setSuccess('');
+  const fetchCourses = async () => {
     try {
-      const payload = {
-        ...form,
-        categories: [form.category]
-      };
-      console.log('Submitting course:', payload);
-      await api.post('/api/admin/courses', payload);
-      setForm(initialForm);
-      setSuccess('Course created successfully!');
-      setTimeout(() => setSuccess(''), 3000);
-      load();
-    } catch (err: any) {
-      console.error('Course creation error:', err);
-      setError(err?.response?.data?.message || 'Error saving');
+      const token = localStorage.getItem('accessToken');
+      const queryParams = new URLSearchParams();
+      if (filter.search) queryParams.append("search", filter.search);
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/courses?${queryParams}`,
+        {
+          credentials: "include",
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      const data = await response.json();
+      setCourses(data);
+    } catch (error) {
+      console.error("Error fetching courses:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const deleteCourse = async (id: string, title: string) => {
-    if (!confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
-      return;
-    }
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this course?")) return;
+
     try {
-      await api.delete(`/api/admin/courses/${id}`);
-      setSuccess('Course deleted successfully!');
-      setTimeout(() => setSuccess(''), 3000);
-      load();
-    } catch (err: any) {
-      console.error('Delete error:', err);
-      setError(err?.response?.data?.message || 'Error deleting course');
-      setTimeout(() => setError(''), 3000);
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/courses/${id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      if (response.ok) {
+        fetchCourses();
+      }
+    } catch (error) {
+      console.error("Error deleting course:", error);
     }
   };
 
+  // Filter courses by category
+  const filteredCourses = courses.filter((course) => {
+    if (filter.category && course.categories && course.categories.length > 0) {
+      return course.categories.includes(filter.category);
+    }
+    return true;
+  });
+
   return (
-    <div>
+    <div className="container">
+      {/* Page Header */}
       <div className="page-header">
-        <h2>Courses</h2>
-        <p>Create and manage your online courses</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <h2>Course Management</h2>
+            <p style={{ marginTop: '4px' }}>Create and manage courses</p>
+          </div>
+          <button
+            onClick={() => router.push("/admin/courses/create")}
+            className="button"
+            style={{ width: 'auto', padding: '10px 20px' }}
+          >
+            + Create New Course
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-2" style={{ marginBottom: 24 }}>
+      {/* Stats Grid */}
+      <div className="grid grid-3" style={{ marginBottom: '24px' }}>
         <div className="card">
-          <h3 style={{ marginBottom: 20 }}>Create New Course</h3>
-          <form onSubmit={submit}>
-          <div className="grid" style={{ gap: 16 }}>
-            <div className="form-group">
-              <label>Course Title *</label>
-              <input
-                className="input"
-                placeholder="e.g., Complete Web Development Bootcamp"
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-              />
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px', fontWeight: '600', textTransform: 'uppercase' }}>Total Courses</div>
+            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#3b82f6' }}>{courses.length}</div>
+          </div>
+        </div>
+        <div className="card">
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px', fontWeight: '600', textTransform: 'uppercase' }}>Categories</div>
+            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#10b981' }}>
+              {new Set(courses.flatMap(c => c.categories || [])).size}
             </div>
-
-            <div className="form-group">
-              <label>Course Description</label>
-              <textarea
-                className="input"
-                placeholder="Enter a brief description of the course (2-3 lines recommended)"
-                value={form.description || ''}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-                rows={3}
-                style={{ resize: 'vertical', minHeight: '80px' }}
-              />
-              <small style={{ color: '#6b7280', display: 'block', marginTop: 4 }}>
-                This will be displayed on the homepage and courses page (2 lines max on cards)
-              </small>
+          </div>
+        </div>
+        <div className="card">
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px', fontWeight: '600', textTransform: 'uppercase' }}>Avg Price</div>
+            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#f59e0b' }}>
+              ₹{courses.length > 0 ? Math.round(courses.reduce((sum, c) => sum + c.priceSale, 0) / courses.length) : 0}
             </div>
+          </div>
+        </div>
+      </div>
 
-            <div className="form-group">
-              <label>External Link (View Details URL)</label>
-              <input
-                className="input"
-                type="url"
-                placeholder="e.g., https://example.com/course-details"
-                value={form.externalLink || ''}
-                onChange={(e) => setForm({ ...form, externalLink: e.target.value })}
-              />
-              <small style={{ color: '#6b7280', display: 'block', marginTop: 4 }}>
-                When users click "View Details", they will be redirected to this URL
-              </small>
-            </div>
-
-            <ImageUploader
-              label="Course Thumbnail (Recommended: 1050x600px)"
-              currentImage={form.thumbnailUrl || ''}
-              onUpload={(url: string) => setForm({ ...form, thumbnailUrl: url })}
-              previewHeight={150}
+      {/* Filters */}
+      <div className="card" style={{ marginBottom: '24px' }}>
+        <h3 style={{ marginBottom: '16px', fontSize: '14px', fontWeight: '600' }}>🔍 Filter Courses</h3>
+        <div className="grid grid-2">
+          <div className="form-group" style={{ marginBottom: '0' }}>
+            <label>Category</label>
+            <select
+              value={filter.category}
+              onChange={(e) => setFilter({ ...filter, category: e.target.value })}
+              className="input"
+            >
+              <option value="">All Categories</option>
+              <option value="SSC Exam">SSC Exam</option>
+              <option value="Banking Exam">Banking Exam</option>
+              <option value="Teaching Exam">Teaching Exam</option>
+              <option value="Railway Exam">Railway Exam</option>
+              <option value="Civil Service Exam">Civil Service Exam</option>
+              <option value="Defence Exam">Defence Exam</option>
+              <option value="State Exams">State Exams</option>
+            </select>
+          </div>
+          <div className="form-group" style={{ marginBottom: '0' }}>
+            <label>Search</label>
+            <input
+              type="text"
+              placeholder="Search course titles..."
+              value={filter.search}
+              onChange={(e) => setFilter({ ...filter, search: e.target.value })}
+              className="input"
             />
-            <small style={{ color: '#6b7280', display: 'block', marginTop: -12, marginBottom: 12 }}>Optimal size: 1050px width × 600px height for best display</small>
-
-            <div className="form-group">
-              <label>Course Category *</label>
-              <select
-                className="input"
-                value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
-                style={{ cursor: 'pointer' }}
-              >
-                <option value="SSC Exam">SSC Exam</option>
-                <option value="Banking Exam">Banking Exam</option>
-                <option value="Teaching Exam">Teaching Exam</option>
-                <option value="Railway Exam">Railway Exam</option>
-                <option value="Civil Service Exam">Civil Service Exam</option>
-                <option value="Defence Exam">Defence Exam</option>
-                <option value="State Exams">State Exams</option>
-              </select>
-              <small style={{ color: '#6b7280', display: 'block', marginTop: 4 }}>Select the exam category for this course</small>
-            </div>
-
-            <div className="form-group two-col">
-              <div>
-                <label>Original Price (₹) *</label>
-                <input
-                  className="input"
-                  type="number"
-                  placeholder="e.g., 5000"
-                  value={form.priceOriginal || ''}
-                  onChange={(e) => setForm({ ...form, priceOriginal: Number(e.target.value) || 0 })}
-                />
-                <small style={{ color: '#6b7280', display: 'block', marginTop: 4 }}>Displayed as struck through</small>
-              </div>
-              <div>
-                <label>Sale Price (₹) *</label>
-                <input
-                  className="input"
-                  type="number"
-                  placeholder="e.g., 1999"
-                  value={form.priceSale || ''}
-                  onChange={(e) => setForm({ ...form, priceSale: Number(e.target.value) })}
-                />
-                <small style={{ color: '#6b7280', display: 'block', marginTop: 4 }}>Actual price students pay</small>
-              </div>
-            </div>
-
-            {error && <div className="error-message">{error}</div>}
-            {success && <div className="success-message">{success}</div>}
-
-            <button type="submit" className="button" disabled={loading}>
-              {loading ? 'Creating course...' : '✓ Create Course'}
-            </button>
-          </div>
-          </form>
-        </div>
-
-        <div className="card">
-          <h3 style={{ marginBottom: 20 }}>Price Preview</h3>
-          <div style={{ padding: 16, background: '#f9fafb', borderRadius: 8, marginBottom: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <span style={{ fontSize: 18, color: '#059669', fontWeight: 700 }}>₹{form.priceSale || 0}</span>
-              <span style={{ fontSize: 14, textDecoration: 'line-through', color: '#9ca3af' }}>₹{form.priceOriginal || 0}</span>
-            </div>
-            <div style={{ fontSize: 12, color: '#6b7280' }}>
-              Save ₹{(form.priceOriginal || 0) - (form.priceSale || 0)} ({form.priceOriginal ? Math.round(((form.priceOriginal - form.priceSale) / form.priceOriginal) * 100) : 0}% off)
-            </div>
-          </div>
-
-          {form.thumbnailUrl && (
-            <div>
-              <img src={form.thumbnailUrl} alt="Course" style={{ width: '100%', borderRadius: 8, maxHeight: 150, objectFit: 'cover', marginBottom: 12 }} />
-            </div>
-          )}
-
-          <div style={{ padding: 12, background: '#f3f4f6', borderRadius: 8 }}>
-            <div style={{ fontWeight: 600, marginBottom: 8, color: '#111827' }}>{form.title || 'Course Title'}</div>
-            <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8 }}>
-              {form.description || 'Course description will appear here'}
-            </div>
-            {form.externalLink && (
-              <div style={{ fontSize: 11, color: '#2563eb', marginTop: 8 }}>
-                🔗 Link: {form.externalLink}
-              </div>
-            )}
           </div>
         </div>
       </div>
 
-      <div className="card">
-        <h3 style={{ marginBottom: 20 }}>All Courses ({courses.length})</h3>
-        {courses.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 20px', color: '#6b7280' }}>
-            <p>No courses yet. Create one above!</p>
-          </div>
-        ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Course Title</th>
-                <th>Price</th>
-                <th style={{ width: 100, textAlign: 'center' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {courses.map((c) => (
-                <tr key={c._id}>
-                  <td style={{ fontWeight: 500 }}>{c.title}</td>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ color: '#059669', fontWeight: 600 }}>₹{c.priceSale}</span>
-                      <span style={{ textDecoration: 'line-through', color: '#9ca3af', fontSize: 12 }}>₹{c.priceOriginal}</span>
-                    </div>
-                  </td>
-                  <td style={{ textAlign: 'center' }}>
-                    <button
-                      onClick={() => deleteCourse(c._id, c.title)}
-                      className="delete-btn"
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 6,
-                        padding: '8px 16px',
-                        fontSize: 13,
-                        fontWeight: 600,
-                        color: '#fff',
-                        background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                        border: 'none',
-                        borderRadius: 8,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-2px)';
-                        e.currentTarget.style.boxShadow = '0 4px 8px rgba(239, 68, 68, 0.3)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 2px 4px rgba(239, 68, 68, 0.2)';
-                      }}
-                      title="Delete Course"
-                    >
-                      <svg 
-                        width="16" 
-                        height="16" 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="2" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round"
-                      >
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                      </svg>
-                      <span className="delete-text">Delete</span>
-                    </button>
-                    <style jsx>{`
-                      @media (max-width: 768px) {
-                        .delete-btn {
-                          padding: 8px !important;
-                          gap: 0 !important;
-                        }
-                        .delete-text {
-                          display: none;
-                        }
-                      }
-                    `}</style>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      {/* Course List */}
+      {loading ? (
+        <div className="card" style={{ textAlign: 'center', padding: '60px' }}>
+          <div style={{ display: 'inline-block', width: '40px', height: '40px', border: '4px solid #f3f4f6', borderTop: '4px solid #3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+          <p style={{ marginTop: '16px', color: '#6b7280', fontWeight: '500' }}>Loading courses...</p>
+          <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); }}`}</style>
+        </div>
+      ) : filteredCourses.length === 0 ? (
+        <div className="card" style={{ textAlign: 'center', padding: '60px' }}>
+          <div style={{ fontSize: '64px', marginBottom: '16px' }}>📚</div>
+          <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>No Courses Found</h3>
+          <p style={{ color: '#6b7280', marginBottom: '24px' }}>
+            Start creating courses to manage your content
+          </p>
+          <button
+            onClick={() => router.push("/admin/courses/create")}
+            className="button"
+            style={{ width: 'auto', padding: '12px 24px', margin: '0 auto' }}
+          >
+            + Create First Course
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-3">
+          {filteredCourses.map((course) => (
+            <div
+              key={course._id}
+              className="card"
+              style={{ padding: '0', overflow: 'hidden', transition: 'transform 0.2s, box-shadow 0.2s', cursor: 'pointer' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.12)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.08)';
+              }}
+            >
+              {/* Image */}
+              <div style={{ height: '160px', background: 'linear-gradient(135deg, #dbeafe, #bfdbfe)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                {course.thumbnailUrl ? (
+                  <img
+                    src={course.thumbnailUrl}
+                    alt={course.title}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <div style={{ fontSize: '48px', color: '#93c5fd' }}>📚</div>
+                )}
+                {course.categories && course.categories.length > 0 && (
+                  <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
+                    <span className="badge-primary">{course.categories[0]}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Content */}
+              <div style={{ padding: '16px' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '8px', minHeight: '40px', lineHeight: '1.4' }}>
+                  {course.title}
+                </h3>
+                
+                {course.description && (
+                  <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '12px', minHeight: '36px', lineHeight: '1.4' }}>
+                    {course.description.substring(0, 80)}{course.description.length > 80 ? '...' : ''}
+                  </p>
+                )}
+
+                {/* Price */}
+                <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#10b981' }}>₹{course.priceSale}</span>
+                  {course.priceOriginal > course.priceSale && (
+                    <>
+                      <span style={{ fontSize: '14px', color: '#9ca3af', textDecoration: 'line-through' }}>₹{course.priceOriginal}</span>
+                      <span className="badge-success" style={{ fontSize: '11px' }}>
+                        {Math.round((1 - course.priceSale / course.priceOriginal) * 100)}% OFF
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                {/* Buttons */}
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => router.push(`/admin/courses/edit/${course._id}`)}
+                    className="button"
+                    style={{ flex: 1, padding: '8px 12px', fontSize: '13px' }}
+                  >
+                    ✏️ Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(course._id)}
+                    className="button danger"
+                    style={{ padding: '8px 12px', fontSize: '13px', width: 'auto' }}
+                    title="Delete"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
