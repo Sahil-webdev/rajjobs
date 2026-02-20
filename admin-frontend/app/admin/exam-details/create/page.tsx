@@ -37,13 +37,15 @@ export default function ExamDetailFormPage() {
     metaDescription: "",
     posterImage: "",
     status: "published" as "draft" | "published",
-    postedBy: "Admin",
+    postedBy: "J.Kaushik",
     
     enabledSections: {
       quickHighlights: true,
       importantDates: true,
       vacancyDetails: true,
       eligibility: true,
+      ageLimit: true,
+      requiredDocuments: true,
       examPattern: true,
       salary: true,
       syllabus: false,
@@ -74,20 +76,29 @@ export default function ExamDetailFormPage() {
     },
     eligibility: {
       qualification: "",
-      ageLimit: { minimum: "", maximum: "", relaxation: "" },
       nationality: "",
       experience: ""
     },
+    ageLimit: {
+      content: "",
+      listStyle: "bullets" as "bullets" | "numbers"
+    },
+    requiredDocuments: {
+      content: "",
+      listStyle: "bullets" as "bullets" | "numbers"
+    },
     examPattern: [] as Array<{tier: string, mode: string, subjects: string, questions: string, marks: string, duration: string, negativeMarking: string}>,
     salary: { 
-      payScale: "", 
-      details: [] as Array<{post: string, payLevel: string, salary: string}>, 
-      benefits: "" 
+      content: "",
+      listStyle: "bullets" as "bullets" | "numbers"
     },
     syllabus: { 
       tier1: [] as Array<{subject: string, topics: string}>
     },
-    howToApply: [] as Array<{step: number, instruction: string}>,
+    howToApply: {
+      content: "",
+      listStyle: "numbers" as "bullets" | "numbers"
+    },
     selectionProcess: [] as Array<{stage: string, description: string, status: string}>,
     previousCutoff: [] as Array<{category: string, tier1: string, tier2: string, tier3: string}>,
     applicationFees: {
@@ -281,7 +292,7 @@ export default function ExamDetailFormPage() {
             </div>
 
             <div className="form-group">
-              <label>Description *</label>
+              <label>Description * (Max 500 words)</label>
               <textarea
                 className="input"
                 required
@@ -289,9 +300,11 @@ export default function ExamDetailFormPage() {
                 value={formData.metaDescription}
                 onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
                 placeholder="Write a detailed description about this exam..."
-                maxLength={500}
+                maxLength={3000}
               />
-              <small style={{ color: '#6b7280', fontSize: 12 }}>{formData.metaDescription.length}/500 characters</small>
+              <small style={{ color: '#6b7280', fontSize: 12 }}>
+                {formData.metaDescription.trim().split(/\s+/).filter(Boolean).length} / 500 words ({formData.metaDescription.length}/3000 characters)
+              </small>
             </div>
 
             <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -585,61 +598,14 @@ export default function ExamDetailFormPage() {
                 <label>Educational Qualification</label>
                 <textarea
                   className="input"
-                  rows={2}
+                  rows={3}
                   value={formData.eligibility.qualification}
                   onChange={(e) => setFormData({
                     ...formData,
                     eligibility: { ...formData.eligibility, qualification: e.target.value }
                   })}
-                  placeholder="Bachelor's Degree..."
+                  placeholder="Bachelor's Degree in relevant field..."
                 />
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
-                <div className="form-group">
-                  <label>Min Age</label>
-                  <input
-                    className="input"
-                    value={formData.eligibility.ageLimit.minimum}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      eligibility: {
-                        ...formData.eligibility,
-                        ageLimit: { ...formData.eligibility.ageLimit, minimum: e.target.value }
-                      }
-                    })}
-                    placeholder="18"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Max Age</label>
-                  <input
-                    className="input"
-                    value={formData.eligibility.ageLimit.maximum}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      eligibility: {
-                        ...formData.eligibility,
-                        ageLimit: { ...formData.eligibility.ageLimit, maximum: e.target.value }
-                      }
-                    })}
-                    placeholder="30"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Relaxation</label>
-                  <input
-                    className="input"
-                    value={formData.eligibility.ageLimit.relaxation}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      eligibility: {
-                        ...formData.eligibility,
-                        ageLimit: { ...formData.eligibility.ageLimit, relaxation: e.target.value }
-                      }
-                    })}
-                    placeholder="As per rules"
-                  />
-                </div>
               </div>
               <div className="form-group">
                 <label>Nationality</label>
@@ -664,6 +630,102 @@ export default function ExamDetailFormPage() {
                   })}
                   placeholder="No experience required"
                 />
+              </div>
+            </div>
+          )}
+
+          {/* Age Limit (Separate Section) */}
+          {formData.enabledSections.ageLimit && (
+            <div className="card">
+              <h3 style={{ marginBottom: 16, color: '#8b5cf6' }}>🎂 Age Limit</h3>
+              <div className="form-group">
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="ageLimitStyle"
+                      checked={formData.ageLimit.listStyle === 'bullets'}
+                      onChange={() => setFormData({
+                        ...formData,
+                        ageLimit: { ...formData.ageLimit, listStyle: 'bullets' }
+                      })}
+                    />
+                    <span>• Bullet Points</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="ageLimitStyle"
+                      checked={formData.ageLimit.listStyle === 'numbers'}
+                      onChange={() => setFormData({
+                        ...formData,
+                        ageLimit: { ...formData.ageLimit, listStyle: 'numbers' }
+                      })}
+                    />
+                    <span>1. Numbered List</span>
+                  </label>
+                </div>
+                <textarea
+                  className="input"
+                  rows={4}
+                  value={formData.ageLimit.content}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    ageLimit: { ...formData.ageLimit, content: e.target.value }
+                  })}
+                  placeholder="Enter age limit details - each line will be a separate point:&#10;Minimum Age: 18 years&#10;Maximum Age: 30 years&#10;Age relaxation for SC/ST: 5 years&#10;Age relaxation for OBC: 3 years"
+                />
+                <small style={{ color: '#6b7280', fontSize: 12 }}>
+                  💡 Tip: Each new line will become a {formData.ageLimit.listStyle === 'bullets' ? 'bullet point' : 'numbered item'} on the website
+                </small>
+              </div>
+            </div>
+          )}
+
+          {/* Required Documents (New Section) */}
+          {formData.enabledSections.requiredDocuments && (
+            <div className="card">
+              <h3 style={{ marginBottom: 16, color: '#f59e0b' }}>📄 Required Documents</h3>
+              <div className="form-group">
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="requiredDocsStyle"
+                      checked={formData.requiredDocuments.listStyle === 'bullets'}
+                      onChange={() => setFormData({
+                        ...formData,
+                        requiredDocuments: { ...formData.requiredDocuments, listStyle: 'bullets' }
+                      })}
+                    />
+                    <span>• Bullet Points</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="requiredDocsStyle"
+                      checked={formData.requiredDocuments.listStyle === 'numbers'}
+                      onChange={() => setFormData({
+                        ...formData,
+                        requiredDocuments: { ...formData.requiredDocuments, listStyle: 'numbers' }
+                      })}
+                    />
+                    <span>1. Numbered List</span>
+                  </label>
+                </div>
+                <textarea
+                  className="input"
+                  rows={5}
+                  value={formData.requiredDocuments.content}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    requiredDocuments: { ...formData.requiredDocuments, content: e.target.value }
+                  })}
+                  placeholder="Enter required documents - each line will be a separate point:&#10;10th Mark Sheet&#10;12th Mark Sheet&#10;Graduation Certificate&#10;Caste Certificate (if applicable)&#10;Recent Passport Size Photograph&#10;Signature"
+                />
+                <small style={{ color: '#6b7280', fontSize: 12 }}>
+                  💡 Tip: Each new line will become a {formData.requiredDocuments.listStyle === 'bullets' ? 'bullet point' : 'numbered item'} on the website
+                </small>
               </div>
             </div>
           )}
@@ -754,113 +816,45 @@ export default function ExamDetailFormPage() {
             <div className="card">
               <h3 style={{ marginBottom: 16, color: '#10b981' }}>💵 Salary Details</h3>
               <div className="form-group">
-                <label>Pay Scale</label>
-                <input
-                  className="input"
-                  value={formData.salary.payScale}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    salary: { ...formData.salary, payScale: e.target.value }
-                  })}
-                  placeholder="Level 7 (₹44,900 - ₹1,42,400)"
-                />
-              </div>
-              <div style={{ marginBottom: 12 }}>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>Post-wise Salary</label>
-                {formData.salary.details.map((item, idx) => (
-                  <div key={idx} style={{ marginBottom: 12, padding: 12, background: '#f0fdf4', borderRadius: 8, border: '1px solid #86efac' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
-                      <input
-                        className="input"
-                        placeholder="Post name"
-                        value={item.post}
-                        onChange={(e) => {
-                          const updated = [...formData.salary.details];
-                          updated[idx].post = e.target.value;
-                          setFormData({
-                            ...formData,
-                            salary: { ...formData.salary, details: updated }
-                          });
-                        }}
-                        style={{ fontSize: 13 }}
-                      />
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                        <input
-                          className="input"
-                          placeholder="Pay Level"
-                          value={item.payLevel}
-                          onChange={(e) => {
-                            const updated = [...formData.salary.details];
-                            updated[idx].payLevel = e.target.value;
-                            setFormData({
-                              ...formData,
-                              salary: { ...formData.salary, details: updated }
-                            });
-                          }}
-                          style={{ fontSize: 13 }}
-                        />
-                        <input
-                          className="input"
-                          placeholder="Salary amount"
-                          value={item.salary}
-                          onChange={(e) => {
-                            const updated = [...formData.salary.details];
-                            updated[idx].salary = e.target.value;
-                            setFormData({
-                              ...formData,
-                              salary: { ...formData.salary, details: updated }
-                            });
-                          }}
-                          style={{ fontSize: 13 }}
-                        />
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormData({
-                          ...formData,
-                          salary: {
-                            ...formData.salary,
-                            details: formData.salary.details.filter((_, i) => i !== idx)
-                          }
-                        });
-                      }}
-                      style={{ marginTop: 8, padding: '4px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}
-                    >
-                      ✕ Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-              <button
-                type="button"
-                className="button secondary"
-                onClick={() => {
-                  setFormData({
-                    ...formData,
-                    salary: {
-                      ...formData.salary,
-                      details: [...formData.salary.details, { post: "", payLevel: "", salary: "" }]
-                    }
-                  });
-                }}
-                style={{ marginBottom: 12 }}
-              >
-                + Add Post
-              </button>
-              <div className="form-group">
-                <label>Additional Benefits</label>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="salaryStyle"
+                      checked={formData.salary.listStyle === 'bullets'}
+                      onChange={() => setFormData({
+                        ...formData,
+                        salary: { ...formData.salary, listStyle: 'bullets' }
+                      })}
+                    />
+                    <span>• Bullet Points</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="salaryStyle"
+                      checked={formData.salary.listStyle === 'numbers'}
+                      onChange={() => setFormData({
+                        ...formData,
+                        salary: { ...formData.salary, listStyle: 'numbers' }
+                      })}
+                    />
+                    <span>1. Numbered List</span>
+                  </label>
+                </div>
                 <textarea
                   className="input"
-                  rows={2}
-                  value={formData.salary.benefits}
+                  rows={6}
+                  value={formData.salary.content}
                   onChange={(e) => setFormData({
                     ...formData,
-                    salary: { ...formData.salary, benefits: e.target.value }
+                    salary: { ...formData.salary, content: e.target.value }
                   })}
-                  placeholder="DA, HRA, TA, Medical facilities, etc."
+                  placeholder="Enter salary details - each line will be a separate point:&#10;Pay Level: Level 7&#10;Pay Scale: ₹44,900 - ₹1,42,400&#10;Grade Pay: ₹4,600&#10;Additional Benefits: DA, HRA, TA&#10;Medical Facilities: As per government norms"
                 />
+                <small style={{ color: '#6b7280', fontSize: 12 }}>
+                  💡 Tip: Each new line will become a {formData.salary.listStyle === 'bullets' ? 'bullet point' : 'numbered item'} on the website
+                </small>
               </div>
             </div>
           )}
@@ -1159,53 +1153,47 @@ export default function ExamDetailFormPage() {
           {formData.enabledSections.howToApply && (
             <div className="card">
               <h3 style={{ marginBottom: 16, color: '#06b6d4' }}>📝 How to Apply</h3>
-              <div style={{ marginBottom: 12 }}>
-                {formData.howToApply.map((item, idx) => (
-                  <div key={idx} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                    <div style={{ width: 28, height: 28, background: '#06b6d4', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', flexShrink: 0 }}>
-                      {idx + 1}
-                    </div>
-                    <textarea
-                      className="input"
-                      rows={2}
-                      placeholder="Step instruction..."
-                      value={item.instruction}
-                      onChange={(e) => {
-                        const updated = [...formData.howToApply];
-                        updated[idx].instruction = e.target.value;
-                        setFormData({ ...formData, howToApply: updated });
-                      }}
-                      style={{ flex: 1, fontSize: 13 }}
+              <div className="form-group">
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="howToApplyStyle"
+                      checked={formData.howToApply.listStyle === 'bullets'}
+                      onChange={() => setFormData({
+                        ...formData,
+                        howToApply: { ...formData.howToApply, listStyle: 'bullets' }
+                      })}
                     />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const updated = formData.howToApply.filter((_, i) => i !== idx);
-                        updated.forEach((item, i) => item.step = i + 1);
-                        setFormData({ ...formData, howToApply: updated });
-                      }}
-                      style={{ padding: '0 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', alignSelf: 'flex-start' }}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
-              </div>
-              <button
-                type="button"
-                className="button secondary"
-                onClick={() => {
-                  setFormData({
+                    <span>• Bullet Points</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="howToApplyStyle"
+                      checked={formData.howToApply.listStyle === 'numbers'}
+                      onChange={() => setFormData({
+                        ...formData,
+                        howToApply: { ...formData.howToApply, listStyle: 'numbers' }
+                      })}
+                    />
+                    <span>1. Numbered Steps</span>
+                  </label>
+                </div>
+                <textarea
+                  className="input"
+                  rows={6}
+                  value={formData.howToApply.content}
+                  onChange={(e) => setFormData({
                     ...formData,
-                    howToApply: [...formData.howToApply, { 
-                      step: formData.howToApply.length + 1, 
-                      instruction: "" 
-                    }]
-                  });
-                }}
-              >
-                + Add Step
-              </button>
+                    howToApply: { ...formData.howToApply, content: e.target.value }
+                  })}
+                  placeholder="Enter application steps - each line will be a separate step:&#10;Visit the official website&#10;Click on 'Apply Online' link&#10;Register with email and mobile number&#10;Fill the application form carefully&#10;Upload required documents&#10;Pay application fee&#10;Submit and take printout"
+                />
+                <small style={{ color: '#6b7280', fontSize: 12 }}>
+                  💡 Tip: Each new line will become a {formData.howToApply.listStyle === 'numbers' ? 'numbered step' : 'bullet point'} on the website
+                </small>
+              </div>
             </div>
           )}
 

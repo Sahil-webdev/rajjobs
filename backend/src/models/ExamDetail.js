@@ -141,6 +141,8 @@ const examDetailSchema = new mongoose.Schema({
     importantDates: { type: Boolean, default: true },
     vacancyDetails: { type: Boolean, default: true },
     eligibility: { type: Boolean, default: true },
+    ageLimit: { type: Boolean, default: true },
+    requiredDocuments: { type: Boolean, default: true },
     examPattern: { type: Boolean, default: true },
     salary: { type: Boolean, default: true },
     syllabus: { type: Boolean, default: true },
@@ -178,13 +180,20 @@ const examDetailSchema = new mongoose.Schema({
   // Eligibility
   eligibility: {
     qualification: String,
-    ageLimit: {
-      minimum: String,
-      maximum: String,
-      relaxation: String
-    },
     nationality: String,
     experience: String
+  },
+
+  // Age Limit (Separate Section)
+  ageLimit: {
+    content: String,
+    listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'bullets' }
+  },
+
+  // Required Documents (New Section)
+  requiredDocuments: {
+    content: String,
+    listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'bullets' }
   },
 
   // Exam Pattern
@@ -200,13 +209,8 @@ const examDetailSchema = new mongoose.Schema({
 
   // Salary
   salary: {
-    payScale: String,
-    details: [{
-      post: String,
-      payLevel: String,
-      salary: String
-    }],
-    benefits: String
+    content: String,
+    listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'bullets' }
   },
 
   // Syllabus
@@ -218,10 +222,10 @@ const examDetailSchema = new mongoose.Schema({
   },
 
   // How to Apply
-  howToApply: [{
-    step: Number,
-    instruction: String
-  }],
+  howToApply: {
+    content: String,
+    listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'numbers' }
+  },
 
   // Selection Process
   selectionProcess: [{

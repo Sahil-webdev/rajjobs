@@ -88,7 +88,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
             <img 
               src={examData.posterImage} 
               alt={examData.seoData?.imageAltTexts?.posterImage || `${examData.title} notification poster with important dates and details`}
-              className="w-full h-40 md:h-56 object-cover"
+              className="w-full h-64 md:h-96 object-contain bg-white"
             />
           </div>
         )}
@@ -194,30 +194,85 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
                   <p className="text-sm text-slate-700 leading-relaxed">{examData.eligibility.qualification}</p>
                 </div>
               )}
-              {examData.eligibility.ageLimit && (
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 mb-2">Age Limit</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                      <div className="text-xs text-slate-600 mb-1">Minimum Age</div>
-                      <div className="text-xl font-bold text-slate-900">{examData.eligibility.ageLimit.minimum} years</div>
-                    </div>
-                    <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                      <div className="text-xs text-slate-600 mb-1">Maximum Age</div>
-                      <div className="text-xl font-bold text-slate-900">{examData.eligibility.ageLimit.maximum} years</div>
-                    </div>
-                    <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                      <div className="text-xs text-slate-600 mb-1">Relaxation</div>
-                      <div className="text-xs font-semibold text-slate-700">{examData.eligibility.ageLimit.relaxation}</div>
-                    </div>
-                  </div>
-                </div>
-              )}
               {examData.eligibility.nationality && (
                 <div>
                   <h3 className="text-sm font-bold text-slate-900 mb-2">Nationality</h3>
                   <p className="text-sm text-slate-700">{examData.eligibility.nationality}</p>
                 </div>
+              )}
+              {examData.eligibility.experience && (
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 mb-2">Experience</h3>
+                  <p className="text-sm text-slate-700">{examData.eligibility.experience}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Age Limit (New Separate Section) */}
+        {examData.enabledSections?.ageLimit && examData.ageLimit?.content && (
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <span>🎂</span> Age Limit
+              </h2>
+            </div>
+            <div className="p-5">
+              {examData.ageLimit.listStyle === 'bullets' ? (
+                <ul className="space-y-2">
+                  {examData.ageLimit.content.split('\\n').filter((line: string) => line.trim()).map((line: string, idx: number) => (
+                    <li key={idx} className="flex gap-2 text-sm text-slate-700">
+                      <span className="text-slate-900 font-bold">•</span>
+                      <span>{line.trim()}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <ol className="space-y-2">
+                  {examData.ageLimit.content.split('\\n').filter((line: string) => line.trim()).map((line: string, idx: number) => (
+                    <li key={idx} className="flex gap-3">
+                      <span className="flex-shrink-0 w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                        {idx + 1}
+                      </span>
+                      <span className="text-sm text-slate-700 pt-0.5">{line.trim()}</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Required Documents (New Section) */}
+        {examData.enabledSections?.requiredDocuments && examData.requiredDocuments?.content && (
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <span>📄</span> Required Documents
+              </h2>
+            </div>
+            <div className="p-5">
+              {examData.requiredDocuments.listStyle === 'bullets' ? (
+                <ul className="space-y-2">
+                  {examData.requiredDocuments.content.split('\\n').filter((line: string) => line.trim()).map((line: string, idx: number) => (
+                    <li key={idx} className="flex gap-2 text-sm text-slate-700">
+                      <span className="text-slate-900 font-bold">•</span>
+                      <span>{line.trim()}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <ol className="space-y-2">
+                  {examData.requiredDocuments.content.split('\\n').filter((line: string) => line.trim()).map((line: string, idx: number) => (
+                    <li key={idx} className="flex gap-3">
+                      <span className="flex-shrink-0 w-6 h-6 bg-amber-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                        {idx + 1}
+                      </span>
+                      <span className="text-sm text-slate-700 pt-0.5">{line.trim()}</span>
+                    </li>
+                  ))}
+                </ol>
               )}
             </div>
           </div>
@@ -254,7 +309,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         )}
 
         {/* Salary */}
-        {examData.enabledSections?.salary && examData.salary && (
+        {examData.enabledSections?.salary && examData.salary?.content && (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
               <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
@@ -262,35 +317,26 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
               </h2>
             </div>
             <div className="p-5">
-              {examData.salary.payScale && (
-                <div className="mb-3">
-                  <p className="text-slate-900 font-semibold text-sm">{examData.salary.payScale}</p>
-                </div>
-              )}
-              {examData.salary.details && examData.salary.details.length > 0 && (
-                <table className="w-full mb-3">
-                  <thead>
-                    <tr className="bg-slate-100">
-                      <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 border border-slate-200">Post</th>
-                      <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 border border-slate-200">Pay Level</th>
-                      <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 border border-slate-200">Salary Range</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {examData.salary.details.map((item: any, idx: number) => (
-                      <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
-                        <td className="px-3 py-2 text-sm text-slate-900 border border-slate-200">{item.post}</td>
-                        <td className="px-3 py-2 text-sm text-slate-900 border border-slate-200">{item.payLevel}</td>
-                        <td className="px-3 py-2 text-sm text-slate-900 font-semibold border border-slate-200">{item.salary}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-              {examData.salary.benefits && (
-                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                  <p className="text-xs text-slate-700">{examData.salary.benefits}</p>
-                </div>
+              {examData.salary.listStyle === 'bullets' ? (
+                <ul className="space-y-2">
+                  {examData.salary.content.split('\n').filter((line: string) => line.trim()).map((line: string, idx: number) => (
+                    <li key={idx} className="flex gap-2 text-sm text-slate-700">
+                      <span className="text-green-600 font-bold">•</span>
+                      <span>{line.trim()}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <ol className="space-y-2">
+                  {examData.salary.content.split('\n').filter((line: string) => line.trim()).map((line: string, idx: number) => (
+                    <li key={idx} className="flex gap-3">
+                      <span className="flex-shrink-0 w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                        {idx + 1}
+                      </span>
+                      <span className="text-sm text-slate-700 pt-0.5">{line.trim()}</span>
+                    </li>
+                  ))}
+                </ol>
               )}
             </div>
           </div>
@@ -423,7 +469,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         )}
 
         {/* How to Apply */}
-        {examData.enabledSections?.howToApply && examData.howToApply && examData.howToApply.length > 0 && (
+        {examData.enabledSections?.howToApply && examData.howToApply?.content && (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
               <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
@@ -431,18 +477,29 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
               </h2>
             </div>
             <div className="p-5">
-              <ol className="space-y-2">
-                {examData.howToApply.map((step: any, idx: number) => (
-                  <li key={idx} className="flex gap-3">
-                    <div className="flex-shrink-0 w-7 h-7 bg-slate-900 text-white rounded-full flex items-center justify-center font-bold text-xs">
-                      {step.step}
-                    </div>
-                    <div className="flex-1 pt-0.5">
-                      <p className="text-sm text-slate-700 leading-relaxed">{step.instruction}</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
+              {examData.howToApply.listStyle === 'bullets' ? (
+                <ul className="space-y-2">
+                  {examData.howToApply.content.split('\n').filter((line: string) => line.trim()).map((line: string, idx: number) => (
+                    <li key={idx} className="flex gap-2 text-sm text-slate-700">
+                      <span className="text-cyan-600 font-bold">•</span>
+                      <span>{line.trim()}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <ol className="space-y-2">
+                  {examData.howToApply.content.split('\n').filter((line: string) => line.trim()).map((line: string, idx: number) => (
+                    <li key={idx} className="flex gap-3">
+                      <div className="flex-shrink-0 w-7 h-7 bg-slate-900 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                        {idx + 1}
+                      </div>
+                      <div className="flex-1 pt-0.5">
+                        <p className="text-sm text-slate-700 leading-relaxed">{line.trim()}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              )}
             </div>
           </div>
         )}
