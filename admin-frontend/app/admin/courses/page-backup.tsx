@@ -124,9 +124,8 @@ export default function CoursesPage() {
           <div className="form-group">
             <label>Thumbnail URL</label>
             <ImageUploader
-              currentImageUrl={form.thumbnailUrl}
-              onUploadSuccess={(url: string) => setForm({ ...form, thumbnailUrl: url })}
-              uploadType="general"
+              currentImage={form.thumbnailUrl}
+              onUpload={(url: string) => setForm({ ...form, thumbnailUrl: url })}
               label="Course Thumbnail"
             />
           </div>
