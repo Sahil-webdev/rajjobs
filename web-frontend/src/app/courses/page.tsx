@@ -152,9 +152,16 @@ export default function CoursesPage() {
                       {course.title}
                     </h4>
                     {course.description && (
-                      <p className="mb-4 text-sm text-slate-600 line-clamp-2">
-                        {course.description}
-                      </p>
+                      <div 
+                        className="mb-4 text-sm text-slate-600 line-clamp-3 rich-text-content"
+                        dangerouslySetInnerHTML={{ __html: course.description }}
+                        style={{
+                          overflow: 'hidden',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: 'vertical',
+                        }}
+                      />
                     )}
                     <div className="flex items-center justify-between mt-auto">
                       <div className="flex items-baseline gap-2">
