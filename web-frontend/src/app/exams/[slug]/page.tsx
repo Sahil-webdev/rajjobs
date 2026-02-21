@@ -211,72 +211,86 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         )}
 
         {/* Age Limit (New Separate Section) */}
-        {examData.enabledSections?.ageLimit && examData.ageLimit?.content && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <span>🎂</span> Age Limit
-              </h2>
+        {examData.enabledSections?.ageLimit && examData.ageLimit?.content && (() => {
+          // Extract list items from HTML using regex
+          const listItems = examData.ageLimit.content.match(/<li>[\s\S]*?<\/li>/g)?.map((item: string) => 
+            item.replace(/<\/?li>/g, '').trim()
+          ) || [];
+          
+          return (
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
+                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <span>🎂</span> Age Limit
+                </h2>
+              </div>
+              <div className="p-5">
+                {examData.ageLimit.listStyle === 'bullets' ? (
+                  <ul className="space-y-2">
+                    {listItems.map((item: string, idx: number) => (
+                      <li key={idx} className="flex gap-2 text-sm text-slate-700">
+                        <span className="text-slate-900 font-bold">•</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <ol className="space-y-2">
+                    {listItems.map((item: string, idx: number) => (
+                      <li key={idx} className="flex gap-3">
+                        <span className="flex-shrink-0 w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                          {idx + 1}
+                        </span>
+                        <span className="text-sm text-slate-700 pt-0.5">{item}</span>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </div>
             </div>
-            <div className="p-5">
-              {examData.ageLimit.listStyle === 'bullets' ? (
-                <ul className="space-y-2">
-                  {examData.ageLimit.content.split('\\n').filter((line: string) => line.trim()).map((line: string, idx: number) => (
-                    <li key={idx} className="flex gap-2 text-sm text-slate-700">
-                      <span className="text-slate-900 font-bold">•</span>
-                      <span>{line.trim()}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <ol className="space-y-2">
-                  {examData.ageLimit.content.split('\\n').filter((line: string) => line.trim()).map((line: string, idx: number) => (
-                    <li key={idx} className="flex gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
-                        {idx + 1}
-                      </span>
-                      <span className="text-sm text-slate-700 pt-0.5">{line.trim()}</span>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Required Documents (New Section) */}
-        {examData.enabledSections?.requiredDocuments && examData.requiredDocuments?.content && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <span>📄</span> Required Documents
-              </h2>
+        {examData.enabledSections?.requiredDocuments && examData.requiredDocuments?.content && (() => {
+          // Extract list items from HTML using regex
+          const listItems = examData.requiredDocuments.content.match(/<li>[\s\S]*?<\/li>/g)?.map((item: string) => 
+            item.replace(/<\/?li>/g, '').trim()
+          ) || [];
+          
+          return (
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
+                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <span>📄</span> Required Documents
+                </h2>
+              </div>
+              <div className="p-5">
+                {examData.requiredDocuments.listStyle === 'bullets' ? (
+                  <ul className="space-y-2">
+                    {listItems.map((item: string, idx: number) => (
+                      <li key={idx} className="flex gap-2 text-sm text-slate-700">
+                        <span className="text-slate-900 font-bold">•</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <ol className="space-y-2">
+                    {listItems.map((item: string, idx: number) => (
+                      <li key={idx} className="flex gap-3">
+                        <span className="flex-shrink-0 w-6 h-6 bg-amber-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                          {idx + 1}
+                        </span>
+                        <span className="text-sm text-slate-700 pt-0.5">{item}</span>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </div>
             </div>
-            <div className="p-5">
-              {examData.requiredDocuments.listStyle === 'bullets' ? (
-                <ul className="space-y-2">
-                  {examData.requiredDocuments.content.split('\\n').filter((line: string) => line.trim()).map((line: string, idx: number) => (
-                    <li key={idx} className="flex gap-2 text-sm text-slate-700">
-                      <span className="text-slate-900 font-bold">•</span>
-                      <span>{line.trim()}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <ol className="space-y-2">
-                  {examData.requiredDocuments.content.split('\\n').filter((line: string) => line.trim()).map((line: string, idx: number) => (
-                    <li key={idx} className="flex gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 bg-amber-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
-                        {idx + 1}
-                      </span>
-                      <span className="text-sm text-slate-700 pt-0.5">{line.trim()}</span>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Exam Pattern */}
         {examData.enabledSections?.examPattern && examData.examPattern && examData.examPattern.length > 0 && (
@@ -309,38 +323,45 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         )}
 
         {/* Salary */}
-        {examData.enabledSections?.salary && examData.salary?.content && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <span>💰</span> Salary Structure
-              </h2>
+        {examData.enabledSections?.salary && examData.salary?.content && (() => {
+          // Extract list items from HTML using regex
+          const listItems = examData.salary.content.match(/<li>[\s\S]*?<\/li>/g)?.map((item: string) => 
+            item.replace(/<\/?li>/g, '').trim()
+          ) || [];
+          
+          return (
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
+                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <span>💰</span> Salary Structure
+                </h2>
+              </div>
+              <div className="p-5">
+                {examData.salary.listStyle === 'bullets' ? (
+                  <ul className="space-y-2">
+                    {listItems.map((item: string, idx: number) => (
+                      <li key={idx} className="flex gap-2 text-sm text-slate-700">
+                        <span className="text-green-600 font-bold">•</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <ol className="space-y-2">
+                    {listItems.map((item: string, idx: number) => (
+                      <li key={idx} className="flex gap-3">
+                        <span className="flex-shrink-0 w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                          {idx + 1}
+                        </span>
+                        <span className="text-sm text-slate-700 pt-0.5">{item}</span>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </div>
             </div>
-            <div className="p-5">
-              {examData.salary.listStyle === 'bullets' ? (
-                <ul className="space-y-2">
-                  {examData.salary.content.split('\n').filter((line: string) => line.trim()).map((line: string, idx: number) => (
-                    <li key={idx} className="flex gap-2 text-sm text-slate-700">
-                      <span className="text-green-600 font-bold">•</span>
-                      <span>{line.trim()}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <ol className="space-y-2">
-                  {examData.salary.content.split('\n').filter((line: string) => line.trim()).map((line: string, idx: number) => (
-                    <li key={idx} className="flex gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
-                        {idx + 1}
-                      </span>
-                      <span className="text-sm text-slate-700 pt-0.5">{line.trim()}</span>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Syllabus */}
         {examData.enabledSections?.syllabus && examData.syllabus?.tier1 && examData.syllabus.tier1.length > 0 && (
@@ -469,40 +490,47 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         )}
 
         {/* How to Apply */}
-        {examData.enabledSections?.howToApply && examData.howToApply?.content && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <span>📝</span> How to Apply
-              </h2>
+        {examData.enabledSections?.howToApply && examData.howToApply?.content && (() => {
+          // Extract list items from HTML using regex
+          const listItems = examData.howToApply.content.match(/<li>[\s\S]*?<\/li>/g)?.map((item: string) => 
+            item.replace(/<\/?li>/g, '').trim()
+          ) || [];
+          
+          return (
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
+                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <span>📝</span> How to Apply
+                </h2>
+              </div>
+              <div className="p-5">
+                {examData.howToApply.listStyle === 'bullets' ? (
+                  <ul className="space-y-2">
+                    {listItems.map((item: string, idx: number) => (
+                      <li key={idx} className="flex gap-2 text-sm text-slate-700">
+                        <span className="text-cyan-600 font-bold">•</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <ol className="space-y-2">
+                    {listItems.map((item: string, idx: number) => (
+                      <li key={idx} className="flex gap-3">
+                        <div className="flex-shrink-0 w-7 h-7 bg-slate-900 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                          {idx + 1}
+                        </div>
+                        <div className="flex-1 pt-0.5">
+                          <p className="text-sm text-slate-700 leading-relaxed">{item}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </div>
             </div>
-            <div className="p-5">
-              {examData.howToApply.listStyle === 'bullets' ? (
-                <ul className="space-y-2">
-                  {examData.howToApply.content.split('\n').filter((line: string) => line.trim()).map((line: string, idx: number) => (
-                    <li key={idx} className="flex gap-2 text-sm text-slate-700">
-                      <span className="text-cyan-600 font-bold">•</span>
-                      <span>{line.trim()}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <ol className="space-y-2">
-                  {examData.howToApply.content.split('\n').filter((line: string) => line.trim()).map((line: string, idx: number) => (
-                    <li key={idx} className="flex gap-3">
-                      <div className="flex-shrink-0 w-7 h-7 bg-slate-900 text-white rounded-full flex items-center justify-center font-bold text-xs">
-                        {idx + 1}
-                      </div>
-                      <div className="flex-1 pt-0.5">
-                        <p className="text-sm text-slate-700 leading-relaxed">{line.trim()}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Important Links */}
         {examData.enabledSections?.importantLinks && examData.importantLinks && examData.importantLinks.length > 0 && (
