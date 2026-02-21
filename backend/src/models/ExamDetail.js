@@ -186,12 +186,14 @@ const examDetailSchema = new mongoose.Schema({
 
   // Age Limit (Separate Section)
   ageLimit: {
+    description: String,
     content: String,
     listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'bullets' }
   },
 
   // Required Documents (New Section)
   requiredDocuments: {
+    description: String,
     content: String,
     listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'bullets' }
   },
@@ -209,6 +211,7 @@ const examDetailSchema = new mongoose.Schema({
 
   // Salary
   salary: {
+    description: String,
     content: String,
     listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'bullets' }
   },
@@ -223,6 +226,7 @@ const examDetailSchema = new mongoose.Schema({
 
   // How to Apply
   howToApply: {
+    description: String,
     content: String,
     listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'numbers' }
   },

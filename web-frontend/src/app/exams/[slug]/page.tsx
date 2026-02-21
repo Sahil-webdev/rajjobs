@@ -225,6 +225,9 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
                 </h2>
               </div>
               <div className="p-5">
+                {examData.ageLimit.description && (
+                  <p className="text-sm text-slate-700 mb-4 leading-relaxed">{examData.ageLimit.description}</p>
+                )}
                 {examData.ageLimit.listStyle === 'bullets' ? (
                   <ul className="space-y-2">
                     {listItems.map((item: string, idx: number) => (
@@ -266,6 +269,9 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
                 </h2>
               </div>
               <div className="p-5">
+                {examData.requiredDocuments.description && (
+                  <p className="text-sm text-slate-700 mb-4 leading-relaxed">{examData.requiredDocuments.description}</p>
+                )}
                 {examData.requiredDocuments.listStyle === 'bullets' ? (
                   <ul className="space-y-2">
                     {listItems.map((item: string, idx: number) => (
@@ -337,6 +343,9 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
                 </h2>
               </div>
               <div className="p-5">
+                {examData.salary.description && (
+                  <p className="text-sm text-slate-700 mb-4 leading-relaxed">{examData.salary.description}</p>
+                )}
                 {examData.salary.listStyle === 'bullets' ? (
                   <ul className="space-y-2">
                     {listItems.map((item: string, idx: number) => (
@@ -504,6 +513,9 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
                 </h2>
               </div>
               <div className="p-5">
+                {examData.howToApply.description && (
+                  <p className="text-sm text-slate-700 mb-4 leading-relaxed">{examData.howToApply.description}</p>
+                )}
                 {examData.howToApply.listStyle === 'bullets' ? (
                   <ul className="space-y-2">
                     {listItems.map((item: string, idx: number) => (

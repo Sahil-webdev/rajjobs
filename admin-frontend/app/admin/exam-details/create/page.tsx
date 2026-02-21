@@ -81,15 +81,18 @@ export default function ExamDetailFormPage() {
       experience: ""
     },
     ageLimit: {
+      description: "",
       content: "",
       listStyle: "bullets" as "bullets" | "numbers"
     },
     requiredDocuments: {
+      description: "",
       content: "",
       listStyle: "bullets" as "bullets" | "numbers"
     },
     examPattern: [] as Array<{tier: string, mode: string, subjects: string, questions: string, marks: string, duration: string, negativeMarking: string}>,
     salary: { 
+      description: "",
       content: "",
       listStyle: "bullets" as "bullets" | "numbers"
     },
@@ -97,6 +100,7 @@ export default function ExamDetailFormPage() {
       tier1: [] as Array<{subject: string, topics: string}>
     },
     howToApply: {
+      description: "",
       content: "",
       listStyle: "numbers" as "bullets" | "numbers"
     },
@@ -639,6 +643,20 @@ export default function ExamDetailFormPage() {
           {formData.enabledSections.ageLimit && (
             <div className="card">
               <h3 style={{ marginBottom: 16, color: '#8b5cf6' }}>🎂 Age Limit</h3>
+              <div className="form-group">
+                <label>Description (Optional)</label>
+                <textarea
+                  className="input"
+                  rows={2}
+                  value={formData.ageLimit.description}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    ageLimit: { ...formData.ageLimit, description: e.target.value }
+                  })}
+                  placeholder="Enter a description that will appear above the points..."
+                  style={{ marginBottom: 12 }}
+                />
+              </div>
               <RichTextEditor
                 label=""
                 value={formData.ageLimit.content}
@@ -661,6 +679,20 @@ export default function ExamDetailFormPage() {
           {formData.enabledSections.requiredDocuments && (
             <div className="card">
               <h3 style={{ marginBottom: 16, color: '#f59e0b' }}>📄 Required Documents</h3>
+              <div className="form-group">
+                <label>Description (Optional)</label>
+                <textarea
+                  className="input"
+                  rows={2}
+                  value={formData.requiredDocuments.description}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    requiredDocuments: { ...formData.requiredDocuments, description: e.target.value }
+                  })}
+                  placeholder="Enter a description that will appear above the points..."
+                  style={{ marginBottom: 12 }}
+                />
+              </div>
               <RichTextEditor
                 label=""
                 value={formData.requiredDocuments.content}
@@ -764,6 +796,20 @@ export default function ExamDetailFormPage() {
           {formData.enabledSections.salary && (
             <div className="card">
               <h3 style={{ marginBottom: 16, color: '#10b981' }}>💵 Salary Details</h3>
+              <div className="form-group">
+                <label>Description (Optional)</label>
+                <textarea
+                  className="input"
+                  rows={2}
+                  value={formData.salary.description}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    salary: { ...formData.salary, description: e.target.value }
+                  })}
+                  placeholder="Enter a description that will appear above the points..."
+                  style={{ marginBottom: 12 }}
+                />
+              </div>
               <RichTextEditor
                 label=""
                 value={formData.salary.content}
@@ -1076,6 +1122,20 @@ export default function ExamDetailFormPage() {
           {formData.enabledSections.howToApply && (
             <div className="card">
               <h3 style={{ marginBottom: 16, color: '#06b6d4' }}>📝 How to Apply</h3>
+              <div className="form-group">
+                <label>Description (Optional)</label>
+                <textarea
+                  className="input"
+                  rows={2}
+                  value={formData.howToApply.description}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    howToApply: { ...formData.howToApply, description: e.target.value }
+                  })}
+                  placeholder="Enter a description that will appear above the points..."
+                  style={{ marginBottom: 12 }}
+                />
+              </div>
               <RichTextEditor
                 label=""
                 value={formData.howToApply.content}

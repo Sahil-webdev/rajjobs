@@ -63,12 +63,16 @@ export default function RichTextEditor({
   }, [textContent]);
 
   const handleSave = () => {
+    // Allow saving even when empty - this lets users clear the content
     if (bulletPoints.length > 0) {
       const listTag = localListStyle === 'bullets' ? 'ul' : 'ol';
       const html = `<${listTag}>${bulletPoints.map(point => `<li>${point.trim()}</li>`).join('')}</${listTag}>`;
       onChange(html);
-      setIsModalOpen(false);
+    } else {
+      // Save empty string to clear the content
+      onChange('');
     }
+    setIsModalOpen(false);
   };
 
   const handleListStyleChange = (style: "bullets" | "numbers") => {
@@ -79,7 +83,34 @@ export default function RichTextEditor({
   };
 
   const handleCancel = () => {
+    // Reset to original content on cancel
+    if (value) {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = value;
+      const listItems = tempDiv.querySelectorAll('li');
+      const points = Array.from(listItems).map(li => li.textContent || '');
+      const text = points.join('\n');
+      setTextContent(text);
+      setBulletPoints(points);
+    } else {
+      setTextContent('');
+      setBulletPoints([]);
+    }
     setIsModalOpen(false);
+  };
+
+  const handleOpenModal = () => {
+    // Load existing content when opening modal
+    if (value) {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = value;
+      const listItems = tempDiv.querySelectorAll('li');
+      const points = Array.from(listItems).map(li => li.textContent || '');
+      const text = points.join('\n');
+      setTextContent(text);
+      setBulletPoints(points);
+    }
+    setIsModalOpen(true);
   };
 
   // Get current bullet count from saved HTML
@@ -141,7 +172,7 @@ export default function RichTextEditor({
               </span>
               <button
                 type="button"
-                onClick={() => setIsModalOpen(true)}
+                onClick={handleOpenModal}
                 style={{
                   padding: '5px 12px',
                   background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
@@ -182,7 +213,7 @@ export default function RichTextEditor({
         ) : (
           <button
             type="button"
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleOpenModal}
             style={{
               width: '100%',
               padding: '30px',
@@ -512,58 +543,94 @@ export default function RichTextEditor({
               borderRadius: '0 0 16px 16px',
               display: 'flex',
               gap: '12px',
-              justifyContent: 'flex-end'
+              justifyContent: 'space-between'
             }}>
               <button
                 type="button"
-                onClick={handleCancel}
+                onClick={() => {
+                  setTextContent('');
+                  setBulletPoints([]);
+                }}
                 style={{
                   padding: '12px 24px',
-                  border: '2px solid #d1d5db',
+                  border: '2px solid #ef4444',
                   borderRadius: '8px',
                   background: 'white',
-                  color: '#374151',
+                  color: '#dc2626',
                   fontWeight: '600',
                   fontSize: '14px',
                   cursor: 'pointer',
                   transition: 'all 0.2s'
                 }}
-                onMouseOver={(e) => e.currentTarget.style.background = '#f3f4f6'}
-                onMouseOut={(e) => e.currentTarget.style.background = 'white'}
-              >
-                ✕ Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSave}
-                disabled={bulletPoints.length === 0}
-                style={{
-                  padding: '12px 32px',
-                  border: 'none',
-                  borderRadius: '8px',
-                  background: bulletPoints.length > 0 ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#d1d5db',
-                  color: 'white',
-                  fontWeight: '700',
-                  fontSize: '15px',
-                  cursor: bulletPoints.length > 0 ? 'pointer' : 'not-allowed',
-                  boxShadow: bulletPoints.length > 0 ? '0 4px 12px rgba(102, 126, 234, 0.4)' : 'none',
-                  transition: 'all 0.2s'
-                }}
                 onMouseOver={(e) => {
-                  if (bulletPoints.length > 0) {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.5)';
-                  }
+                  e.currentTarget.style.background = '#fef2f2';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
                 }}
                 onMouseOut={(e) => {
-                  if (bulletPoints.length > 0) {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
-                  }
+                  e.currentTarget.style.background = 'white';
+                  e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
-                ✓ Save {localListStyle === 'bullets' ? 'Bullet Points' : 'Numbered List'} ({bulletPoints.length})
+                🗑️ Clear All
               </button>
+              
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  style={{
+                    padding: '12px 24px',
+                    border: '2px solid #d1d5db',
+                    borderRadius: '8px',
+                    background: 'white',
+                    color: '#374151',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.background = '#f3f4f6'}
+                  onMouseOut={(e) => e.currentTarget.style.background = 'white'}
+                >
+                  ✕ Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  style={{
+                    padding: '12px 32px',
+                    border: 'none',
+                    borderRadius: '8px',
+                    background: bulletPoints.length > 0 
+                      ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+                      : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                    color: 'white',
+                    fontWeight: '700',
+                    fontSize: '15px',
+                    cursor: 'pointer',
+                    boxShadow: bulletPoints.length > 0 
+                      ? '0 4px 12px rgba(102, 126, 234, 0.4)' 
+                      : '0 4px 12px rgba(239, 68, 68, 0.4)',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = bulletPoints.length > 0 
+                      ? '0 6px 16px rgba(102, 126, 234, 0.5)' 
+                      : '0 6px 16px rgba(239, 68, 68, 0.5)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = bulletPoints.length > 0 
+                      ? '0 4px 12px rgba(102, 126, 234, 0.4)' 
+                      : '0 4px 12px rgba(239, 68, 68, 0.4)';
+                  }}
+                >
+                  {bulletPoints.length > 0 
+                    ? `✓ Save ${localListStyle === 'bullets' ? 'Bullet Points' : 'Numbered List'} (${bulletPoints.length})` 
+                    : '🗑️ Clear & Save (Remove All)'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
