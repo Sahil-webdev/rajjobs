@@ -180,136 +180,148 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         )}
 
         {/* Eligibility Criteria */}
-        {examData.enabledSections?.eligibility && examData.eligibility?.content && (() => {
-          // Extract list items from HTML using regex
-          const listItems = examData.eligibility.content.match(/<li>[\s\S]*?<\/li>/g)?.map((item: string) => 
-            item.replace(/<\/?li>/g, '').trim()
-          ) || [];
-          
-          return (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <span>✅</span> Eligibility Criteria
-                </h2>
-              </div>
-              <div className="p-5">
-                {examData.eligibility.description && (
-                  <p className="text-sm text-slate-700 mb-4 leading-relaxed">{examData.eligibility.description}</p>
-                )}
-                {examData.eligibility.listStyle === 'bullets' ? (
-                  <ul className="space-y-2">
-                    {listItems.map((item: string, idx: number) => (
-                      <li key={idx} className="flex gap-2 text-sm text-slate-700">
-                        <span className="text-slate-900 font-bold">•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <ol className="space-y-2">
-                    {listItems.map((item: string, idx: number) => (
-                      <li key={idx} className="flex gap-3">
-                        <span className="flex-shrink-0 w-6 h-6 bg-teal-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
-                          {idx + 1}
-                        </span>
-                        <span className="text-sm text-slate-700 pt-0.5">{item}</span>
-                      </li>
-                    ))}
-                  </ol>
-                )}
-              </div>
+        {examData.enabledSections?.eligibility && examData.eligibility && examData.eligibility.length > 0 && (
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <span>✅</span> Eligibility Criteria
+              </h2>
             </div>
-          );
-        })()}
+            <div className="p-5 space-y-4">
+              {examData.eligibility.map((item: any, idx: number) => {
+                // Extract list items from HTML using regex
+                const listItems = item.content?.match(/<li>[\s\S]*?<\/li>/g)?.map((listItem: string) => 
+                  listItem.replace(/<\/?li>/g, '').trim()
+                ) || [];
+                
+                return (
+                  <div key={idx} className={idx > 0 ? 'pt-4 border-t border-slate-200' : ''}>
+                    {item.description && (
+                      <p className="text-sm text-slate-700 mb-3 leading-relaxed description">{item.description}</p>
+                    )}
+                    {item.listStyle === 'bullets' ? (
+                      <ul className="space-y-2">
+                        {listItems.map((point: string, pointIdx: number) => (
+                          <li key={pointIdx} className="flex gap-2 text-sm text-slate-700">
+                            <span className="text-slate-900 font-bold">•</span>
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <ol className="space-y-2">
+                        {listItems.map((point: string, pointIdx: number) => (
+                          <li key={pointIdx} className="flex gap-3">
+                            <span className="flex-shrink-0 w-6 h-6 bg-teal-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                              {pointIdx + 1}
+                            </span>
+                            <span className="text-sm text-slate-700 pt-0.5">{point}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Age Limit (New Separate Section) */}
-        {examData.enabledSections?.ageLimit && examData.ageLimit?.content && (() => {
-          // Extract list items from HTML using regex
-          const listItems = examData.ageLimit.content.match(/<li>[\s\S]*?<\/li>/g)?.map((item: string) => 
-            item.replace(/<\/?li>/g, '').trim()
-          ) || [];
-          
-          return (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <span>🎂</span> Age Limit
-                </h2>
-              </div>
-              <div className="p-5">
-                {examData.ageLimit.description && (
-                  <p className="text-sm text-slate-700 mb-4 leading-relaxed">{examData.ageLimit.description}</p>
-                )}
-                {examData.ageLimit.listStyle === 'bullets' ? (
-                  <ul className="space-y-2">
-                    {listItems.map((item: string, idx: number) => (
-                      <li key={idx} className="flex gap-2 text-sm text-slate-700">
-                        <span className="text-slate-900 font-bold">•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <ol className="space-y-2">
-                    {listItems.map((item: string, idx: number) => (
-                      <li key={idx} className="flex gap-3">
-                        <span className="flex-shrink-0 w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
-                          {idx + 1}
-                        </span>
-                        <span className="text-sm text-slate-700 pt-0.5">{item}</span>
-                      </li>
-                    ))}
-                  </ol>
-                )}
-              </div>
+        {examData.enabledSections?.ageLimit && examData.ageLimit && examData.ageLimit.length > 0 && (
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <span>🎂</span> Age Limit
+              </h2>
             </div>
-          );
-        })()}
+            <div className="p-5 space-y-4">
+              {examData.ageLimit.map((item: any, idx: number) => {
+                // Extract list items from HTML using regex
+                const listItems = item.content?.match(/<li>[\s\S]*?<\/li>/g)?.map((listItem: string) => 
+                  listItem.replace(/<\/?li>/g, '').trim()
+                ) || [];
+                
+                return (
+                  <div key={idx} className={idx > 0 ? 'pt-4 border-t border-slate-200' : ''}>
+                    {item.description && (
+                      <p className="text-sm text-slate-700 mb-3 leading-relaxed description">{item.description}</p>
+                    )}
+                    {item.listStyle === 'bullets' ? (
+                      <ul className="space-y-2">
+                        {listItems.map((point: string, pointIdx: number) => (
+                          <li key={pointIdx} className="flex gap-2 text-sm text-slate-700">
+                            <span className="text-slate-900 font-bold">•</span>
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <ol className="space-y-2">
+                        {listItems.map((point: string, pointIdx: number) => (
+                          <li key={pointIdx} className="flex gap-3">
+                            <span className="flex-shrink-0 w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                              {pointIdx + 1}
+                            </span>
+                            <span className="text-sm text-slate-700 pt-0.5">{point}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Required Documents (New Section) */}
-        {examData.enabledSections?.requiredDocuments && examData.requiredDocuments?.content && (() => {
-          // Extract list items from HTML using regex
-          const listItems = examData.requiredDocuments.content.match(/<li>[\s\S]*?<\/li>/g)?.map((item: string) => 
-            item.replace(/<\/?li>/g, '').trim()
-          ) || [];
-          
-          return (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <span>📄</span> Required Documents
-                </h2>
-              </div>
-              <div className="p-5">
-                {examData.requiredDocuments.description && (
-                  <p className="text-sm text-slate-700 mb-4 leading-relaxed">{examData.requiredDocuments.description}</p>
-                )}
-                {examData.requiredDocuments.listStyle === 'bullets' ? (
-                  <ul className="space-y-2">
-                    {listItems.map((item: string, idx: number) => (
-                      <li key={idx} className="flex gap-2 text-sm text-slate-700">
-                        <span className="text-slate-900 font-bold">•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <ol className="space-y-2">
-                    {listItems.map((item: string, idx: number) => (
-                      <li key={idx} className="flex gap-3">
-                        <span className="flex-shrink-0 w-6 h-6 bg-amber-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
-                          {idx + 1}
-                        </span>
-                        <span className="text-sm text-slate-700 pt-0.5">{item}</span>
-                      </li>
-                    ))}
-                  </ol>
-                )}
-              </div>
+        {examData.enabledSections?.requiredDocuments && examData.requiredDocuments && examData.requiredDocuments.length > 0 && (
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <span>📄</span> Required Documents
+              </h2>
             </div>
-          );
-        })()}
+            <div className="p-5 space-y-4">
+              {examData.requiredDocuments.map((item: any, idx: number) => {
+                // Extract list items from HTML using regex
+                const listItems = item.content?.match(/<li>[\s\S]*?<\/li>/g)?.map((listItem: string) => 
+                  listItem.replace(/<\/?li>/g, '').trim()
+                ) || [];
+                
+                return (
+                  <div key={idx} className={idx > 0 ? 'pt-4 border-t border-slate-200' : ''}>
+                    {item.description && (
+                      <p className="text-sm text-slate-700 mb-3 leading-relaxed description">{item.description}</p>
+                    )}
+                    {item.listStyle === 'bullets' ? (
+                      <ul className="space-y-2">
+                        {listItems.map((point: string, pointIdx: number) => (
+                          <li key={pointIdx} className="flex gap-2 text-sm text-slate-700">
+                            <span className="text-slate-900 font-bold">•</span>
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <ol className="space-y-2">
+                        {listItems.map((point: string, pointIdx: number) => (
+                          <li key={pointIdx} className="flex gap-3">
+                            <span className="flex-shrink-0 w-6 h-6 bg-amber-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                              {pointIdx + 1}
+                            </span>
+                            <span className="text-sm text-slate-700 pt-0.5">{point}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Exam Pattern */}
         {examData.enabledSections?.examPattern && examData.examPattern && examData.examPattern.length > 0 && (
@@ -342,48 +354,52 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         )}
 
         {/* Salary */}
-        {examData.enabledSections?.salary && examData.salary?.content && (() => {
-          // Extract list items from HTML using regex
-          const listItems = examData.salary.content.match(/<li>[\s\S]*?<\/li>/g)?.map((item: string) => 
-            item.replace(/<\/?li>/g, '').trim()
-          ) || [];
-          
-          return (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <span>💰</span> Salary Structure
-                </h2>
-              </div>
-              <div className="p-5">
-                {examData.salary.description && (
-                  <p className="text-sm text-slate-700 mb-4 leading-relaxed">{examData.salary.description}</p>
-                )}
-                {examData.salary.listStyle === 'bullets' ? (
-                  <ul className="space-y-2">
-                    {listItems.map((item: string, idx: number) => (
-                      <li key={idx} className="flex gap-2 text-sm text-slate-700">
-                        <span className="text-green-600 font-bold">•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <ol className="space-y-2">
-                    {listItems.map((item: string, idx: number) => (
-                      <li key={idx} className="flex gap-3">
-                        <span className="flex-shrink-0 w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
-                          {idx + 1}
-                        </span>
-                        <span className="text-sm text-slate-700 pt-0.5">{item}</span>
-                      </li>
-                    ))}
-                  </ol>
-                )}
-              </div>
+        {examData.enabledSections?.salary && examData.salary && examData.salary.length > 0 && (
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <span>💰</span> Salary Structure
+              </h2>
             </div>
-          );
-        })()}
+            <div className="p-5 space-y-4">
+              {examData.salary.map((item: any, idx: number) => {
+                // Extract list items from HTML using regex
+                const listItems = item.content?.match(/<li>[\s\S]*?<\/li>/g)?.map((listItem: string) => 
+                  listItem.replace(/<\/?li>/g, '').trim()
+                ) || [];
+                
+                return (
+                  <div key={idx} className={idx > 0 ? 'pt-4 border-t border-slate-200' : ''}>
+                    {item.description && (
+                      <p className="text-sm text-slate-700 mb-3 leading-relaxed description">{item.description}</p>
+                    )}
+                    {item.listStyle === 'bullets' ? (
+                      <ul className="space-y-2">
+                        {listItems.map((point: string, pointIdx: number) => (
+                          <li key={pointIdx} className="flex gap-2 text-sm text-slate-700">
+                            <span className="text-green-600 font-bold">•</span>
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <ol className="space-y-2">
+                        {listItems.map((point: string, pointIdx: number) => (
+                          <li key={pointIdx} className="flex gap-3">
+                            <span className="flex-shrink-0 w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                              {pointIdx + 1}
+                            </span>
+                            <span className="text-sm text-slate-700 pt-0.5">{point}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Syllabus */}
         {examData.enabledSections?.syllabus && examData.syllabus?.tier1 && examData.syllabus.tier1.length > 0 && (
@@ -409,187 +425,203 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
         )}
 
         {/* Selection Process */}
-        {examData.enabledSections?.selectionProcess && examData.selectionProcess?.content && (() => {
-          // Extract list items from HTML using regex
-          const listItems = examData.selectionProcess.content.match(/<li>[\s\S]*?<\/li>/g)?.map((item: string) => 
-            item.replace(/<\/?li>/g, '').trim()
-          ) || [];
-          
-          return (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <span>🎯</span> Selection Process
-                </h2>
-              </div>
-              <div className="p-5">
-                {examData.selectionProcess.description && (
-                  <p className="text-sm text-slate-700 mb-4 leading-relaxed">{examData.selectionProcess.description}</p>
-                )}
-                {examData.selectionProcess.listStyle === 'bullets' ? (
-                  <ul className="space-y-2">
-                    {listItems.map((item: string, idx: number) => (
-                      <li key={idx} className="flex gap-2 text-sm text-slate-700">
-                        <span className="text-purple-600 font-bold">•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <ol className="space-y-2">
-                    {listItems.map((item: string, idx: number) => (
-                      <li key={idx} className="flex gap-3">
-                        <span className="flex-shrink-0 w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
-                          {idx + 1}
-                        </span>
-                        <span className="text-sm text-slate-700 pt-0.5">{item}</span>
-                      </li>
-                    ))}
-                  </ol>
-                )}
-              </div>
+        {examData.enabledSections?.selectionProcess && examData.selectionProcess && examData.selectionProcess.length > 0 && (
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <span>🎯</span> Selection Process
+              </h2>
             </div>
-          );
-        })()}
+            <div className="p-5 space-y-4">
+              {examData.selectionProcess.map((item: any, idx: number) => {
+                // Extract list items from HTML using regex
+                const listItems = item.content?.match(/<li>[\s\S]*?<\/li>/g)?.map((listItem: string) => 
+                  listItem.replace(/<\/?li>/g, '').trim()
+                ) || [];
+                
+                return (
+                  <div key={idx} className={idx > 0 ? 'pt-4 border-t border-slate-200' : ''}>
+                    {item.description && (
+                      <p className="text-sm text-slate-700 mb-3 leading-relaxed description">{item.description}</p>
+                    )}
+                    {item.listStyle === 'bullets' ? (
+                      <ul className="space-y-2">
+                        {listItems.map((point: string, pointIdx: number) => (
+                          <li key={pointIdx} className="flex gap-2 text-sm text-slate-700">
+                            <span className="text-purple-600 font-bold">•</span>
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <ol className="space-y-2">
+                        {listItems.map((point: string, pointIdx: number) => (
+                          <li key={pointIdx} className="flex gap-3">
+                            <span className="flex-shrink-0 w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                              {pointIdx + 1}
+                            </span>
+                            <span className="text-sm text-slate-700 pt-0.5">{point}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Previous Year Cutoff */}
-        {examData.enabledSections?.previousCutoff && examData.previousCutoff?.content && (() => {
-          // Extract list items from HTML using regex
-          const listItems = examData.previousCutoff.content.match(/<li>[\s\S]*?<\/li>/g)?.map((item: string) => 
-            item.replace(/<\/?li>/g, '').trim()
-          ) || [];
-          
-          return (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <span>📊</span> Previous Year Cutoff
-                </h2>
-              </div>
-              <div className="p-5">
-                {examData.previousCutoff.description && (
-                  <p className="text-sm text-slate-700 mb-4 leading-relaxed">{examData.previousCutoff.description}</p>
-                )}
-                {examData.previousCutoff.listStyle === 'bullets' ? (
-                  <ul className="space-y-2">
-                    {listItems.map((item: string, idx: number) => (
-                      <li key={idx} className="flex gap-2 text-sm text-slate-700">
-                        <span className="text-red-600 font-bold">•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <ol className="space-y-2">
-                    {listItems.map((item: string, idx: number) => (
-                      <li key={idx} className="flex gap-3">
-                        <span className="flex-shrink-0 w-6 h-6 bg-red-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
-                          {idx + 1}
-                        </span>
-                        <span className="text-sm text-slate-700 pt-0.5">{item}</span>
-                      </li>
-                    ))}
-                  </ol>
-                )}
-              </div>
+        {examData.enabledSections?.previousCutoff && examData.previousCutoff && examData.previousCutoff.length > 0 && (
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <span>📊</span> Previous Year Cutoff
+              </h2>
             </div>
-          );
-        })()}
+            <div className="p-5 space-y-4">
+              {examData.previousCutoff.map((item: any, idx: number) => {
+                // Extract list items from HTML using regex
+                const listItems = item.content?.match(/<li>[\s\S]*?<\/li>/g)?.map((listItem: string) => 
+                  listItem.replace(/<\/?li>/g, '').trim()
+                ) || [];
+                
+                return (
+                  <div key={idx} className={idx > 0 ? 'pt-4 border-t border-slate-200' : ''}>
+                    {item.description && (
+                      <p className="text-sm text-slate-700 mb-3 leading-relaxed description">{item.description}</p>
+                    )}
+                    {item.listStyle === 'bullets' ? (
+                      <ul className="space-y-2">
+                        {listItems.map((point: string, pointIdx: number) => (
+                          <li key={pointIdx} className="flex gap-2 text-sm text-slate-700">
+                            <span className="text-red-600 font-bold">•</span>
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <ol className="space-y-2">
+                        {listItems.map((point: string, pointIdx: number) => (
+                          <li key={pointIdx} className="flex gap-3">
+                            <span className="flex-shrink-0 w-6 h-6 bg-red-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                              {pointIdx + 1}
+                            </span>
+                            <span className="text-sm text-slate-700 pt-0.5">{point}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Application Fees */}
-        {examData.enabledSections?.applicationFees && examData.applicationFees?.content && (() => {
-          // Extract list items from HTML using regex
-          const listItems = examData.applicationFees.content.match(/<li>[\s\S]*?<\/li>/g)?.map((item: string) => 
-            item.replace(/<\/?li>/g, '').trim()
-          ) || [];
-          
-          return (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <span>💳</span> Application Fees
-                </h2>
-              </div>
-              <div className="p-5">
-                {examData.applicationFees.description && (
-                  <p className="text-sm text-slate-700 mb-4 leading-relaxed">{examData.applicationFees.description}</p>
-                )}
-                {examData.applicationFees.listStyle === 'bullets' ? (
-                  <ul className="space-y-2">
-                    {listItems.map((item: string, idx: number) => (
-                      <li key={idx} className="flex gap-2 text-sm text-slate-700">
-                        <span className="text-green-600 font-bold">•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <ol className="space-y-2">
-                    {listItems.map((item: string, idx: number) => (
-                      <li key={idx} className="flex gap-3">
-                        <span className="flex-shrink-0 w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
-                          {idx + 1}
-                        </span>
-                        <span className="text-sm text-slate-700 pt-0.5">{item}</span>
-                      </li>
-                    ))}
-                  </ol>
-                )}
-                {examData.applicationFees.note && (
-                  <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                    <p className="text-xs text-amber-900"><strong>Note:</strong> {examData.applicationFees.note}</p>
-                  </div>
-                )}
-              </div>
+        {examData.enabledSections?.applicationFees && examData.applicationFees && examData.applicationFees.length > 0 && (
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <span>💳</span> Application Fees
+              </h2>
             </div>
-          );
-        })()}
+            <div className="p-5 space-y-4">
+              {examData.applicationFees.map((item: any, idx: number) => {
+                // Extract list items from HTML using regex
+                const listItems = item.content?.match(/<li>[\s\S]*?<\/li>/g)?.map((listItem: string) => 
+                  listItem.replace(/<\/?li>/g, '').trim()
+                ) || [];
+                
+                return (
+                  <div key={idx} className={idx > 0 ? 'pt-4 border-t border-slate-200' : ''}>
+                    {item.description && (
+                      <p className="text-sm text-slate-700 mb-3 leading-relaxed description">{item.description}</p>
+                    )}
+                    {item.listStyle === 'bullets' ? (
+                      <ul className="space-y-2">
+                        {listItems.map((point: string, pointIdx: number) => (
+                          <li key={pointIdx} className="flex gap-2 text-sm text-slate-700">
+                            <span className="text-green-600 font-bold">•</span>
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <ol className="space-y-2">
+                        {listItems.map((point: string, pointIdx: number) => (
+                          <li key={pointIdx} className="flex gap-3">
+                            <span className="flex-shrink-0 w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                              {pointIdx + 1}
+                            </span>
+                            <span className="text-sm text-slate-700 pt-0.5">{point}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                    {item.note && (
+                      <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                        <p className="text-xs text-amber-900"><strong>Note:</strong> {item.note}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* How to Apply */}
-        {examData.enabledSections?.howToApply && examData.howToApply?.content && (() => {
-          // Extract list items from HTML using regex
-          const listItems = examData.howToApply.content.match(/<li>[\s\S]*?<\/li>/g)?.map((item: string) => 
-            item.replace(/<\/?li>/g, '').trim()
-          ) || [];
-          
-          return (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <span>📝</span> How to Apply
-                </h2>
-              </div>
-              <div className="p-5">
-                {examData.howToApply.description && (
-                  <p className="text-sm text-slate-700 mb-4 leading-relaxed">{examData.howToApply.description}</p>
-                )}
-                {examData.howToApply.listStyle === 'bullets' ? (
-                  <ul className="space-y-2">
-                    {listItems.map((item: string, idx: number) => (
-                      <li key={idx} className="flex gap-2 text-sm text-slate-700">
-                        <span className="text-cyan-600 font-bold">•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <ol className="space-y-2">
-                    {listItems.map((item: string, idx: number) => (
-                      <li key={idx} className="flex gap-3">
-                        <div className="flex-shrink-0 w-7 h-7 bg-slate-900 text-white rounded-full flex items-center justify-center font-bold text-xs">
-                          {idx + 1}
-                        </div>
-                        <div className="flex-1 pt-0.5">
-                          <p className="text-sm text-slate-700 leading-relaxed">{item}</p>
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
-                )}
-              </div>
+        {examData.enabledSections?.howToApply && examData.howToApply && examData.howToApply.length > 0 && (
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <span>📝</span> How to Apply
+              </h2>
             </div>
-          );
-        })()}
+            <div className="p-5 space-y-4">
+              {examData.howToApply.map((item: any, idx: number) => {
+                // Extract list items from HTML using regex
+                const listItems = item.content?.match(/<li>[\s\S]*?<\/li>/g)?.map((listItem: string) => 
+                  listItem.replace(/<\/?li>/g, '').trim()
+                ) || [];
+                
+                return (
+                  <div key={idx} className={idx > 0 ? 'pt-4 border-t border-slate-200' : ''}>
+                    {item.description && (
+                      <p className="text-sm text-slate-700 mb-3 leading-relaxed description">{item.description}</p>
+                    )}
+                    {item.listStyle === 'bullets' ? (
+                      <ul className="space-y-2">
+                        {listItems.map((point: string, pointIdx: number) => (
+                          <li key={pointIdx} className="flex gap-2 text-sm text-slate-700">
+                            <span className="text-cyan-600 font-bold">•</span>
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <ol className="space-y-2">
+                        {listItems.map((point: string, pointIdx: number) => (
+                          <li key={pointIdx} className="flex gap-3">
+                            <div className="flex-shrink-0 w-7 h-7 bg-slate-900 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                              {pointIdx + 1}
+                            </div>
+                            <div className="flex-1 pt-0.5">
+                              <p className="text-sm text-slate-700 leading-relaxed">{point}</p>
+                            </div>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Important Links */}
         {examData.enabledSections?.importantLinks && examData.importantLinks && examData.importantLinks.length > 0 && (
@@ -614,7 +646,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ slug: str
                         <td className="px-4 py-2 text-sm text-slate-900 border border-slate-200">{link.label}</td>
                         <td className="px-4 py-2 text-center border border-slate-200">
                           <a
-                            href={link.url}
+                            href={link.type === 'pdf' ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${link.file}` : link.url}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"

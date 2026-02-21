@@ -178,25 +178,25 @@ const examDetailSchema = new mongoose.Schema({
   },
 
   // Eligibility
-  eligibility: {
+  eligibility: [{
     description: String,
     content: String,
     listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'bullets' }
-  },
+  }],
 
   // Age Limit (Separate Section)
-  ageLimit: {
+  ageLimit: [{
     description: String,
     content: String,
     listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'bullets' }
-  },
+  }],
 
   // Required Documents (New Section)
-  requiredDocuments: {
+  requiredDocuments: [{
     description: String,
     content: String,
     listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'bullets' }
-  },
+  }],
 
   // Exam Pattern
   examPattern: [{
@@ -210,11 +210,11 @@ const examDetailSchema = new mongoose.Schema({
   }],
 
   // Salary
-  salary: {
+  salary: [{
     description: String,
     content: String,
     listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'bullets' }
-  },
+  }],
 
   // Syllabus
   syllabus: {
@@ -225,40 +225,41 @@ const examDetailSchema = new mongoose.Schema({
   },
 
   // How to Apply
-  howToApply: {
+  howToApply: [{
     description: String,
     content: String,
     listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'numbers' }
-  },
+  }],
 
   // Selection Process
-  selectionProcess: {
+  selectionProcess: [{
     description: String,
     content: String,
     listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'bullets' }
-  },
+  }],
 
   // Previous Cutoff
-  previousCutoff: {
+  previousCutoff: [{
     description: String,
     content: String,
     listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'bullets' }
-  },
+  }],
 
   // Application Fees
-  applicationFees: {
+  applicationFees: [{
     description: String,
     content: String,
     listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'bullets' },
     note: String
-  },
+  }],
 
   // Important Links
   importantLinks: [{
     label: String,
     url: String,
     icon: String,
-    type: { type: String, enum: ['url', 'pdf'], default: 'url' }
+    type: { type: String, enum: ['url', 'pdf'], default: 'url' },
+    file: String
   }],
 
   // FAQs

@@ -75,52 +75,52 @@ export default function ExamDetailFormPage() {
       description: "", 
       breakdown: [] as Array<{post: string, vacancies: string}>
     },
-    eligibility: {
+    eligibility: [{
       description: "",
       content: "",
       listStyle: "bullets" as "bullets" | "numbers"
-    },
-    ageLimit: {
+    }],
+    ageLimit: [{
       description: "",
       content: "",
       listStyle: "bullets" as "bullets" | "numbers"
-    },
-    requiredDocuments: {
+    }],
+    requiredDocuments: [{
       description: "",
       content: "",
       listStyle: "bullets" as "bullets" | "numbers"
-    },
+    }],
     examPattern: [] as Array<{tier: string, mode: string, subjects: string, questions: string, marks: string, duration: string, negativeMarking: string}>,
-    salary: { 
+    salary: [{
       description: "",
       content: "",
       listStyle: "bullets" as "bullets" | "numbers"
-    },
+    }],
     syllabus: { 
       tier1: [] as Array<{subject: string, topics: string}>
     },
-    howToApply: {
+    howToApply: [{
       description: "",
       content: "",
       listStyle: "numbers" as "bullets" | "numbers"
-    },
-    selectionProcess: {
+    }],
+    selectionProcess: [{
       description: "",
       content: "",
       listStyle: "bullets" as "bullets" | "numbers"
-    },
-    previousCutoff: {
+    }],
+    previousCutoff: [{
       description: "",
       content: "",
       listStyle: "bullets" as "bullets" | "numbers"
-    },
-    applicationFees: {
+    }],
+    applicationFees: [{
       description: "",
       content: "",
       listStyle: "bullets" as "bullets" | "numbers",
       note: ""
-    },
-    importantLinks: [] as Array<{label: string, url: string, icon: string, type?: 'url' | 'pdf'}>,
+    }],
+    importantLinks: [] as Array<{label: string, url: string, icon: string, type: 'url' | 'pdf', file?: string}>,
     faqs: [] as Array<{question: string, answer: string}>,
     tags: [] as string[],
     relatedPosts: [] as Array<{title: string, slug: string, category: string}>,
@@ -158,7 +158,66 @@ export default function ExamDetailFormPage() {
       );
       const data = await response.json();
       if (data.success) {
-        setFormData(data.data);
+        // Convert old format to new array format if needed
+        const convertedData = { ...data.data };
+        
+        // Convert eligibility
+        if (convertedData.eligibility && !Array.isArray(convertedData.eligibility)) {
+          convertedData.eligibility = [convertedData.eligibility];
+        } else if (!convertedData.eligibility) {
+          convertedData.eligibility = [{ description: "", content: "", listStyle: "bullets" }];
+        }
+        
+        // Convert ageLimit
+        if (convertedData.ageLimit && !Array.isArray(convertedData.ageLimit)) {
+          convertedData.ageLimit = [convertedData.ageLimit];
+        } else if (!convertedData.ageLimit) {
+          convertedData.ageLimit = [{ description: "", content: "", listStyle: "bullets" }];
+        }
+        
+        // Convert requiredDocuments
+        if (convertedData.requiredDocuments && !Array.isArray(convertedData.requiredDocuments)) {
+          convertedData.requiredDocuments = [convertedData.requiredDocuments];
+        } else if (!convertedData.requiredDocuments) {
+          convertedData.requiredDocuments = [{ description: "", content: "", listStyle: "bullets" }];
+        }
+        
+        // Convert salary
+        if (convertedData.salary && !Array.isArray(convertedData.salary)) {
+          convertedData.salary = [convertedData.salary];
+        } else if (!convertedData.salary) {
+          convertedData.salary = [{ description: "", content: "", listStyle: "bullets" }];
+        }
+        
+        // Convert howToApply
+        if (convertedData.howToApply && !Array.isArray(convertedData.howToApply)) {
+          convertedData.howToApply = [convertedData.howToApply];
+        } else if (!convertedData.howToApply) {
+          convertedData.howToApply = [{ description: "", content: "", listStyle: "numbers" }];
+        }
+        
+        // Convert selectionProcess
+        if (convertedData.selectionProcess && !Array.isArray(convertedData.selectionProcess)) {
+          convertedData.selectionProcess = [convertedData.selectionProcess];
+        } else if (!convertedData.selectionProcess) {
+          convertedData.selectionProcess = [{ description: "", content: "", listStyle: "bullets" }];
+        }
+        
+        // Convert previousCutoff
+        if (convertedData.previousCutoff && !Array.isArray(convertedData.previousCutoff)) {
+          convertedData.previousCutoff = [convertedData.previousCutoff];
+        } else if (!convertedData.previousCutoff) {
+          convertedData.previousCutoff = [{ description: "", content: "", listStyle: "bullets" }];
+        }
+        
+        // Convert applicationFees
+        if (convertedData.applicationFees && !Array.isArray(convertedData.applicationFees)) {
+          convertedData.applicationFees = [convertedData.applicationFees];
+        } else if (!convertedData.applicationFees) {
+          convertedData.applicationFees = [{ description: "", content: "", listStyle: "bullets", note: "" }];
+        }
+        
+        setFormData(convertedData);
       }
     } catch (err) {
       setError("Failed to load exam details");
@@ -457,47 +516,60 @@ export default function ExamDetailFormPage() {
             </div>
           )}
 
-          {/* Important Dates */}
-          {formData.enabledSections.importantDates && (
+          {/* Eligibility */}
+          {formData.enabledSections.eligibility && (
             <div className="card">
-              <h3 style={{ marginBottom: 16, color: '#f59e0b' }}>📅 Important Dates</h3>
+              <h3 style={{ marginBottom: 16, color: '#14b8a6' }}>✓ Eligibility Criteria</h3>
               <div style={{ marginBottom: 12 }}>
-                {formData.importantDates.map((item, idx) => (
-                  <div key={idx} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                    <input
-                      className="input"
-                      placeholder="Event name"
-                      value={item.event}
-                      onChange={(e) => {
-                        const updated = [...formData.importantDates];
-                        updated[idx].event = e.target.value;
-                        setFormData({ ...formData, importantDates: updated });
+                {formData.eligibility.map((item, idx) => (
+                  <div key={idx} style={{ marginBottom: 16, padding: 12, background: '#f0fdfa', borderRadius: 8, border: '1px solid #99f6e4' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <strong style={{ color: '#14b8a6' }}>Entry {idx + 1}</strong>
+                      {formData.eligibility.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = formData.eligibility.filter((_, i) => i !== idx);
+                            setFormData({ ...formData, eligibility: updated });
+                          }}
+                          style={{ padding: '4px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}
+                        >
+                          ✕ Remove
+                        </button>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label>Description (Optional)</label>
+                      <textarea
+                        className="input"
+                        rows={2}
+                        value={item.description}
+                        onChange={(e) => {
+                          const updated = [...formData.eligibility];
+                          updated[idx].description = e.target.value;
+                          setFormData({ ...formData, eligibility: updated });
+                        }}
+                        placeholder="Enter a description that will appear above the points..."
+                        style={{ marginBottom: 12 }}
+                      />
+                    </div>
+                    <RichTextEditor
+                      label=""
+                      value={item.content}
+                      onChange={(value) => {
+                        const updated = [...formData.eligibility];
+                        updated[idx].content = value;
+                        setFormData({ ...formData, eligibility: updated });
                       }}
-                      style={{ flex: 1, fontSize: 13 }}
+                      listStyle={item.listStyle}
+                      onListStyleChange={(style) => {
+                        const updated = [...formData.eligibility];
+                        updated[idx].listStyle = style;
+                        setFormData({ ...formData, eligibility: updated });
+                      }}
+                      showListStyleToggle={true}
+                      placeholder="Enter eligibility criteria - each line will be a separate point:\nEducational Qualification: Bachelor's Degree\nNationality: Indian Citizen\nExperience: Not required\nAge: 18-33 years"
                     />
-                    <input
-                      className="input"
-                      placeholder="Date"
-                      value={item.date}
-                      onChange={(e) => {
-                        const updated = [...formData.importantDates];
-                        updated[idx].date = e.target.value;
-                        setFormData({ ...formData, importantDates: updated });
-                      }}
-                      style={{ flex: 1, fontSize: 13 }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormData({
-                          ...formData,
-                          importantDates: formData.importantDates.filter((_, i) => i !== idx)
-                        });
-                      }}
-                      style={{ padding: '0 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer' }}
-                    >
-                      ✕
-                    </button>
                   </div>
                 ))}
               </div>
@@ -507,11 +579,157 @@ export default function ExamDetailFormPage() {
                 onClick={() => {
                   setFormData({
                     ...formData,
-                    importantDates: [...formData.importantDates, { event: "", date: "" }]
+                    eligibility: [...formData.eligibility, { description: "", content: "", listStyle: "bullets" as "bullets" | "numbers" }]
                   });
                 }}
               >
-                + Add Date
+                + Add More Eligibility Criteria
+              </button>
+            </div>
+          )}
+
+          {/* Syllabus Section */}
+          {formData.enabledSections.syllabus && (
+            <div className="card">
+              <h3 style={{ marginBottom: 16, color: '#f59e0b' }}>📚 Syllabus</h3>
+              <div style={{ marginBottom: 12 }}>
+                {formData.syllabus.tier1.map((item, idx) => (
+                  <div key={idx} style={{ marginBottom: 12, padding: 12, background: '#fffbeb', borderRadius: 8, border: '1px solid #fde68a' }}>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                      <input
+                        className="input"
+                        placeholder="Subject name"
+                        value={item.subject}
+                        onChange={(e) => {
+                          const updated = [...formData.syllabus.tier1];
+                          updated[idx].subject = e.target.value;
+                          setFormData({
+                            ...formData,
+                            syllabus: { ...formData.syllabus, tier1: updated }
+                          });
+                        }}
+                        style={{ flex: 1, fontSize: 13, fontWeight: 600 }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData({
+                            ...formData,
+                            syllabus: {
+                              ...formData.syllabus,
+                              tier1: formData.syllabus.tier1.filter((_, i) => i !== idx)
+                            }
+                          });
+                        }}
+                        style={{ padding: '0 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer' }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <textarea
+                      className="input"
+                      rows={3}
+                      placeholder="Topics covered (comma separated)"
+                      value={item.topics}
+                      onChange={(e) => {
+                        const updated = [...formData.syllabus.tier1];
+                        updated[idx].topics = e.target.value;
+                        setFormData({
+                          ...formData,
+                          syllabus: { ...formData.syllabus, tier1: updated }
+                        });
+                      }}
+                      style={{ fontSize: 13 }}
+                    />
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    syllabus: {
+                      ...formData.syllabus,
+                      tier1: [...formData.syllabus.tier1, { subject: "", topics: "" }]
+                    }
+                  });
+                }}
+              >
+                + Add Subject
+              </button>
+            </div>
+          )}
+
+          {/* Age Limit (Separate Section) */}
+          {formData.enabledSections.ageLimit && (
+            <div className="card">
+              <h3 style={{ marginBottom: 16, color: '#8b5cf6' }}>🎂 Age Limit</h3>
+              <div style={{ marginBottom: 12 }}>
+                {formData.ageLimit.map((item, idx) => (
+                  <div key={idx} style={{ marginBottom: 16, padding: 12, background: '#faf5ff', borderRadius: 8, border: '1px solid #e9d5ff' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <strong style={{ color: '#8b5cf6' }}>Entry {idx + 1}</strong>
+                      {formData.ageLimit.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = formData.ageLimit.filter((_, i) => i !== idx);
+                            setFormData({ ...formData, ageLimit: updated });
+                          }}
+                          style={{ padding: '4px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}
+                        >
+                          ✕ Remove
+                        </button>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label>Description (Optional)</label>
+                      <textarea
+                        className="input"
+                        rows={2}
+                        value={item.description}
+                        onChange={(e) => {
+                          const updated = [...formData.ageLimit];
+                          updated[idx].description = e.target.value;
+                          setFormData({ ...formData, ageLimit: updated });
+                        }}
+                        placeholder="Enter a description that will appear above the points..."
+                        style={{ marginBottom: 12 }}
+                      />
+                    </div>
+                    <RichTextEditor
+                      label=""
+                      value={item.content}
+                      onChange={(value) => {
+                        const updated = [...formData.ageLimit];
+                        updated[idx].content = value;
+                        setFormData({ ...formData, ageLimit: updated });
+                      }}
+                      listStyle={item.listStyle}
+                      onListStyleChange={(style) => {
+                        const updated = [...formData.ageLimit];
+                        updated[idx].listStyle = style;
+                        setFormData({ ...formData, ageLimit: updated });
+                      }}
+                      showListStyleToggle={true}
+                      placeholder="Enter age limit details - each line will be a separate point:\nMinimum Age: 18 years\nMaximum Age: 30 years\nAge relaxation for SC/ST: 5 years\nAge relaxation for OBC: 3 years"
+                    />
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    ageLimit: [...formData.ageLimit, { description: "", content: "", listStyle: "bullets" as "bullets" | "numbers" }]
+                  });
+                }}
+              >
+                + Add More Age Limit Details
               </button>
             </div>
           )}
@@ -600,111 +818,161 @@ export default function ExamDetailFormPage() {
             </div>
           )}
 
-          {/* Eligibility */}
-          {formData.enabledSections.eligibility && (
+          {/* Salary Section */}
+          {formData.enabledSections.salary && (
             <div className="card">
-              <h3 style={{ marginBottom: 16, color: '#14b8a6' }}>✓ Eligibility Criteria</h3>
-              <div className="form-group">
-                <label>Description (Optional)</label>
-                <textarea
-                  className="input"
-                  rows={2}
-                  value={formData.eligibility.description}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    eligibility: { ...formData.eligibility, description: e.target.value }
-                  })}
-                  placeholder="Enter a description that will appear above the points..."
-                  style={{ marginBottom: 12 }}
-                />
+              <h3 style={{ marginBottom: 16, color: '#10b981' }}>💵 Salary Details</h3>
+              <div style={{ marginBottom: 12 }}>
+                {formData.salary.map((item, idx) => (
+                  <div key={idx} style={{ marginBottom: 16, padding: 12, background: '#f0fdf4', borderRadius: 8, border: '1px solid #bbf7d0' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <strong style={{ color: '#10b981' }}>Entry {idx + 1}</strong>
+                      {formData.salary.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = formData.salary.filter((_, i) => i !== idx);
+                            setFormData({ ...formData, salary: updated });
+                          }}
+                          style={{ padding: '4px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}
+                        >
+                          ✕ Remove
+                        </button>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label>Description (Optional)</label>
+                      <textarea
+                        className="input"
+                        rows={2}
+                        value={item.description}
+                        onChange={(e) => {
+                          const updated = [...formData.salary];
+                          updated[idx].description = e.target.value;
+                          setFormData({ ...formData, salary: updated });
+                        }}
+                        placeholder="Enter a description that will appear above the points..."
+                        style={{ marginBottom: 12 }}
+                      />
+                    </div>
+                    <RichTextEditor
+                      label=""
+                      value={item.content}
+                      onChange={(value) => {
+                        const updated = [...formData.salary];
+                        updated[idx].content = value;
+                        setFormData({ ...formData, salary: updated });
+                      }}
+                      listStyle={item.listStyle}
+                      onListStyleChange={(style) => {
+                        const updated = [...formData.salary];
+                        updated[idx].listStyle = style;
+                        setFormData({ ...formData, salary: updated });
+                      }}
+                      showListStyleToggle={true}
+                      placeholder="Enter salary details - each line will be a separate point:\nPay Level: Level 7\nPay Scale: ₹44,900 - ₹1,42,400\nGrade Pay: ₹4,600\nAdditional Benefits: DA, HRA, TA\nMedical Facilities: As per government norms"
+                    />
+                  </div>
+                ))}
               </div>
-              <RichTextEditor
-                label=""
-                value={formData.eligibility.content}
-                onChange={(value) => setFormData({
-                  ...formData,
-                  eligibility: { ...formData.eligibility, content: value }
-                })}
-                listStyle={formData.eligibility.listStyle}
-                onListStyleChange={(style) => setFormData({
-                  ...formData,
-                  eligibility: { ...formData.eligibility, listStyle: style }
-                })}
-                showListStyleToggle={true}
-                placeholder="Enter eligibility criteria - each line will be a separate point:\\nEducational Qualification: Bachelor's Degree\\nNationality: Indian Citizen\\nExperience: Not required\\nAge: 18-33 years"
-              />
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    salary: [...formData.salary, { description: "", content: "", listStyle: "bullets" as "bullets" | "numbers" }]
+                  });
+                }}
+              >
+                + Add More Salary Details
+              </button>
             </div>
           )}
 
-          {/* Age Limit (Separate Section) */}
-          {formData.enabledSections.ageLimit && (
+          {/* Application Fees */}
+          {formData.enabledSections.applicationFees && (
             <div className="card">
-              <h3 style={{ marginBottom: 16, color: '#8b5cf6' }}>🎂 Age Limit</h3>
-              <div className="form-group">
-                <label>Description (Optional)</label>
-                <textarea
-                  className="input"
-                  rows={2}
-                  value={formData.ageLimit.description}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    ageLimit: { ...formData.ageLimit, description: e.target.value }
-                  })}
-                  placeholder="Enter a description that will appear above the points..."
-                  style={{ marginBottom: 12 }}
-                />
+              <h3 style={{ marginBottom: 16, color: '#eab308' }}>💰 Application Fees</h3>
+              <div style={{ marginBottom: 12 }}>
+                {formData.applicationFees.map((item, idx) => (
+                  <div key={idx} style={{ marginBottom: 16, padding: 12, background: '#fefce8', borderRadius: 8, border: '1px solid #fde047' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <strong style={{ color: '#eab308' }}>Entry {idx + 1}</strong>
+                      {formData.applicationFees.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = formData.applicationFees.filter((_, i) => i !== idx);
+                            setFormData({ ...formData, applicationFees: updated });
+                          }}
+                          style={{ padding: '4px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}
+                        >
+                          ✕ Remove
+                        </button>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label>Description (Optional)</label>
+                      <textarea
+                        className="input"
+                        rows={2}
+                        value={item.description}
+                        onChange={(e) => {
+                          const updated = [...formData.applicationFees];
+                          updated[idx].description = e.target.value;
+                          setFormData({ ...formData, applicationFees: updated });
+                        }}
+                        placeholder="Enter a description that will appear above the points..."
+                        style={{ marginBottom: 12 }}
+                      />
+                    </div>
+                    <RichTextEditor
+                      label=""
+                      value={item.content}
+                      onChange={(value) => {
+                        const updated = [...formData.applicationFees];
+                        updated[idx].content = value;
+                        setFormData({ ...formData, applicationFees: updated });
+                      }}
+                      listStyle={item.listStyle}
+                      onListStyleChange={(style) => {
+                        const updated = [...formData.applicationFees];
+                        updated[idx].listStyle = style;
+                        setFormData({ ...formData, applicationFees: updated });
+                      }}
+                      showListStyleToggle={true}
+                      placeholder="Enter application fee details - each line will be a separate point:\nGeneral/OBC: ₹100\nSC/ST/Female/PwD: No Fee\nPayment Mode: Card, Net Banking, UPI"
+                    />
+                    <div className="form-group" style={{ marginTop: 16 }}>
+                      <label>Note</label>
+                      <textarea
+                        className="input"
+                        rows={2}
+                        value={item.note}
+                        onChange={(e) => {
+                          const updated = [...formData.applicationFees];
+                          updated[idx].note = e.target.value;
+                          setFormData({ ...formData, applicationFees: updated });
+                        }}
+                        placeholder="Fee once paid will not be refunded"
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
-              <RichTextEditor
-                label=""
-                value={formData.ageLimit.content}
-                onChange={(value) => setFormData({
-                  ...formData,
-                  ageLimit: { ...formData.ageLimit, content: value }
-                })}
-                listStyle={formData.ageLimit.listStyle}
-                onListStyleChange={(style) => setFormData({
-                  ...formData,
-                  ageLimit: { ...formData.ageLimit, listStyle: style }
-                })}
-                showListStyleToggle={true}
-                placeholder="Enter age limit details - each line will be a separate point:\nMinimum Age: 18 years\nMaximum Age: 30 years\nAge relaxation for SC/ST: 5 years\nAge relaxation for OBC: 3 years"
-              />
-            </div>
-          )}
-
-          {/* Required Documents (New Section) */}
-          {formData.enabledSections.requiredDocuments && (
-            <div className="card">
-              <h3 style={{ marginBottom: 16, color: '#f59e0b' }}>📄 Required Documents</h3>
-              <div className="form-group">
-                <label>Description (Optional)</label>
-                <textarea
-                  className="input"
-                  rows={2}
-                  value={formData.requiredDocuments.description}
-                  onChange={(e) => setFormData({
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => {
+                  setFormData({
                     ...formData,
-                    requiredDocuments: { ...formData.requiredDocuments, description: e.target.value }
-                  })}
-                  placeholder="Enter a description that will appear above the points..."
-                  style={{ marginBottom: 12 }}
-                />
-              </div>
-              <RichTextEditor
-                label=""
-                value={formData.requiredDocuments.content}
-                onChange={(value) => setFormData({
-                  ...formData,
-                  requiredDocuments: { ...formData.requiredDocuments, content: value }
-                })}
-                listStyle={formData.requiredDocuments.listStyle}
-                onListStyleChange={(style) => setFormData({
-                  ...formData,
-                  requiredDocuments: { ...formData.requiredDocuments, listStyle: style }
-                })}
-                showListStyleToggle={true}
-                placeholder="Enter required documents - each line will be a separate point:\n10th Mark Sheet\n12th Mark Sheet\nGraduation Certificate\nCaste Certificate (if applicable)\nRecent Passport Size Photograph\nSignature"
-              />
+                    applicationFees: [...formData.applicationFees, { description: "", content: "", listStyle: "bullets" as "bullets" | "numbers", note: "" }]
+                  });
+                }}
+              >
+                + Add More Application Fee Details
+              </button>
             </div>
           )}
 
@@ -789,94 +1057,59 @@ export default function ExamDetailFormPage() {
             </div>
           )}
 
-          {/* Salary Section */}
-          {formData.enabledSections.salary && (
+          {/* Selection Process */}
+          {formData.enabledSections.selectionProcess && (
             <div className="card">
-              <h3 style={{ marginBottom: 16, color: '#10b981' }}>💵 Salary Details</h3>
-              <div className="form-group">
-                <label>Description (Optional)</label>
-                <textarea
-                  className="input"
-                  rows={2}
-                  value={formData.salary.description}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    salary: { ...formData.salary, description: e.target.value }
-                  })}
-                  placeholder="Enter a description that will appear above the points..."
-                  style={{ marginBottom: 12 }}
-                />
-              </div>
-              <RichTextEditor
-                label=""
-                value={formData.salary.content}
-                onChange={(value) => setFormData({
-                  ...formData,
-                  salary: { ...formData.salary, content: value }
-                })}
-                listStyle={formData.salary.listStyle}
-                onListStyleChange={(style) => setFormData({
-                  ...formData,
-                  salary: { ...formData.salary, listStyle: style }
-                })}
-                showListStyleToggle={true}
-                placeholder="Enter salary details - each line will be a separate point:\nPay Level: Level 7\nPay Scale: ₹44,900 - ₹1,42,400\nGrade Pay: ₹4,600\nAdditional Benefits: DA, HRA, TA\nMedical Facilities: As per government norms"
-              />
-            </div>
-          )}
-
-          {/* Syllabus Section */}
-          {formData.enabledSections.syllabus && (
-            <div className="card">
-              <h3 style={{ marginBottom: 16, color: '#f59e0b' }}>📚 Syllabus</h3>
+              <h3 style={{ marginBottom: 16, color: '#8b5cf6' }}>🎯 Selection Process</h3>
               <div style={{ marginBottom: 12 }}>
-                {formData.syllabus.tier1.map((item, idx) => (
-                  <div key={idx} style={{ marginBottom: 12, padding: 12, background: '#fffbeb', borderRadius: 8, border: '1px solid #fde68a' }}>
-                    <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                      <input
-                        className="input"
-                        placeholder="Subject name"
-                        value={item.subject}
-                        onChange={(e) => {
-                          const updated = [...formData.syllabus.tier1];
-                          updated[idx].subject = e.target.value;
-                          setFormData({
-                            ...formData,
-                            syllabus: { ...formData.syllabus, tier1: updated }
-                          });
-                        }}
-                        style={{ flex: 1, fontSize: 13, fontWeight: 600 }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setFormData({
-                            ...formData,
-                            syllabus: {
-                              ...formData.syllabus,
-                              tier1: formData.syllabus.tier1.filter((_, i) => i !== idx)
-                            }
-                          });
-                        }}
-                        style={{ padding: '0 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer' }}
-                      >
-                        ✕
-                      </button>
+                {formData.selectionProcess.map((item, idx) => (
+                  <div key={idx} style={{ marginBottom: 16, padding: 12, background: '#faf5ff', borderRadius: 8, border: '1px solid #e9d5ff' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <strong style={{ color: '#8b5cf6' }}>Entry {idx + 1}</strong>
+                      {formData.selectionProcess.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = formData.selectionProcess.filter((_, i) => i !== idx);
+                            setFormData({ ...formData, selectionProcess: updated });
+                          }}
+                          style={{ padding: '4px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}
+                        >
+                          ✕ Remove
+                        </button>
+                      )}
                     </div>
-                    <textarea
-                      className="input"
-                      rows={3}
-                      placeholder="Topics covered (comma separated)"
-                      value={item.topics}
-                      onChange={(e) => {
-                        const updated = [...formData.syllabus.tier1];
-                        updated[idx].topics = e.target.value;
-                        setFormData({
-                          ...formData,
-                          syllabus: { ...formData.syllabus, tier1: updated }
-                        });
+                    <div className="form-group">
+                      <label>Description (Optional)</label>
+                      <textarea
+                        className="input"
+                        rows={2}
+                        value={item.description}
+                        onChange={(e) => {
+                          const updated = [...formData.selectionProcess];
+                          updated[idx].description = e.target.value;
+                          setFormData({ ...formData, selectionProcess: updated });
+                        }}
+                        placeholder="Enter a description that will appear above the points..."
+                        style={{ marginBottom: 12 }}
+                      />
+                    </div>
+                    <RichTextEditor
+                      label=""
+                      value={item.content}
+                      onChange={(value) => {
+                        const updated = [...formData.selectionProcess];
+                        updated[idx].content = value;
+                        setFormData({ ...formData, selectionProcess: updated });
                       }}
-                      style={{ fontSize: 13 }}
+                      listStyle={item.listStyle}
+                      onListStyleChange={(style) => {
+                        const updated = [...formData.selectionProcess];
+                        updated[idx].listStyle = style;
+                        setFormData({ ...formData, selectionProcess: updated });
+                      }}
+                      showListStyleToggle={true}
+                      placeholder="Enter selection process stages - each line will be a separate point:\nWritten Examination (Tier 1)\nWritten Examination (Tier 2)\nDocument Verification\nMedical Examination"
                     />
                   </div>
                 ))}
@@ -887,51 +1120,84 @@ export default function ExamDetailFormPage() {
                 onClick={() => {
                   setFormData({
                     ...formData,
-                    syllabus: {
-                      ...formData.syllabus,
-                      tier1: [...formData.syllabus.tier1, { subject: "", topics: "" }]
-                    }
+                    selectionProcess: [...formData.selectionProcess, { description: "", content: "", listStyle: "bullets" as "bullets" | "numbers" }]
                   });
                 }}
               >
-                + Add Subject
+                + Add More Selection Process Details
               </button>
             </div>
           )}
 
-          {/* Selection Process */}
-          {formData.enabledSections.selectionProcess && (
+          {/* Required Documents (New Section) */}
+          {formData.enabledSections.requiredDocuments && (
             <div className="card">
-              <h3 style={{ marginBottom: 16, color: '#8b5cf6' }}>🎯 Selection Process</h3>
-              <div className="form-group">
-                <label>Description (Optional)</label>
-                <textarea
-                  className="input"
-                  rows={2}
-                  value={formData.selectionProcess.description}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    selectionProcess: { ...formData.selectionProcess, description: e.target.value }
-                  })}
-                  placeholder="Enter a description that will appear above the points..."
-                  style={{ marginBottom: 12 }}
-                />
+              <h3 style={{ marginBottom: 16, color: '#f59e0b' }}>📄 Required Documents</h3>
+              <div style={{ marginBottom: 12 }}>
+                {formData.requiredDocuments.map((item, idx) => (
+                  <div key={idx} style={{ marginBottom: 16, padding: 12, background: '#fffbeb', borderRadius: 8, border: '1px solid #fde68a' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <strong style={{ color: '#f59e0b' }}>Entry {idx + 1}</strong>
+                      {formData.requiredDocuments.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = formData.requiredDocuments.filter((_, i) => i !== idx);
+                            setFormData({ ...formData, requiredDocuments: updated });
+                          }}
+                          style={{ padding: '4px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}
+                        >
+                          ✕ Remove
+                        </button>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label>Description (Optional)</label>
+                      <textarea
+                        className="input"
+                        rows={2}
+                        value={item.description}
+                        onChange={(e) => {
+                          const updated = [...formData.requiredDocuments];
+                          updated[idx].description = e.target.value;
+                          setFormData({ ...formData, requiredDocuments: updated });
+                        }}
+                        placeholder="Enter a description that will appear above the points..."
+                        style={{ marginBottom: 12 }}
+                      />
+                    </div>
+                    <RichTextEditor
+                      label=""
+                      value={item.content}
+                      onChange={(value) => {
+                        const updated = [...formData.requiredDocuments];
+                        updated[idx].content = value;
+                        setFormData({ ...formData, requiredDocuments: updated });
+                      }}
+                      listStyle={item.listStyle}
+                      onListStyleChange={(style) => {
+                        const updated = [...formData.requiredDocuments];
+                        updated[idx].listStyle = style;
+                        setFormData({ ...formData, requiredDocuments: updated });
+                      }}
+                      showListStyleToggle={true}
+                      placeholder="Enter required documents - each line will be a separate point:\n10th Mark Sheet\n12th Mark Sheet\nGraduation Certificate\nCaste Certificate (if applicable)\nRecent Passport Size Photograph\nSignature"
+                    />
+                  </div>
+                ))}
               </div>
-              <RichTextEditor
-                label=""
-                value={formData.selectionProcess.content}
-                onChange={(value) => setFormData({
-                  ...formData,
-                  selectionProcess: { ...formData.selectionProcess, content: value }
-                })}
-                listStyle={formData.selectionProcess.listStyle}
-                onListStyleChange={(style) => setFormData({
-                  ...formData,
-                  selectionProcess: { ...formData.selectionProcess, listStyle: style }
-                })}
-                showListStyleToggle={true}
-                placeholder="Enter selection process stages - each line will be a separate point:\\nWritten Examination (Tier 1)\\nWritten Examination (Tier 2)\\nDocument Verification\\nMedical Examination"
-              />
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    requiredDocuments: [...formData.requiredDocuments, { description: "", content: "", listStyle: "bullets" as "bullets" | "numbers" }]
+                  });
+                }}
+              >
+                + Add More Document Requirements
+              </button>
             </div>
           )}
 
@@ -939,84 +1205,71 @@ export default function ExamDetailFormPage() {
           {formData.enabledSections.previousCutoff && (
             <div className="card">
               <h3 style={{ marginBottom: 16, color: '#ef4444' }}>📊 Previous Year Cutoff</h3>
-              <div className="form-group">
-                <label>Description (Optional)</label>
-                <textarea
-                  className="input"
-                  rows={2}
-                  value={formData.previousCutoff.description}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    previousCutoff: { ...formData.previousCutoff, description: e.target.value }
-                  })}
-                  placeholder="Enter a description that will appear above the points..."
-                  style={{ marginBottom: 12 }}
-                />
+              <div style={{ marginBottom: 12 }}>
+                {formData.previousCutoff.map((item, idx) => (
+                  <div key={idx} style={{ marginBottom: 16, padding: 12, background: '#fef2f2', borderRadius: 8, border: '1px solid #fecaca' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <strong style={{ color: '#ef4444' }}>Entry {idx + 1}</strong>
+                      {formData.previousCutoff.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = formData.previousCutoff.filter((_, i) => i !== idx);
+                            setFormData({ ...formData, previousCutoff: updated });
+                          }}
+                          style={{ padding: '4px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}
+                        >
+                          ✕ Remove
+                        </button>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label>Description (Optional)</label>
+                      <textarea
+                        className="input"
+                        rows={2}
+                        value={item.description}
+                        onChange={(e) => {
+                          const updated = [...formData.previousCutoff];
+                          updated[idx].description = e.target.value;
+                          setFormData({ ...formData, previousCutoff: updated });
+                        }}
+                        placeholder="Enter a description that will appear above the points..."
+                        style={{ marginBottom: 12 }}
+                      />
+                    </div>
+                    <RichTextEditor
+                      label=""
+                      value={item.content}
+                      onChange={(value) => {
+                        const updated = [...formData.previousCutoff];
+                        updated[idx].content = value;
+                        setFormData({ ...formData, previousCutoff: updated });
+                      }}
+                      listStyle={item.listStyle}
+                      onListStyleChange={(style) => {
+                        const updated = [...formData.previousCutoff];
+                        updated[idx].listStyle = style;
+                        setFormData({ ...formData, previousCutoff: updated });
+                      }}
+                      showListStyleToggle={true}
+                      placeholder="Enter previous year cutoff details - each line will be a separate point:\nGeneral: 150.25 marks\nOBC: 145.50 marks\nSC: 130.75 marks\nST: 125.00 marks"
+                    />
+                  </div>
+                ))}
               </div>
-              <RichTextEditor
-                label=""
-                value={formData.previousCutoff.content}
-                onChange={(value) => setFormData({
-                  ...formData,
-                  previousCutoff: { ...formData.previousCutoff, content: value }
-                })}
-                listStyle={formData.previousCutoff.listStyle}
-                onListStyleChange={(style) => setFormData({
-                  ...formData,
-                  previousCutoff: { ...formData.previousCutoff, listStyle: style }
-                })}
-                showListStyleToggle={true}
-                placeholder="Enter previous year cutoff details - each line will be a separate point:\\nGeneral: 150.25 marks\\nOBC: 145.50 marks\\nSC: 130.75 marks\\nST: 125.00 marks"
-              />
-            </div>
-          )}
-
-          {/* Application Fees */}
-          {formData.enabledSections.applicationFees && (
-            <div className="card">
-              <h3 style={{ marginBottom: 16, color: '#eab308' }}>💰 Application Fees</h3>
-              <div className="form-group">
-                <label>Description (Optional)</label>
-                <textarea
-                  className="input"
-                  rows={2}
-                  value={formData.applicationFees.description}
-                  onChange={(e) => setFormData({
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => {
+                  setFormData({
                     ...formData,
-                    applicationFees: { ...formData.applicationFees, description: e.target.value }
-                  })}
-                  placeholder="Enter a description that will appear above the points..."
-                  style={{ marginBottom: 12 }}
-                />
-              </div>
-              <RichTextEditor
-                label=""
-                value={formData.applicationFees.content}
-                onChange={(value) => setFormData({
-                  ...formData,
-                  applicationFees: { ...formData.applicationFees, content: value }
-                })}
-                listStyle={formData.applicationFees.listStyle}
-                onListStyleChange={(style) => setFormData({
-                  ...formData,
-                  applicationFees: { ...formData.applicationFees, listStyle: style }
-                })}
-                showListStyleToggle={true}
-                placeholder="Enter application fee details - each line will be a separate point:\\nGeneral/OBC: ₹100\\nSC/ST/Female/PwD: No Fee\\nPayment Mode: Card, Net Banking, UPI"
-              />
-              <div className="form-group" style={{ marginTop: 16 }}>
-                <label>Note</label>
-                <textarea
-                  className="input"
-                  rows={2}
-                  value={formData.applicationFees.note}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    applicationFees: { ...formData.applicationFees, note: e.target.value }
-                  })}
-                  placeholder="Fee once paid will not be refunded"
-                />
-              </div>
+                    previousCutoff: [...formData.previousCutoff, { description: "", content: "", listStyle: "bullets" as "bullets" | "numbers" }]
+                  });
+                }}
+              >
+                + Add More Cutoff Details
+              </button>
             </div>
           )}
 
@@ -1024,35 +1277,138 @@ export default function ExamDetailFormPage() {
           {formData.enabledSections.howToApply && (
             <div className="card">
               <h3 style={{ marginBottom: 16, color: '#06b6d4' }}>📝 How to Apply</h3>
-              <div className="form-group">
-                <label>Description (Optional)</label>
-                <textarea
-                  className="input"
-                  rows={2}
-                  value={formData.howToApply.description}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    howToApply: { ...formData.howToApply, description: e.target.value }
-                  })}
-                  placeholder="Enter a description that will appear above the points..."
-                  style={{ marginBottom: 12 }}
-                />
+              <div style={{ marginBottom: 12 }}>
+                {formData.howToApply.map((item, idx) => (
+                  <div key={idx} style={{ marginBottom: 16, padding: 12, background: '#ecfeff', borderRadius: 8, border: '1px solid #a5f3fc' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <strong style={{ color: '#06b6d4' }}>Entry {idx + 1}</strong>
+                      {formData.howToApply.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = formData.howToApply.filter((_, i) => i !== idx);
+                            setFormData({ ...formData, howToApply: updated });
+                          }}
+                          style={{ padding: '4px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}
+                        >
+                          ✕ Remove
+                        </button>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label>Description (Optional)</label>
+                      <textarea
+                        className="input"
+                        rows={2}
+                        value={item.description}
+                        onChange={(e) => {
+                          const updated = [...formData.howToApply];
+                          updated[idx].description = e.target.value;
+                          setFormData({ ...formData, howToApply: updated });
+                        }}
+                        placeholder="Enter a description that will appear above the points..."
+                        style={{ marginBottom: 12 }}
+                      />
+                    </div>
+                    <RichTextEditor
+                      label=""
+                      value={item.content}
+                      onChange={(value) => {
+                        const updated = [...formData.howToApply];
+                        updated[idx].content = value;
+                        setFormData({ ...formData, howToApply: updated });
+                      }}
+                      listStyle={item.listStyle}
+                      onListStyleChange={(style) => {
+                        const updated = [...formData.howToApply];
+                        updated[idx].listStyle = style;
+                        setFormData({ ...formData, howToApply: updated });
+                      }}
+                      showListStyleToggle={true}
+                      placeholder="Enter application steps - each line will be a separate step:
+Visit the official website
+Click on 'Apply Online' link
+Register with email and mobile number
+Fill the application form carefully
+Upload required documents
+Pay application fee
+Submit and take printout"
+                    />
+                  </div>
+                ))}
               </div>
-              <RichTextEditor
-                label=""
-                value={formData.howToApply.content}
-                onChange={(value) => setFormData({
-                  ...formData,
-                  howToApply: { ...formData.howToApply, content: value }
-                })}
-                listStyle={formData.howToApply.listStyle}
-                onListStyleChange={(style) => setFormData({
-                  ...formData,
-                  howToApply: { ...formData.howToApply, listStyle: style }
-                })}
-                showListStyleToggle={true}
-                placeholder="Enter application steps - each line will be a separate step:\nVisit the official website\nClick on 'Apply Online' link\nRegister with email and mobile number\nFill the application form carefully\nUpload required documents\nPay application fee\nSubmit and take printout"
-              />
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    howToApply: [...formData.howToApply, { description: "", content: "", listStyle: "numbers" as "bullets" | "numbers" }]
+                  });
+                }}
+              >
+                + Add More How to Apply Details
+              </button>
+            </div>
+          )}
+
+          {/* Important Dates */}
+          {formData.enabledSections.importantDates && (
+            <div className="card">
+              <h3 style={{ marginBottom: 16, color: '#f59e0b' }}>📅 I
+Important Dates</h3>
+              <div style={{ marginBottom: 12 }}>
+                {formData.importantDates.map((item, idx) => (
+                  <div key={idx} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                    <input
+                      className="input"
+                      placeholder="Event name"
+                      value={item.event}
+                      onChange={(e) => {
+                        const updated = [...formData.importantDates];
+                        updated[idx].event = e.target.value;
+                        setFormData({ ...formData, importantDates: updated });
+                      }}
+                      style={{ flex: 1, fontSize: 13 }}
+                    />
+                    <input
+                      className="input"
+                      placeholder="Date"
+                      value={item.date}
+                      onChange={(e) => {
+                        const updated = [...formData.importantDates];
+                        updated[idx].date = e.target.value;
+                        setFormData({ ...formData, importantDates: updated });
+                      }}
+                      style={{ flex: 1, fontSize: 13 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          importantDates: formData.importantDates.filter((_, i) => i !== idx)
+                        });
+                      }}
+                      style={{ padding: '0 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer' }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    importantDates: [...formData.importantDates, { event: "", date: "" }]
+                  });
+                }}
+              >
+                + Add Date
+              </button>
             </div>
           )}
 
@@ -1061,11 +1417,68 @@ export default function ExamDetailFormPage() {
             <div className="card">
               <h3 style={{ marginBottom: 16, color: '#ef4444' }}>🔗 Important Links</h3>
               <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 16 }}>
-                Links will be displayed in table format with "Click Here" text
+                Links will be displayed in table format with "Click Here" text. Choose between URL links or PDF uploads.
               </p>
               <div style={{ marginBottom: 12 }}>
                 {formData.importantLinks.map((item, idx) => (
-                  <div key={idx} style={{ display: 'flex', gap: 8, marginBottom: 8, padding: 8, background: '#fef2f2', borderRadius: 6 }}>
+                  <div key={idx} style={{ marginBottom: 12, padding: 12, background: '#fef2f2', borderRadius: 8, border: '1px solid #fecaca' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <strong style={{ color: '#ef4444' }}>Link {idx + 1}</strong>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData({
+                            ...formData,
+                            importantLinks: formData.importantLinks.filter((_, i) => i !== idx)
+                          });
+                        }}
+                        style={{ padding: '4px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}
+                        title="Remove this link"
+                      >
+                        ✕ Remove
+                      </button>
+                    </div>
+                    
+                    <div style={{ marginBottom: 8 }}>
+                      <label style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, display: 'block' }}>Link Type</label>
+                      <div style={{ display: 'flex', gap: 16 }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                          <input
+                            type="radio"
+                            name={`linkType-${idx}`}
+                            value="url"
+                            checked={item.type === 'url'}
+                            onChange={(e) => {
+                              const updated = [...formData.importantLinks];
+                              updated[idx].type = 'url';
+                              updated[idx].icon = '🔗';
+                              updated[idx].file = '';
+                              setFormData({ ...formData, importantLinks: updated });
+                            }}
+                            style={{ cursor: 'pointer' }}
+                          />
+                          <span style={{ fontSize: 13 }}>🔗 URL Link</span>
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                          <input
+                            type="radio"
+                            name={`linkType-${idx}`}
+                            value="pdf"
+                            checked={item.type === 'pdf'}
+                            onChange={(e) => {
+                              const updated = [...formData.importantLinks];
+                              updated[idx].type = 'pdf';
+                              updated[idx].icon = '📄';
+                              updated[idx].url = '';
+                              setFormData({ ...formData, importantLinks: updated });
+                            }}
+                            style={{ cursor: 'pointer' }}
+                          />
+                          <span style={{ fontSize: 13 }}>📄 PDF Upload</span>
+                        </label>
+                      </div>
+                    </div>
+
                     <input
                       className="input"
                       placeholder="Link Name (e.g., Official Notification)"
@@ -1075,32 +1488,78 @@ export default function ExamDetailFormPage() {
                         updated[idx].label = e.target.value;
                         setFormData({ ...formData, importantLinks: updated });
                       }}
-                      style={{ flex: 1, fontSize: 13 }}
+                      style={{ fontSize: 13, marginBottom: 8 }}
                     />
-                    <input
-                      className="input"
-                      placeholder="URL (e.g., https://example.com)"
-                      value={item.url}
-                      onChange={(e) => {
-                        const updated = [...formData.importantLinks];
-                        updated[idx].url = e.target.value;
-                        setFormData({ ...formData, importantLinks: updated });
-                      }}
-                      style={{ flex: 1, fontSize: 13 }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormData({
-                          ...formData,
-                          importantLinks: formData.importantLinks.filter((_, i) => i !== idx)
-                        });
-                      }}
-                      style={{ padding: '0 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer' }}
-                      title="Remove this link"
-                    >
-                      ✕
-                    </button>
+
+                    {item.type === 'url' && (
+                      <input
+                        className="input"
+                        placeholder="URL (e.g., https://example.com)"
+                        value={item.url}
+                        onChange={(e) => {
+                          const updated = [...formData.importantLinks];
+                          updated[idx].url = e.target.value;
+                          setFormData({ ...formData, importantLinks: updated });
+                        }}
+                        style={{ fontSize: 13 }}
+                      />
+                    )}
+
+                    {item.type === 'pdf' && (
+                      <div>
+                        <input
+                          id={`pdf-upload-${idx}`}
+                          type="file"
+                          accept=".pdf"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            
+                            if (uploadingFile !== null) {
+                              alert('Please wait for the current upload to finish');
+                              return;
+                            }
+
+                            setUploadingFile(idx);
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              const dataUrl = reader.result as string;
+                              const updated = [...formData.importantLinks];
+                              updated[idx].file = dataUrl;
+                              setFormData({ ...formData, importantLinks: updated });
+                              setUploadingFile(null);
+                            };
+                            reader.onerror = () => {
+                              alert('Failed to read file');
+                              setUploadingFile(null);
+                            };
+                            reader.readAsDataURL(file);
+                          }}
+                          style={{ display: 'none' }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => document.getElementById(`pdf-upload-${idx}`)?.click()}
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            background: uploadingFile === idx ? '#d1d5db' : '#3b82f6',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: 6,
+                            cursor: uploadingFile === idx ? 'not-allowed' : 'pointer',
+                            fontSize: 13,
+                            fontWeight: 600
+                          }}
+                          disabled={uploadingFile === idx}
+                        >
+                          {uploadingFile === idx ? '⏳ Uploading...' : item.file ? '✅ PDF Uploaded - Click to Change' : '📄 Upload PDF File'}
+                        </button>
+                        {item.file && (
+                          <p style={{ fontSize: 12, color: '#10b981', marginTop: 4 }}>✅ PDF file ready</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
