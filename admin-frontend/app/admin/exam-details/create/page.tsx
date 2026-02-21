@@ -1511,7 +1511,7 @@ Important Dates</h3>
                           id={`pdf-upload-${idx}`}
                           type="file"
                           accept=".pdf"
-                          onChange={(e) => {
+                          onChange={async (e) => {
                             const file = e.target.files?.[0];
                             if (!file) return;
                             
@@ -1521,19 +1521,34 @@ Important Dates</h3>
                             }
 
                             setUploadingFile(idx);
-                            const reader = new FileReader();
-                            reader.onload = () => {
-                              const dataUrl = reader.result as string;
+                            
+                            try {
+                              const token = localStorage.getItem('accessToken');
+                              const uploadFormData = new FormData();
+                              uploadFormData.append('pdf', file);
+
+                              const response = await fetch('http://localhost:4000/api/admin/file/upload-pdf', {
+                                method: 'POST',
+                                headers: {
+                                  'Authorization': `Bearer ${token}`
+                                },
+                                body: uploadFormData
+                              });
+
+                              if (!response.ok) {
+                                throw new Error('Upload failed');
+                              }
+
+                              const data = await response.json();
                               const updated = [...formData.importantLinks];
-                              updated[idx].file = dataUrl;
+                              updated[idx].file = data.data.url; // Backend returns data.data.url
                               setFormData({ ...formData, importantLinks: updated });
                               setUploadingFile(null);
-                            };
-                            reader.onerror = () => {
-                              alert('Failed to read file');
+                            } catch (error) {
+                              console.error('PDF upload error:', error);
+                              alert('Failed to upload PDF');
                               setUploadingFile(null);
-                            };
-                            reader.readAsDataURL(file);
+                            }
                           }}
                           style={{ display: 'none' }}
                         />
