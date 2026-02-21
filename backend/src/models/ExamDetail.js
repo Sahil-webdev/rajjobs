@@ -179,9 +179,9 @@ const examDetailSchema = new mongoose.Schema({
 
   // Eligibility
   eligibility: {
-    qualification: String,
-    nationality: String,
-    experience: String
+    description: String,
+    content: String,
+    listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'bullets' }
   },
 
   // Age Limit (Separate Section)
@@ -232,28 +232,24 @@ const examDetailSchema = new mongoose.Schema({
   },
 
   // Selection Process
-  selectionProcess: [{
-    stage: String,
+  selectionProcess: {
     description: String,
-    status: String
-  }],
+    content: String,
+    listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'bullets' }
+  },
 
   // Previous Cutoff
-  previousCutoff: [{
-    category: String,
-    tier1: String,
-    tier2: String,
-    tier3: String
-  }],
+  previousCutoff: {
+    description: String,
+    content: String,
+    listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'bullets' }
+  },
 
   // Application Fees
   applicationFees: {
-    general: String,
-    female: String,
-    sc_st: String,
-    ph: String,
-    exServicemen: String,
-    paymentMode: String,
+    description: String,
+    content: String,
+    listStyle: { type: String, enum: ['bullets', 'numbers'], default: 'bullets' },
     note: String
   },
 
