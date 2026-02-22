@@ -1,13 +1,6 @@
-# Robots.txt for RajJobs
+# *
 User-agent: *
 Allow: /
-
-# Disallow admin and private pages
-Disallow: /admin/
-Disallow: /auth/
-Disallow: /login
-Disallow: /forgot-password
-Dis allow: /api/
 
 # Host
 Host: https://rajjobs.com

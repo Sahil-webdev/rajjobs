@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title: examData.seoData?.ogTitle || examData.title,
       description: examData.seoData?.ogDescription || examData.metaDescription,
-      images: examData.posterImage && !examData.posterImage.startsWith('data:') ? [{ url: examData.posterImage, width: 1200, height: 630 }] : [],
+      images: examData.posterImage ? [examData.posterImage] : [],
       type: 'article',
       publishedTime: examData.createdAt,
       modifiedTime: examData.lastUpdated,
@@ -68,7 +68,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       card: 'summary_large_image',
       title: examData.seoData?.twitterTitle || examData.title,
       description: examData.seoData?.twitterDescription || examData.metaDescription,
-      images: examData.posterImage && !examData.posterImage.startsWith('data:') ? [examData.posterImage] : [],
+      images: examData.posterImage ? [examData.posterImage] : [],
     },
     alternates: {
       canonical: `https://www.rajjobs.com/exams/${unwrappedParams.slug}`,
