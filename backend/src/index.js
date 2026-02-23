@@ -12,7 +12,7 @@ const adminCourses = require('./routes/admin/courses');
 const adminBanners = require('./routes/admin/banners');
 const adminNotifications = require('./routes/admin/notifications');
 const adminSettings = require('./routes/admin/settings');
-// const adminReports = require('./routes/admin/reports'); // TODO: Create User, Enrollment, Order models first
+const adminReports = require('./routes/admin/reports');
 const adminExamDetails = require('./routes/admin/exam-details');
 const adminFileUpload = require('./routes/admin/file-upload');
 const adminTestSeries = require('./routes/admin/test-series');
@@ -82,7 +82,7 @@ app.use('/api/admin/courses', verifyAccessToken, requireAdmin, adminCourses);
 app.use('/api/admin/banners', verifyAccessToken, requireAdmin, adminBanners);
 app.use('/api/admin/notifications', verifyAccessToken, requireAdmin, adminNotifications);
 app.use('/api/admin/settings', verifyAccessToken, requireAdmin, adminSettings);
-// app.use('/api/admin/reports', verifyAccessToken, requireAdmin, adminReports); // TODO: Enable after creating models
+app.use('/api/admin/reports', verifyAccessToken, requireAdmin, adminReports);
 app.use('/api/admin/exam-details', verifyAccessToken, requireAdmin, adminExamDetails);
 app.use('/api/admin/file', verifyAccessToken, requireAdmin, adminFileUpload);
 app.use('/api/admin/test-series', verifyAccessToken, requireAdmin, adminTestSeries);

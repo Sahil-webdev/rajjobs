@@ -1,31 +1,44 @@
 const express = require('express');
-const User = require('../../models/User');
-const Course = require('../../models/Course');
-const Enrollment = require('../../models/Enrollment');
-const Order = require('../../models/Order');
+const ExamDetail = require('../../models/ExamDetail');
+const Banner = require('../../models/Banner');
+const Enquiry = require('../../models/Enquiry');
+const Notification = require('../../models/Notification');
+const TestSeries = require('../../models/TestSeries');
 const asyncHandler = require('../../utils/asyncHandler');
 
 const router = express.Router();
 
 // GET /api/admin/reports/summary
 router.get('/summary', asyncHandler(async (req, res) => {
-  const [usersCount, coursesCount, enrollmentsCount, revenueAgg] = await Promise.all([
-    User.countDocuments(),
-    Course.countDocuments({ status: 'published' }),
-    Enrollment.countDocuments({ status: 'active' }),
-    Order.aggregate([
-      { $match: { status: 'paid' } },
-      { $group: { _id: null, total: { $sum: '$amount' } } }
-    ])
+  const [
+    totalExams,
+    publishedExams,
+    totalBanners,
+    activeBanners,
+    totalEnquiries,
+    pendingEnquiries,
+    totalNotifications,
+    totalTestSeries,
+  ] = await Promise.all([
+    ExamDetail.countDocuments(),
+    ExamDetail.countDocuments({ status: 'published' }),
+    Banner.countDocuments(),
+    Banner.countDocuments({ isActive: true }),
+    Enquiry.countDocuments(),
+    Enquiry.countDocuments({ status: 'pending' }),
+    Notification.countDocuments(),
+    TestSeries.countDocuments(),
   ]);
 
-  const revenue = revenueAgg[0]?.total || 0;
-
   res.json({
-    users: usersCount,
-    courses: coursesCount,
-    activeEnrollments: enrollmentsCount,
-    revenue
+    success: true,
+    data: {
+      exams: { total: totalExams, published: publishedExams },
+      banners: { total: totalBanners, active: activeBanners },
+      enquiries: { total: totalEnquiries, unread: pendingEnquiries },
+      notifications: totalNotifications,
+      testSeries: totalTestSeries,
+    }
   });
 }));
 
