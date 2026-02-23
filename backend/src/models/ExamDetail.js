@@ -17,11 +17,15 @@ const examDetailSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['SSC', 'UPSC', 'Railway', 'Banking', 'Teacher', 'Defence']
+    enum: ['SSC', 'UPSC', 'Railway', 'Banking', 'Teacher', 'Defence', 'State Govt', 'Police']
   },
   metaDescription: {
     type: String,
     required: true
+  },
+  description2: {
+    type: String,
+    default: ''
   },
   posterImage: {
     type: String,

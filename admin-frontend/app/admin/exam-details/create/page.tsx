@@ -37,6 +37,7 @@ export default function ExamDetailFormPage() {
     slug: "",
     category: "SSC",
     metaDescription: "",
+    description2: "",
     posterImage: "",
     status: "published" as "draft" | "published",
     postedBy: "J.Kaushik",
@@ -376,6 +377,21 @@ export default function ExamDetailFormPage() {
               <small style={{ color: '#6b7280', fontSize: 12 }}>
                 {formData.metaDescription.trim().split(/\s+/).filter(Boolean).length} words • {formData.metaDescription.length} chars
                 &nbsp;—&nbsp;<strong style={{ color: '#3b82f6' }}>This is shown on the exam page. For Google meta description, fill it in the SEO section below.</strong>
+              </small>
+            </div>
+
+            <div className="form-group">
+              <label>Description 2 <span style={{ fontSize: 12, color: '#6b7280', fontWeight: 400 }}>(shown on website below the poster image)</span></label>
+              <textarea
+                className="input"
+                rows={6}
+                value={formData.description2 || ""}
+                onChange={(e) => setFormData({ ...formData, description2: e.target.value })}
+                placeholder="Optional: Add additional description — this will appear below the poster image on the exam page..."
+                maxLength={3000}
+              />
+              <small style={{ color: '#6b7280', fontSize: 12 }}>
+                {(formData.description2 || "").trim().split(/\s+/).filter(Boolean).length} words • {(formData.description2 || "").length} chars
               </small>
             </div>
 

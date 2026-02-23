@@ -165,6 +165,13 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
             </div>
           )}
 
+          {/* Description 2 - shown below image */}
+          {examData.description2 && (
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-5">
+              <p className="text-slate-700 text-sm leading-relaxed whitespace-pre-line">{examData.description2}</p>
+            </div>
+          )}
+
           {/* Quick Highlights */}
           {examData.enabledSections?.quickHighlights && examData.quickHighlights && Object.keys(examData.quickHighlights).length > 0 && (
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
