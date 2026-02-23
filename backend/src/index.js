@@ -61,8 +61,14 @@ app.use(
   }),
 );
 
-// Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// Serve static files from uploads directory (public access, no auth required)
+app.use('/uploads', (req, res, next) => {
+  // Allow cross-origin access for static files (PDFs, images)
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET');
+  res.setHeader('Content-Disposition', 'inline'); // open in browser, not force-download
+  next();
+}, express.static(path.join(__dirname, '../uploads')));
 
 app.use('/api/auth', authRoutes);
 

@@ -10,6 +10,7 @@ interface SEOData {
   focusKeyword: string;
   lsiKeywords: string[];
   metaTitle: string;
+  seoDescription: string;
   metaKeywords: string[];
   imageAltTexts: {
     posterImage: string;
@@ -128,6 +129,7 @@ export default function ExamDetailFormPage() {
     seoData: {
       focusKeyword: "",
       lsiKeywords: [] as string[],
+      seoDescription: "",  // separate from page description, max 160 chars
       metaTitle: "",
       metaKeywords: [] as string[],
       imageAltTexts: {
@@ -361,18 +363,19 @@ export default function ExamDetailFormPage() {
             </div>
 
             <div className="form-group">
-              <label>Description * (Max 500 words)</label>
+              <label>Page Description * <span style={{ fontSize: 12, color: '#6b7280', fontWeight: 400 }}>(shown on website below the title)</span></label>
               <textarea
                 className="input"
                 required
                 rows={8}
                 value={formData.metaDescription}
                 onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
-                placeholder="Write a detailed description about this exam..."
+                placeholder="Write a detailed description about this exam — this will be shown to visitors on the page..."
                 maxLength={3000}
               />
               <small style={{ color: '#6b7280', fontSize: 12 }}>
-                {formData.metaDescription.trim().split(/\s+/).filter(Boolean).length} / 500 words ({formData.metaDescription.length}/3000 characters)
+                {formData.metaDescription.trim().split(/\s+/).filter(Boolean).length} words • {formData.metaDescription.length} chars
+                &nbsp;—&nbsp;<strong style={{ color: '#3b82f6' }}>This is shown on the exam page. For Google meta description, fill it in the SEO section below.</strong>
               </small>
             </div>
 
@@ -1527,7 +1530,8 @@ Important Dates</h3>
                               const uploadFormData = new FormData();
                               uploadFormData.append('pdf', file);
 
-                              const response = await fetch('http://localhost:4000/api/admin/file/upload-pdf', {
+                              const uploadApiBase = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
+                              const response = await fetch(`${uploadApiBase}/api/admin/file/upload-pdf`, {
                                 method: 'POST',
                                 headers: {
                                   'Authorization': `Bearer ${token}`

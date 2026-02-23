@@ -6,6 +6,7 @@ interface SEOData {
   focusKeyword: string;
   lsiKeywords: string[];
   metaTitle: string;
+  seoDescription?: string;
   metaKeywords: string[];
   imageAltTexts: {
     posterImage: string;
@@ -31,7 +32,9 @@ export default function SEOEditor({ seoData, examTitle, metaDescription, onChang
 
   const metaTitle = seoData.metaTitle || examTitle;
   const metaTitleLength = metaTitle.length;
-  const metaDescLength = metaDescription.length;
+  // seoDescription is the separate SEO-only meta description (max 160 chars)
+  const seoDesc = seoData.seoDescription || '';
+  const metaDescLength = seoDesc.length;
 
   const getTitleColor = () => {
     if (metaTitleLength < 30) return "text-red-600";
@@ -187,48 +190,60 @@ export default function SEOEditor({ seoData, examTitle, metaDescription, onChang
       {/* Meta Title */}
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-2">
-          📝 Meta Title (SEO Title)
+          📝 Meta Title (SEO Title — also used as H1 on page)
         </label>
         <input
           type="text"
+          maxLength={60}
           value={seoData.metaTitle || ""}
           onChange={(e) => onChange({ ...seoData, metaTitle: e.target.value })}
-          placeholder="Leave empty to use exam title"
+          placeholder="Leave empty to use exam title (max 60 chars)"
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         />
         <div className="flex justify-between items-center mt-1">
           <p className="text-xs text-gray-500">
-            Custom title for search engines (50-60 chars recommended)
+            Shown as H1 on page + used in Google search title (50-60 chars)
           </p>
           <span className={`text-sm font-semibold ${getTitleColor()}`}>
-            {metaTitleLength}/60 chars
+            {seoData.metaTitle?.length || 0}/60 chars
           </span>
         </div>
-        {metaTitleLength < 30 && (
+        {(seoData.metaTitle?.length || 0) > 0 && (seoData.metaTitle?.length || 0) < 30 && (
           <p className="text-xs text-red-600 mt-1">⚠️ Too short - Add more details</p>
-        )}
-        {metaTitleLength > 60 && (
-          <p className="text-xs text-orange-600 mt-1">⚠️ Too long - Will be truncated in search results</p>
         )}
       </div>
 
-      {/* Meta Description Preview */}
+      {/* Meta Description — separate editable field */}
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-2">
-          📄 Meta Description Preview
+          📄 Meta Description (for Google only — max 160 chars)
         </label>
-        <div className="border border-gray-300 rounded-lg p-3 bg-gray-50">
-          <div className="text-xs text-gray-500 mb-1">rajjobs.com › exams › {examTitle.toLowerCase().replace(/\s+/g, '-')}</div>
-          <div className="text-blue-600 font-medium mb-1">{metaTitle || examTitle}</div>
-          <div className="text-sm text-gray-700">{metaDescription}</div>
-        </div>
+        <textarea
+          rows={3}
+          maxLength={160}
+          value={seoData.seoDescription || ""}
+          onChange={(e) => onChange({ ...seoData, seoDescription: e.target.value })}
+          placeholder="Write a concise 120-160 char description for Google search results. This is SEPARATE from the page description shown to visitors."
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"
+        />
         <div className="flex justify-between items-center mt-1">
           <p className="text-xs text-gray-500">
-            This is how it will appear in Google search results
+            Only shown in Google — NOT shown on page. Keep between 120–160 chars.
           </p>
           <span className={`text-sm font-semibold ${getDescColor()}`}>
             {metaDescLength}/160 chars
           </span>
+        </div>
+        {metaDescLength > 0 && metaDescLength < 120 && (
+          <p className="text-xs text-orange-600 mt-1">⚠️ Too short for best SEO (120+ chars recommended)</p>
+        )}
+
+        {/* Google Preview */}
+        <div className="mt-3 border border-gray-300 rounded-lg p-3 bg-gray-50">
+          <p className="text-xs text-gray-400 mb-1 font-medium">Google Preview:</p>
+          <div className="text-xs text-gray-500 mb-0.5">rajjobs.com › exams › {examTitle.toLowerCase().replace(/\s+/g, '-')}</div>
+          <div className="text-blue-600 font-medium text-sm mb-1">{seoData.metaTitle || examTitle}</div>
+          <div className="text-sm text-gray-700">{seoData.seoDescription || <span className="text-gray-400 italic">Meta description will appear here...</span>}</div>
         </div>
       </div>
 

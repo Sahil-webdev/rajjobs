@@ -48,11 +48,18 @@ const examDetailSchema = new mongoose.Schema({
       default: []
     },
     
-    // Meta Title (overrides default title for SEO)
+    // Meta Title (overrides default title for SEO) — also used as H1 on page
     metaTitle: {
       type: String,
       default: '',
       maxlength: 60
+    },
+
+    // SEO Meta Description (separate from page description, max 160 chars)
+    seoDescription: {
+      type: String,
+      default: '',
+      maxlength: 160
     },
     
     // Meta Keywords

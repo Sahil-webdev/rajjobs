@@ -52,12 +52,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   return {
     title: examData.seoData?.metaTitle || examData.title,
-    description: examData.seoData?.metaDescription || examData.metaDescription,
+    // seoDescription = separate 160-char Google-only meta desc; fallback to first 160 chars of page description
+    description: examData.seoData?.seoDescription || examData.metaDescription?.slice(0, 160),
     keywords: keywords,
     authors: [{ name: examData.postedBy || 'RajJobs Admin' }],
     openGraph: {
-      title: examData.seoData?.ogTitle || examData.title,
-      description: examData.seoData?.ogDescription || examData.metaDescription,
+      title: examData.seoData?.ogTitle || examData.seoData?.metaTitle || examData.title,
+      description: examData.seoData?.seoDescription || examData.metaDescription?.slice(0, 160),
       images: examData.posterImage && !examData.posterImage.startsWith('data:') ? [{ url: examData.posterImage, width: 1200, height: 630 }] : [],
       type: 'article',
       publishedTime: examData.createdAt,
@@ -66,8 +67,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     },
     twitter: {
       card: 'summary_large_image',
-      title: examData.seoData?.twitterTitle || examData.title,
-      description: examData.seoData?.twitterDescription || examData.metaDescription,
+      title: examData.seoData?.twitterTitle || examData.seoData?.metaTitle || examData.title,
+      description: examData.seoData?.seoDescription || examData.metaDescription?.slice(0, 160),
       images: examData.posterImage && !examData.posterImage.startsWith('data:') ? [examData.posterImage] : [],
     },
     alternates: {
@@ -147,7 +148,9 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
                 Posted by: <span className="font-semibold text-slate-900">{examData.postedBy || "Admin"}</span>
               </span>
             </div>
-            <h1 className="text-xl md:text-2xl font-bold text-slate-900 mb-3">{examData.title}</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-slate-900 mb-3">
+              {examData.seoData?.metaTitle || examData.title}
+            </h1>
             <p className="text-slate-700 text-sm leading-relaxed">{examData.metaDescription}</p>
           </div>
 
@@ -703,12 +706,21 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
                       </tr>
                     </thead>
                     <tbody>
-                      {examData.importantLinks.map((link: any, idx: number) => (
+                      {examData.importantLinks.map((link: any, idx: number) => {
+                        // Build PDF href: prefer link.file (supports absolute OR relative), fallback to link.url
+                        const pdfHref = (() => {
+                          const src = link.file || link.url || '';
+                          if (!src) return '#';
+                          if (src.startsWith('http')) return src; // already absolute URL
+                          return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${src}`;
+                        })();
+                        const href = link.type === 'pdf' ? pdfHref : (link.url || '#');
+                        return (
                         <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
                           <td className="px-4 py-2 text-sm text-slate-900 border border-slate-200">{link.label}</td>
                           <td className="px-4 py-2 text-center border border-slate-200">
                             <a
-                              href={link.type === 'pdf' ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${link.file}` : link.url}
+                              href={href}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
@@ -720,7 +732,8 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
                             </a>
                           </td>
                         </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

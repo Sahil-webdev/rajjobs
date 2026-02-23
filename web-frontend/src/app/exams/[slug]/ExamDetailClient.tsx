@@ -316,10 +316,19 @@ export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
             </div>
             <div className="p-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {examData.importantLinks.map((link: any, idx: number) => (
+                {examData.importantLinks.map((link: any, idx: number) => {
+                  // Build PDF href: prefer link.file (absolute or relative), fallback to link.url
+                  const pdfHref = (() => {
+                    const src = link.file || link.url || '';
+                    if (!src) return '#';
+                    if (src.startsWith('http')) return src; // already absolute
+                    return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${src}`;
+                  })();
+                  const href = link.type === 'pdf' ? pdfHref : (link.url || '#');
+                  return (
                   <a
                     key={idx}
-                    href={link.type === 'pdf' ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${link.url}` : link.url}
+                    href={href}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-between px-3 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition group"
@@ -338,7 +347,8 @@ export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
                       </svg>
                     )}
                   </a>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

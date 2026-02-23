@@ -23,6 +23,16 @@ services:
         value: smtp.gmail.com
       - key: SMTP_PORT
         value: 587
+      # Backend's own public URL — used to build absolute PDF URLs (local-storage fallback)
+      - key: BACKEND_URL
+        value: https://rajjobs-backend.onrender.com
+      # ── Cloudinary (add these in Render Dashboard > Environment for persistent PDFs) ──
+      # - key: CLOUDINARY_CLOUD_NAME
+      #   value: your_cloud_name
+      # - key: CLOUDINARY_API_KEY
+      #   value: your_api_key
+      # - key: CLOUDINARY_API_SECRET
+      #   value: your_api_secret
 
   # Web Frontend (Public Website)
   - type: web

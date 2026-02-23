@@ -4,25 +4,44 @@ const path = require('path');
 const fs = require('fs');
 const router = express.Router();
 
-// Create uploads directory if it doesn't exist
+// ─── Cloudinary setup (used in production when env vars are set) ─────────────
+let cloudinary = null;
+const CLOUDINARY_CONFIGURED =
+  process.env.CLOUDINARY_CLOUD_NAME &&
+  process.env.CLOUDINARY_API_KEY &&
+  process.env.CLOUDINARY_API_SECRET;
+
+if (CLOUDINARY_CONFIGURED) {
+  cloudinary = require('cloudinary').v2;
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key:    process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+  console.log('☁️  Cloudinary PDF storage: ACTIVE');
+} else {
+  console.log('💾 Local PDF storage: ACTIVE (set CLOUDINARY_* env vars for cloud storage)');
+}
+
+// ─── Local storage (for local dev / fallback) ────────────────────────────────
 const uploadsDir = path.join(__dirname, '../../../uploads/pdfs');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Configure multer storage
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadsDir);
+const localStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadsDir),
+  filename: (req, file, cb) => {
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, unique + '-' + file.originalname);
   },
-  filename: function (req, file, cb) {
-    // Generate unique filename: timestamp-originalname
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + '-' + file.originalname);
-  }
 });
 
-// File filter - only allow PDFs
+// Use memory storage when Cloudinary is active (stream directly to cloud)
+const multerStorage = CLOUDINARY_CONFIGURED
+  ? multer.memoryStorage()
+  : localStorage;
+
 const fileFilter = (req, file, cb) => {
   if (file.mimetype === 'application/pdf') {
     cb(null, true);
@@ -31,73 +50,86 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Multer configuration
 const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB limit
-  }
+  storage: multerStorage,
+  fileFilter,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
 });
 
-// Upload PDF endpoint
-router.post('/upload-pdf', upload.single('pdf'), (req, res) => {
+// ─── Upload PDF endpoint ──────────────────────────────────────────────────────
+router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: 'No file uploaded'
-      });
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
 
-    // Return the file URL
-    const fileUrl = `/uploads/pdfs/${req.file.filename}`;
-    
+    let absoluteUrl;
+
+    if (CLOUDINARY_CONFIGURED) {
+      // ── Upload buffer to Cloudinary ──
+      const uploadResult = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: 'raw',           // required for PDFs
+            folder: 'rajjobs-pdfs',
+            public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`,
+            format: 'pdf',
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(req.file.buffer);
+      });
+      absoluteUrl = uploadResult.secure_url; // permanent Cloudinary HTTPS URL
+    } else {
+      // ── Local storage: build absolute URL ──
+      const relativeUrl = `/uploads/pdfs/${req.file.filename}`;
+      const backendBase =
+        process.env.BACKEND_URL ||
+        `${req.protocol}://${req.get('host')}`;
+      absoluteUrl = `${backendBase}${relativeUrl}`;
+    }
+
     res.json({
       success: true,
       message: 'File uploaded successfully',
       data: {
-        filename: req.file.filename,
+        url: absoluteUrl,               // ← always an absolute URL
         originalName: req.file.originalname,
-        url: fileUrl,
-        size: req.file.size
-      }
+        size: req.file.size,
+        storage: CLOUDINARY_CONFIGURED ? 'cloudinary' : 'local',
+      },
     });
   } catch (error) {
     console.error('File upload error:', error);
     res.status(500).json({
       success: false,
       message: 'File upload failed',
-      error: error.message
+      error: error.message,
     });
   }
 });
 
-// Delete PDF endpoint
+// ─── Delete PDF endpoint ──────────────────────────────────────────────────────
 router.delete('/delete-pdf/:filename', (req, res) => {
   try {
     const filename = req.params.filename;
     const filePath = path.join(uploadsDir, filename);
 
-    // Check if file exists
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
-      res.json({
-        success: true,
-        message: 'File deleted successfully'
-      });
+      res.json({ success: true, message: 'File deleted successfully' });
     } else {
-      res.status(404).json({
-        success: false,
-        message: 'File not found'
-      });
+      res.status(404).json({ success: false, message: 'File not found' });
     }
   } catch (error) {
     console.error('File deletion error:', error);
     res.status(500).json({
       success: false,
       message: 'File deletion failed',
-      error: error.message
+      error: error.message,
     });
   }
 });
