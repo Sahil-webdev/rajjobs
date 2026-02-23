@@ -6,7 +6,7 @@ interface SEOData {
   focusKeyword: string;
   lsiKeywords: string[];
   metaTitle: string;
-  seoDescription?: string;
+  seoDescription: string;
   metaKeywords: string[];
   imageAltTexts: {
     posterImage: string;
