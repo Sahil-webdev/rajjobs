@@ -28,6 +28,7 @@ const publicCourses = require('./routes/public/courses');
 const publicTestSeries = require('./routes/public/test-series');
 const publicEnquiry = require('./routes/public/enquiry');
 const publicNotifications = require('./routes/public/notifications');
+const publicPdfProxy = require('./routes/public/pdf-proxy');
 
 const PORT = process.env.PORT;
 
@@ -96,6 +97,9 @@ app.use('/api/public/courses', publicCourses);
 app.use('/api/public/test-series', publicTestSeries);
 app.use('/api/public/enquiry', publicEnquiry);
 app.use('/api/public/notifications', publicNotifications);
+// PDF proxy — fetches any PDF URL and serves it with Content-Type:application/pdf
+// so the browser opens it natively instead of downloading
+app.use('/api/public/pdf-proxy', publicPdfProxy);
 
 // Example protected admin route
 app.get('/api/admin/dashboard', verifyAccessToken, requireAdmin, (req, res) => {

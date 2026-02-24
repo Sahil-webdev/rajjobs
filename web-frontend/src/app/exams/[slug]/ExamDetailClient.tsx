@@ -317,15 +317,11 @@ export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
             <div className="p-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {examData.importantLinks.map((link: any, idx: number) => {
+                  const BACKEND = 'https://rajjobs-backend.onrender.com';
                   const getPdfHref = (src: string) => {
                     if (!src) return '#';
-                    const abs = src.startsWith('http')
-                      ? src
-                      : `https://rajjobs-backend.onrender.com${src}`;
-                    if (abs.includes('res.cloudinary.com') && abs.includes('/raw/upload/')) {
-                      return abs.replace('/raw/upload/', '/raw/upload/fl_attachment:false/');
-                    }
-                    return abs;
+                    const abs = src.startsWith('http') ? src : `${BACKEND}${src}`;
+                    return `${BACKEND}/api/public/pdf-proxy?url=${encodeURIComponent(abs)}`;
                   };
                   const href = link.type === 'pdf'
                     ? getPdfHref(link.file || link.url || '')

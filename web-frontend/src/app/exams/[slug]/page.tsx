@@ -714,21 +714,14 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
                     </thead>
                     <tbody>
                       {examData.importantLinks.map((link: any, idx: number) => {
-                        // Build the PDF URL.
-                        // Cloudinary raw uploads serve Content-Type:application/octet-stream by default.
-                        // Adding fl_attachment:false flag forces inline delivery with Content-Type:application/pdf.
-                        // This works for ALL existing and new PDFs without any re-upload.
+                        // Route all PDFs through our backend proxy which serves them with
+                        // Content-Type:application/pdf + Content-Disposition:inline so
+                        // the browser opens the PDF natively (same as freejobalert/sarkariresult).
+                        const BACKEND = 'https://rajjobs-backend.onrender.com';
                         const getPdfHref = (src: string) => {
                           if (!src) return '#';
-                          const abs = src.startsWith('http')
-                            ? src
-                            : `https://rajjobs-backend.onrender.com${src}`;
-                          // Insert fl_attachment:false into Cloudinary raw URLs
-                          // e.g. /raw/upload/v123/... -> /raw/upload/fl_attachment:false/v123/...
-                          if (abs.includes('res.cloudinary.com') && abs.includes('/raw/upload/')) {
-                            return abs.replace('/raw/upload/', '/raw/upload/fl_attachment:false/');
-                          }
-                          return abs;
+                          const abs = src.startsWith('http') ? src : `${BACKEND}${src}`;
+                          return `${BACKEND}/api/public/pdf-proxy?url=${encodeURIComponent(abs)}`;
                         };
                         const href = link.type === 'pdf'
                           ? getPdfHref(link.file || link.url || '')
