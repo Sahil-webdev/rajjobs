@@ -317,14 +317,16 @@ export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
             <div className="p-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {examData.importantLinks.map((link: any, idx: number) => {
-                  // Build PDF href: prefer link.file (absolute or relative), fallback to link.url
-                  const pdfHref = (() => {
+                  // Build PDF href: use Google Docs Viewer for reliable PDF opening
+                  const rawPdfUrl = (() => {
                     const src = link.file || link.url || '';
-                    if (!src) return '#';
+                    if (!src) return '';
                     if (src.startsWith('http')) return src; // already absolute
                     return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${src}`;
                   })();
-                  const href = link.type === 'pdf' ? pdfHref : (link.url || '#');
+                  const href = link.type === 'pdf'
+                    ? (rawPdfUrl ? `https://docs.google.com/viewer?url=${encodeURIComponent(rawPdfUrl)}` : '#')
+                    : (link.url || '#');
                   return (
                   <a
                     key={idx}

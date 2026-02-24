@@ -72,8 +72,10 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
           {
             resource_type: 'raw',           // required for PDFs
             folder: 'rajjobs-pdfs',
-            public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`,
-            format: 'pdf',
+            // Strip any extension from public_id — Cloudinary appends the format as extension
+            public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_').replace(/\.[^/.]+$/, '')}`,
+            format: 'pdf',                    // ensures URL ends in .pdf (correct content-type)
+            use_filename: false,
           },
           (error, result) => {
             if (error) reject(error);

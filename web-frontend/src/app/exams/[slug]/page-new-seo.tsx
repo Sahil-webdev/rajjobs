@@ -704,13 +704,15 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
                     </thead>
                     <tbody>
                       {examData.importantLinks.map((link: any, idx: number) => {
-                        const pdfHref = (() => {
+                        const rawPdfUrl = (() => {
                           const src = link.file || link.url || '';
-                          if (!src) return '#';
+                          if (!src) return '';
                           if (src.startsWith('http')) return src;
                           return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${src}`;
                         })();
-                        const href = link.type === 'pdf' ? pdfHref : (link.url || '#');
+                        const href = link.type === 'pdf'
+                          ? (rawPdfUrl ? `https://docs.google.com/viewer?url=${encodeURIComponent(rawPdfUrl)}` : '#')
+                          : (link.url || '#');
                         return (
                         <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
                           <td className="px-4 py-2 text-sm text-slate-900 border border-slate-200">{link.label}</td>
