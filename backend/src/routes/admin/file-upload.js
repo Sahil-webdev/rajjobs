@@ -72,9 +72,10 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
           {
             resource_type: 'raw',           // required for PDFs
             folder: 'rajjobs-pdfs',
-            // Strip any extension from public_id — Cloudinary appends the format as extension
-            public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_').replace(/\.[^/.]+$/, '')}`,
-            format: 'pdf',                    // ensures URL ends in .pdf (correct content-type)
+            // Keep .pdf in public_id so the URL is human-readable and correct.
+            // Do NOT set format: 'pdf' with resource_type:'raw' — Cloudinary ignores it
+            // and it can cause unexpected behaviour. The extension in public_id is enough.
+            public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`,
             use_filename: false,
           },
           (error, result) => {
