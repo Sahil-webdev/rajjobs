@@ -714,17 +714,20 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
                     </thead>
                     <tbody>
                       {examData.importantLinks.map((link: any, idx: number) => {
-                        // Build the raw PDF URL first
-                        const rawPdfUrl = (() => {
-                          const src = link.file || link.url || '';
-                          if (!src) return '';
-                          if (src.startsWith('http')) return src;
-                          return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${src}`;
-                        })();
-                        // For PDF links: open via Google Docs Viewer — works for ALL URLs
-                        // regardless of content-type (Cloudinary raw, local server, etc.)
+                        // Build the PDF URL and fix any legacy Cloudinary raw-delivery URLs.
+                        // Cloudinary /raw/upload/ serves application/octet-stream (browser downloads).
+                        // Cloudinary /image/upload/ serves application/pdf (browser opens natively).
+                        // We swap the delivery type in the URL so old entries also work.
+                        const getPdfHref = (src: string) => {
+                          if (!src) return '#';
+                          const abs = src.startsWith('http')
+                            ? src
+                            : `https://rajjobs-backend.onrender.com${src}`;
+                          // Fix legacy raw-delivery Cloudinary URLs
+                          return abs.replace('/raw/upload/', '/image/upload/');
+                        };
                         const href = link.type === 'pdf'
-                          ? (rawPdfUrl ? `https://docs.google.com/viewer?url=${encodeURIComponent(rawPdfUrl)}` : '#')
+                          ? getPdfHref(link.file || link.url || '')
                           : (link.url || '#');
                         return (
                         <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>

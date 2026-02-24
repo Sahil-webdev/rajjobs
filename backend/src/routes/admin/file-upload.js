@@ -70,12 +70,13 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
       const uploadResult = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           {
-            resource_type: 'raw',           // required for PDFs
+            // Use 'image' resource_type for PDFs — Cloudinary serves these with
+            // Content-Type: application/pdf so browsers open them natively.
+            // (resource_type:'raw' serves application/octet-stream which browsers download, not open)
+            resource_type: 'image',
             folder: 'rajjobs-pdfs',
-            // Keep .pdf in public_id so the URL is human-readable and correct.
-            // Do NOT set format: 'pdf' with resource_type:'raw' — Cloudinary ignores it
-            // and it can cause unexpected behaviour. The extension in public_id is enough.
-            public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`,
+            public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_').replace(/\.[^/.]+$/, '')}`,
+            format: 'pdf',
             use_filename: false,
           },
           (error, result) => {

@@ -317,15 +317,15 @@ export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
             <div className="p-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {examData.importantLinks.map((link: any, idx: number) => {
-                  // Build PDF href: use Google Docs Viewer for reliable PDF opening
-                  const rawPdfUrl = (() => {
-                    const src = link.file || link.url || '';
-                    if (!src) return '';
-                    if (src.startsWith('http')) return src; // already absolute
-                    return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${src}`;
-                  })();
+                  const getPdfHref = (src: string) => {
+                    if (!src) return '#';
+                    const abs = src.startsWith('http')
+                      ? src
+                      : `https://rajjobs-backend.onrender.com${src}`;
+                    return abs.replace('/raw/upload/', '/image/upload/');
+                  };
                   const href = link.type === 'pdf'
-                    ? (rawPdfUrl ? `https://docs.google.com/viewer?url=${encodeURIComponent(rawPdfUrl)}` : '#')
+                    ? getPdfHref(link.file || link.url || '')
                     : (link.url || '#');
                   return (
                   <a

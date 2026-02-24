@@ -704,14 +704,15 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
                     </thead>
                     <tbody>
                       {examData.importantLinks.map((link: any, idx: number) => {
-                        const rawPdfUrl = (() => {
-                          const src = link.file || link.url || '';
-                          if (!src) return '';
-                          if (src.startsWith('http')) return src;
-                          return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${src}`;
-                        })();
+                        const getPdfHref = (src: string) => {
+                          if (!src) return '#';
+                          const abs = src.startsWith('http')
+                            ? src
+                            : `https://rajjobs-backend.onrender.com${src}`;
+                          return abs.replace('/raw/upload/', '/image/upload/');
+                        };
                         const href = link.type === 'pdf'
-                          ? (rawPdfUrl ? `https://docs.google.com/viewer?url=${encodeURIComponent(rawPdfUrl)}` : '#')
+                          ? getPdfHref(link.file || link.url || '')
                           : (link.url || '#');
                         return (
                         <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
