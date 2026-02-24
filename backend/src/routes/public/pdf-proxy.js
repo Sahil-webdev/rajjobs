@@ -66,7 +66,9 @@ router.get('/', async (req, res) => {
     let fetchUrl = decodedUrl;
 
     // ── For Cloudinary URLs: generate a signed URL using SDK credentials ──────
-    // This bypasses any account-level delivery restrictions (401 errors).
+    // Cloudinary free plan blocks raw delivery by default ("Blocked for delivery").
+    // cloudinary.url() with sign_url:true generates a time-limited signed URL
+    // that bypasses both per-asset access control AND account-level delivery blocks.
     if (
       CLOUDINARY_CONFIGURED &&
       decodedUrl.includes('res.cloudinary.com') &&
@@ -74,11 +76,11 @@ router.get('/', async (req, res) => {
     ) {
       const publicId = extractCloudinaryPublicId(decodedUrl);
       if (publicId) {
-        // private_download_url generates a time-limited signed URL that works
-        // regardless of account delivery settings
-        fetchUrl = cloudinary.utils.private_download_url(publicId, 'pdf', {
+        fetchUrl = cloudinary.url(publicId, {
           resource_type: 'raw',
-          attachment: false,       // serve inline, not as download
+          type: 'upload',
+          sign_url: true,
+          secure: true,
           expires_at: Math.floor(Date.now() / 1000) + 3600, // valid 1 hour
         });
       }

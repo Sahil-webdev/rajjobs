@@ -714,17 +714,11 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
                     </thead>
                     <tbody>
                       {examData.importantLinks.map((link: any, idx: number) => {
-                        // Route all PDFs through our backend proxy which serves them with
-                        // Content-Type:application/pdf + Content-Disposition:inline so
-                        // the browser opens the PDF natively (same as freejobalert/sarkariresult).
-                        const BACKEND = 'https://rajjobs-backend.onrender.com';
-                        const getPdfHref = (src: string) => {
-                          if (!src) return '#';
-                          const abs = src.startsWith('http') ? src : `${BACKEND}${src}`;
-                          return `${BACKEND}/api/public/pdf-proxy?url=${encodeURIComponent(abs)}`;
-                        };
+                        // Direct Cloudinary URL — now that "Allow delivery of PDF and ZIP Files"
+                        // is checked in Cloudinary dashboard, PDFs open directly in browser.
+                        const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
                         const href = link.type === 'pdf'
-                          ? getPdfHref(link.file || link.url || '')
+                          ? (link.file?.startsWith('http') ? link.file : `${BACKEND}${link.file || ''}`)
                           : (link.url || '#');
                         return (
                         <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
