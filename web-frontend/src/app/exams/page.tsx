@@ -19,6 +19,8 @@ const categories = [
   { id: "defence", label: "Defence", value: "Defence", icon: "🎖️" },
   { id: "teacher", label: "Teacher", value: "Teacher", icon: "📚" },
   { id: "banking", label: "Banking", value: "Banking", icon: "🏦" },
+  { id: "state-wise", label: "State Wise", value: "State Wise", icon: "🏛️" },
+  { id: "police", label: "Police", value: "Police", icon: "👮" },
 ];
 
 export default function ExamsPage() {

@@ -358,7 +358,7 @@ export default function ExamDetailFormPage() {
                 <option value="Banking">Banking</option>
                 <option value="Teacher">Teacher</option>
                 <option value="Defence">Defence</option>
-                <option value="State Govt">State Govt</option>
+                <option value="State Wise">State Wise</option>
                 <option value="Police">Police</option>
               </select>
             </div>

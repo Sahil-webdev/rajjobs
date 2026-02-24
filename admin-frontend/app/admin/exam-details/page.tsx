@@ -185,6 +185,8 @@ export default function ExamDetailsPage() {
               <option value="Banking">Banking</option>
               <option value="Teacher">Teacher</option>
               <option value="Defence">Defence</option>
+              <option value="State Wise">State Wise</option>
+              <option value="Police">Police</option>
             </select>
           </div>
           <div className="form-group" style={{ marginBottom: '0' }}>
