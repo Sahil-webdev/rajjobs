@@ -322,7 +322,10 @@ export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
                     const abs = src.startsWith('http')
                       ? src
                       : `https://rajjobs-backend.onrender.com${src}`;
-                    return abs.replace('/raw/upload/', '/image/upload/');
+                    if (abs.includes('res.cloudinary.com') && abs.includes('/raw/upload/')) {
+                      return abs.replace('/raw/upload/', '/raw/upload/fl_attachment:false/');
+                    }
+                    return abs;
                   };
                   const href = link.type === 'pdf'
                     ? getPdfHref(link.file || link.url || '')

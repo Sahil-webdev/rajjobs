@@ -714,17 +714,21 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
                     </thead>
                     <tbody>
                       {examData.importantLinks.map((link: any, idx: number) => {
-                        // Build the PDF URL and fix any legacy Cloudinary raw-delivery URLs.
-                        // Cloudinary /raw/upload/ serves application/octet-stream (browser downloads).
-                        // Cloudinary /image/upload/ serves application/pdf (browser opens natively).
-                        // We swap the delivery type in the URL so old entries also work.
+                        // Build the PDF URL.
+                        // Cloudinary raw uploads serve Content-Type:application/octet-stream by default.
+                        // Adding fl_attachment:false flag forces inline delivery with Content-Type:application/pdf.
+                        // This works for ALL existing and new PDFs without any re-upload.
                         const getPdfHref = (src: string) => {
                           if (!src) return '#';
                           const abs = src.startsWith('http')
                             ? src
                             : `https://rajjobs-backend.onrender.com${src}`;
-                          // Fix legacy raw-delivery Cloudinary URLs
-                          return abs.replace('/raw/upload/', '/image/upload/');
+                          // Insert fl_attachment:false into Cloudinary raw URLs
+                          // e.g. /raw/upload/v123/... -> /raw/upload/fl_attachment:false/v123/...
+                          if (abs.includes('res.cloudinary.com') && abs.includes('/raw/upload/')) {
+                            return abs.replace('/raw/upload/', '/raw/upload/fl_attachment:false/');
+                          }
+                          return abs;
                         };
                         const href = link.type === 'pdf'
                           ? getPdfHref(link.file || link.url || '')

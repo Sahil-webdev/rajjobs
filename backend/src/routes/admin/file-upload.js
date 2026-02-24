@@ -70,10 +70,10 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
       const uploadResult = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           {
-            // Use 'image' resource_type for PDFs — Cloudinary serves these with
-            // Content-Type: application/pdf so browsers open them natively.
-            // (resource_type:'raw' serves application/octet-stream which browsers download, not open)
-            resource_type: 'image',
+            // resource_type:'raw' is correct for PDFs - stores the file as-is.
+            // fl_attachment:false flag is added at delivery time (in frontend) to force
+            // inline serving with Content-Type:application/pdf instead of octet-stream.
+            resource_type: 'raw',
             folder: 'rajjobs-pdfs',
             public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_').replace(/\.[^/.]+$/, '')}`,
             format: 'pdf',
