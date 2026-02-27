@@ -30,6 +30,7 @@ export default function TextFormattingEditor({
   const [activeItalic, setActiveItalic] = useState(false);
   const [activeUnderline, setActiveUnderline] = useState(false);
   const [activeStrike, setActiveStrike] = useState(false);
+  const [currentBlockFormat, setCurrentBlockFormat] = useState('normal'); // Track heading/paragraph
   
   const editorRef = useRef<HTMLDivElement>(null);
   const savedSelectionRef = useRef<Range | null>(null); // 💾 Save selection for link
@@ -57,6 +58,25 @@ export default function TextFormattingEditor({
       setActiveItalic(document.queryCommandState('italic'));
       setActiveUnderline(document.queryCommandState('underline'));
       setActiveStrike(document.queryCommandState('strikeThrough'));
+      
+      // Detect current block format (h1, h2, h3, etc.)
+      const selection = window.getSelection();
+      if (selection && selection.anchorNode) {
+        let node = selection.anchorNode.nodeType === 3 
+          ? selection.anchorNode.parentElement 
+          : selection.anchorNode as HTMLElement;
+        
+        // Walk up to find block element
+        while (node && node !== editorRef.current) {
+          const tagName = node.tagName?.toLowerCase();
+          if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'].includes(tagName)) {
+            setCurrentBlockFormat(tagName === 'p' ? 'normal' : tagName);
+            return;
+          }
+          node = node.parentElement as HTMLElement;
+        }
+      }
+      setCurrentBlockFormat('normal');
     } catch (e) {
       // Silently handle errors
     }
@@ -323,6 +343,7 @@ export default function TextFormattingEditor({
       }}>
         {/* 📐 HEADING DROPDOWN - with SIZE PREVIEW! */}
         <select
+          value={currentBlockFormat}
           onChange={handleHeadingChange}
           style={{
             padding: '7px 10px',
@@ -923,116 +944,6 @@ export default function TextFormattingEditor({
           </div>
         </div>
       )}
-
-      {/* 👁️ LIVE PREVIEW STYLES - See formatting in editor! */}
-      <style jsx>{`
-        [contenteditable]:empty:before {
-          content: attr(data-placeholder);
-          color: #94a3b8;
-          font-style: italic;
-          pointer-events: none;
-        }
-        
-        [contenteditable] h1 {
-          font-size: 2em !important;
-          font-weight: bold !important;
-          margin: 0.67em 0 !important;
-          color: #0f172a !important;
-        }
-        
-        [contenteditable] h2 {
-          font-size: 1.5em !important;
-          font-weight: bold !important;
-          margin: 0.83em 0 !important;
-          color: #1e293b !important;
-        }
-        
-        [contenteditable] h3 {
-          font-size: 1.17em !important;
-          font-weight: bold !important;
-          margin: 1em 0 !important;
-          color: #334155 !important;
-        }
-        
-        [contenteditable] h4 {
-          font-size: 1em !important;
-          font-weight: bold !important;
-          margin: 1.33em 0 !important;
-          color: #475569 !important;
-        }
-        
-        [contenteditable] h5 {
-          font-size: 0.83em !important;
-          font-weight: bold !important;
-          margin: 1.67em 0 !important;
-          color: #64748b !important;
-        }
-        
-        [contenteditable] h6 {
-          font-size: 0.67em !important;
-          font-weight: bold !important;
-          margin: 2.33em 0 !important;
-          color: #64748b !important;
-        }
-        
-        [contenteditable] strong,
-        [contenteditable] b {
-          font-weight: bold !important;
-          color: #0f172a !important;
-        }
-        
-        [contenteditable] em,
-        [contenteditable] i {
-          font-style: italic !important;
-        }
-        
-        [contenteditable] u {
-          text-decoration: underline !important;
-        }
-        
-        [contenteditable] strike {
-          text-decoration: line-through !important;
-        }
-        
-        [contenteditable] a {
-          color: #3b82f6 !important;
-          text-decoration: underline !important;
-          cursor: pointer !important;
-        }
-        
-        [contenteditable] ul,
-        [contenteditable] ol {
-          padding-left: 30px !important;
-          margin: 12px 0 !important;
-        }
-        
-        [contenteditable] li {
-          margin: 6px 0 !important;
-        }
-        
-        [contenteditable] table {
-          border-collapse: collapse !important;
-          width: 100% !important;
-          margin: 16px 0 !important;
-        }
-        
-        [contenteditable] th,
-        [contenteditable] td {
-          border: 1px solid #cbd5e0 !important;
-          padding: 10px 12px !important;
-        }
-        
-        [contenteditable] th {
-          background: #f7fafc !important;
-          font-weight: 600 !important;
-        }
-        
-        [contenteditable] hr {
-          border: none !important;
-          border-top: 2px solid #e2e8f0 !important;
-          margin: 20px 0 !important;
-        }
-      `}</style>
     </div>
   );
 }
