@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { SearchBar } from "./search-bar";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -34,11 +33,6 @@ export function Navbar() {
                 />
               </div>
             </Link>
-
-            {/* Desktop Search */}
-            <div className="hidden md:block flex-1 max-w-md">
-              <SearchBar />
-            </div>
 
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-1 flex-shrink-0">
@@ -84,11 +78,6 @@ export function Navbar() {
           {/* Mobile menu */}
           {open && (
             <div className="md:hidden pb-4">
-              {/* Mobile Search */}
-              <div className="mb-3">
-                <SearchBar />
-              </div>
-              
               <div className="flex flex-col gap-2 rounded-lg border border-gray-100 bg-white p-3 shadow-sm">
                 {navLinks.map((item) => {
                   const isActive = pathname === item.href;
