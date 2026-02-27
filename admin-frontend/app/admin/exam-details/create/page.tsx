@@ -22,7 +22,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
     formattedNote: "", // Main content
     posterImage: "",
     status: "published" as "draft" | "published", // Changed default to published
-    postedBy: "Admin",
+    postedBy: "J. Kaushik",
     seoData: {
       focusKeyword: "",
       lsiKeywords: [] as string[],
@@ -90,7 +90,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
           formattedNote: data.data.formattedNote || "", // This is the critical one!
           posterImage: data.data.posterImage || "",
           status: data.data.status || "draft",
-          postedBy: data.data.postedBy || "Admin",
+          postedBy: data.data.postedBy || "J. Kaushik",
           seoData: data.data.seoData || prev.seoData
         }));
 
@@ -402,28 +402,6 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
 
         {/* Action Buttons */}
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-          <button
-            type="button"
-            onClick={() => {
-              console.log('🔍 DEBUG: Current formData state:');
-              console.log('formattedNote length:', formData.formattedNote?.length || 0);
-              console.log('formattedNote content:', formData.formattedNote);
-              console.log('Full formData:', formData);
-              alert(`formattedNote length: ${formData.formattedNote?.length || 0} chars\nCheck console for details`);
-            }}
-            style={{
-              padding: '12px 24px',
-              background: '#10b981',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: 'white',
-              cursor: 'pointer'
-            }}
-          >
-            🔍 Debug Content
-          </button>
           <button
             type="button"
             onClick={() => router.push('/admin/exam-details')}

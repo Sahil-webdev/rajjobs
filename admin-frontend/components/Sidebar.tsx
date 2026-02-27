@@ -58,11 +58,6 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                         </Link>
                     </li>
                     <li className="sidebar-nav-item">
-                        <Link href="/admin/banners" className={isActive('/admin/banners') ? 'active' : ''} onClick={handleLinkClick}>
-                            🖼️ Banners
-                        </Link>
-                    </li>
-                    <li className="sidebar-nav-item">
                         <Link href="/admin/notifications" className={isActive('/admin/notifications') ? 'active' : ''} onClick={handleLinkClick}>
                             🔔 Notifications
                         </Link>
