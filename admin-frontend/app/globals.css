@@ -497,3 +497,143 @@ textarea.input {
     font-size: 20px;
   }
 }
+
+/* Formatted Content Styling (for TextFormattingEditor preview) */
+.formatted-content {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.8;
+}
+
+.formatted-content a {
+  color: #2563eb;
+  text-decoration: underline;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.formatted-content a:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+  text-shadow: 0 0 8px rgba(37, 99, 235, 0.3);
+}
+
+.formatted-content strong {
+  font-weight: 700;
+  color: #0f172a;
+  text-shadow: 0 0 1px rgba(15, 23, 42, 0.1);
+}
+
+.formatted-content em {
+  font-style: italic;
+  color: #334155;
+}
+
+.formatted-content p {
+  margin: 0.5em 0;
+}
+
+.formatted-content br {
+  display: block;
+  content: "";
+  margin: 0.5em 0;
+}
+
+/* Highlight effect for formatted content */
+.formatted-content strong {
+  background: linear-gradient(transparent 60%, #fef3c7 60%);
+  padding: 0 2px;
+}
+
+/* ContentEditable Editor Styles */
+[contenteditable]:empty:before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+[contenteditable] a {
+  color: #3b82f6;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+[contenteditable] strong {
+  font-weight: 700;
+}
+
+[contenteditable] em {
+  font-style: italic;
+}
+
+[contenteditable] u {
+  text-decoration: underline;
+}
+
+[contenteditable] strike,
+[contenteditable] s {
+  text-decoration: line-through;
+}
+
+[contenteditable] hr {
+  border: none;
+  border-top: 2px solid #e5e7eb;
+  margin: 20px 0;
+}
+
+/* Font size classes for editor */
+.formatted-content font[size="1"],
+[contenteditable] font[size="1"] {
+  font-size: 0.75rem;
+}
+
+.formatted-content font[size="2"],
+[contenteditable] font[size="2"] {
+  font-size: 0.875rem;
+}
+
+.formatted-content font[size="3"],
+[contenteditable] font[size="3"] {
+  font-size: 1rem;
+}
+
+.formatted-content font[size="4"],
+[contenteditable] font[size="4"] {
+  font-size: 1.25rem;
+}
+
+.formatted-content font[size="5"],
+[contenteditable] font[size="5"] {
+  font-size: 1.5rem;
+}
+
+.formatted-content font[size="6"],
+[contenteditable] font[size="6"] {
+  font-size: 2rem;
+}
+
+/* Additional formatting styles */
+.formatted-content u {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.formatted-content strike,
+.formatted-content s {
+  text-decoration: line-through;
+  opacity: 0.8;
+}
+
+.formatted-content hr {
+  border: none;
+  border-top: 2px solid #e5e7eb;
+  margin: 20px 0;
+}
+
+/* Text alignment */
+.formatted-content [style*="text-align"],
+[contenteditable] [style*="text-align"] {
+  display: block;
+  margin: 0.5em 0;
+}
+

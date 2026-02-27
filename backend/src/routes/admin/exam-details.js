@@ -22,7 +22,7 @@ router.get('/', asyncHandler(async (req, res) => {
   
   const examDetails = await ExamDetail.find(query)
     .sort({ createdAt: -1 })
-    .select('title slug category status posterImage lastUpdated');
+    .select('title slug category status posterImage updatedAt');
   
   res.json({
     success: true,
@@ -32,7 +32,7 @@ router.get('/', asyncHandler(async (req, res) => {
 }));
 
 // @route   GET /api/admin/exam-details/:id
-// @desc    Get single exam detail by ID
+// @desc    Get single exam detail by ID (for editing)
 // @access  Private/Admin
 router.get('/:id', asyncHandler(async (req, res) => {
   const examDetail = await ExamDetail.findById(req.params.id);
@@ -54,8 +54,31 @@ router.get('/:id', asyncHandler(async (req, res) => {
 // @desc    Create new exam detail
 // @access  Private/Admin
 router.post('/', asyncHandler(async (req, res) => {
-  const examDetail = await ExamDetail.create(req.body);
-  
+  // Extract only allowed fields
+  const {
+    title,
+    slug,
+    category,
+    metaDescription,
+    formattedNote,
+    posterImage,
+    status,
+    postedBy,
+    seoData
+  } = req.body;
+
+  const examDetail = await ExamDetail.create({
+    title,
+    slug,
+    category,
+    metaDescription,
+    formattedNote,
+    posterImage,
+    status,
+    postedBy,
+    seoData
+  });
+
   res.status(201).json({
     success: true,
     message: 'Exam detail created successfully',
@@ -67,21 +90,45 @@ router.post('/', asyncHandler(async (req, res) => {
 // @desc    Update exam detail
 // @access  Private/Admin
 router.put('/:id', asyncHandler(async (req, res) => {
-  let examDetail = await ExamDetail.findById(req.params.id);
-  
+  // Extract only allowed fields
+  const {
+    title,
+    slug,
+    category,
+    metaDescription,
+    formattedNote,
+    posterImage,
+    status,
+    postedBy,
+    seoData
+  } = req.body;
+
+  const examDetail = await ExamDetail.findByIdAndUpdate(
+    req.params.id,
+    {
+      title,
+      slug,
+      category,
+      metaDescription,
+      formattedNote,
+      posterImage,
+      status,
+      postedBy,
+      seoData
+    },
+    { 
+      new: true,
+      runValidators: true
+    }
+  );
+
   if (!examDetail) {
-    return res.status(404).json({
-      success: false,
-      message: 'Exam detail not found'
+    return res.status(404).json({ 
+      success: false, 
+      message: 'Exam detail not found' 
     });
   }
-  
-  examDetail = await ExamDetail.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    { new: true, runValidators: true }
-  );
-  
+
   res.json({
     success: true,
     message: 'Exam detail updated successfully',
@@ -111,7 +158,7 @@ router.delete('/:id', asyncHandler(async (req, res) => {
 }));
 
 // @route   PATCH /api/admin/exam-details/:id/status
-// @desc    Toggle exam detail status (draft/published)
+// @desc    Toggle exam detail status
 // @access  Private/Admin
 router.patch('/:id/status', asyncHandler(async (req, res) => {
   const examDetail = await ExamDetail.findById(req.params.id);

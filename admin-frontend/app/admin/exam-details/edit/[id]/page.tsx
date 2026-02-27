@@ -1,5 +1,11 @@
 "use client";
 
-import ExamDetailFormPage from "../../create/page";
+import { useParams } from "next/navigation";
+import CreateExamPage from "../../create/page";
 
-export default ExamDetailFormPage;
+export default function EditExamPage() {
+  const params = useParams();
+  const examId = params.id as string;
+  
+  return <CreateExamPage examId={examId} />;
+}

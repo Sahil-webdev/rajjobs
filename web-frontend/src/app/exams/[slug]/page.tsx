@@ -27,6 +27,31 @@ async function getExamData(slug: string) {
   }
 }
 
+// Server-side fetch function for related posts
+async function getRelatedExams(slug: string) {
+  try {
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/public/exam-details/${slug}/related`;
+    
+    const response = await fetch(apiUrl, {
+      cache: 'no-store',
+    });
+    
+    if (!response.ok) {
+      return [];
+    }
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      return result.data;
+    }
+    return [];
+  } catch (error) {
+    console.error('Error fetching related exams:', error);
+    return [];
+  }
+}
+
 // Generate dynamic metadata for SEO
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const unwrappedParams = await params;
@@ -93,6 +118,24 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
   if (!examData) {
     notFound();
   }
+
+  // Fetch related exams
+  const relatedExams = await getRelatedExams(unwrappedParams.slug);
+
+  // Debug: Log formattedNote data on website
+  console.log('========================================');
+  console.log('🌐 WEBSITE - Exam Data Loaded');
+  console.log('========================================');
+  console.log('📄 Exam Title:', examData.title);
+  console.log('� Exam Slug:', examData.slug);
+  console.log('📝 formattedNote present:', examData.formattedNote ? 'YES' : 'NO');
+  console.log('📝 formattedNote type:', typeof examData.formattedNote);
+  console.log('📝 formattedNote length:', examData.formattedNote?.length || 0);
+  console.log('📝 formattedNote isString:', typeof examData.formattedNote === 'string');
+  console.log('📝 formattedNote value:', examData.formattedNote);
+  console.log('📝 formattedNote preview:', examData.formattedNote?.substring(0, 300) || 'Empty');
+  console.log('🔍 All exam data keys:', Object.keys(examData));
+  console.log('========================================');
 
   // Generate JSON-LD structured data for Google
   const jsonLd = {
@@ -172,6 +215,21 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
             </div>
           )}
 
+          {/* Main Content - formatted note displayed as primary content */}
+          {examData.formattedNote && examData.formattedNote.trim().length > 0 && (
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-5">
+              <div 
+                className="formatted-content prose prose-sm max-w-none"
+                dangerouslySetInnerHTML={{ __html: examData.formattedNote }}
+                style={{ 
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: '1.8',
+                  color: '#1f2937'
+                }}
+              />
+            </div>
+          )}
+
           {/* Quick Highlights */}
           {examData.enabledSections?.quickHighlights && examData.quickHighlights && Object.keys(examData.quickHighlights).length > 0 && (
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
@@ -220,40 +278,6 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
                     ))}
                   </tbody>
                 </table>
-              </div>
-            </div>
-          )}
-
-          {/* Vacancy Details */}
-          {examData.enabledSections?.vacancyDetails && examData.vacancyDetails && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <span>👥</span> Vacancy Details
-                </h2>
-              </div>
-              <div className="p-5">
-                {examData.vacancyDetails.description && (
-                  <p className="text-slate-700 text-sm mb-4 leading-relaxed">{examData.vacancyDetails.description}</p>
-                )}
-                {examData.vacancyDetails.breakdown && examData.vacancyDetails.breakdown.length > 0 && (
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-slate-100">
-                        <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 border border-slate-200">Post Name</th>
-                        <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 border border-slate-200">Vacancies</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {examData.vacancyDetails.breakdown.map((item: any, idx: number) => (
-                        <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
-                          <td className="px-3 py-2 text-sm text-slate-900 border border-slate-200">{item.post}</td>
-                          <td className="px-3 py-2 text-sm text-blue-600 font-semibold border border-slate-200">{item.vacancies}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
               </div>
             </div>
           )}
@@ -547,251 +571,78 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
             </div>
           )}
 
-          {/* Previous Year Cutoff */}
-          {examData.enabledSections?.previousCutoff && examData.previousCutoff && examData.previousCutoff.length > 0 && (
+          {/* Related Posts Section */}
+          {relatedExams && relatedExams.length > 0 && (
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
               <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
                 <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <span>📊</span> Previous Year Cutoff
+                  <span>🔗</span> Related Exams
                 </h2>
               </div>
-              <div className="p-5 space-y-4">
-                {examData.previousCutoff.map((item: any, idx: number) => {
-                  const listItems = item.content?.match(/<li>[\s\S]*?<\/li>/g)?.map((listItem: string) => 
-                    listItem.replace(/<\/?li>/g, '').trim()
-                  ) || [];
-                  
-                  return (
-                    <div key={idx} className={idx > 0 ? 'pt-4 border-t border-slate-200' : ''}>
-                      {item.description && (
-                        <p className="text-sm text-slate-700 mb-3 leading-relaxed description">{item.description}</p>
-                      )}
-                      {item.listStyle === 'bullets' ? (
-                        <ul className="space-y-2">
-                          {listItems.map((point: string, pointIdx: number) => (
-                            <li key={pointIdx} className="flex gap-2 text-sm text-slate-700">
-                              <span className="text-red-600 font-bold">•</span>
-                              <span>{point}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <ol className="space-y-2">
-                          {listItems.map((point: string, pointIdx: number) => (
-                            <li key={pointIdx} className="flex gap-3">
-                              <span className="flex-shrink-0 w-6 h-6 bg-red-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
-                                {pointIdx + 1}
-                              </span>
-                              <span className="text-sm text-slate-700 pt-0.5">{point}</span>
-                            </li>
-                          ))}
-                        </ol>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Application Fees */}
-          {examData.enabledSections?.applicationFees && examData.applicationFees && examData.applicationFees.length > 0 && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <span>💳</span> Application Fees
-                </h2>
-              </div>
-              <div className="p-5 space-y-4">
-                {examData.applicationFees.map((item: any, idx: number) => {
-                  const listItems = item.content?.match(/<li>[\s\S]*?<\/li>/g)?.map((listItem: string) => 
-                    listItem.replace(/<\/?li>/g, '').trim()
-                  ) || [];
-                  
-                  return (
-                    <div key={idx} className={idx > 0 ? 'pt-4 border-t border-slate-200' : ''}>
-                      {item.description && (
-                        <p className="text-sm text-slate-700 mb-3 leading-relaxed description">{item.description}</p>
-                      )}
-                      {item.listStyle === 'bullets' ? (
-                        <ul className="space-y-2">
-                          {listItems.map((point: string, pointIdx: number) => (
-                            <li key={pointIdx} className="flex gap-2 text-sm text-slate-700">
-                              <span className="text-green-600 font-bold">•</span>
-                              <span>{point}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <ol className="space-y-2">
-                          {listItems.map((point: string, pointIdx: number) => (
-                            <li key={pointIdx} className="flex gap-3">
-                              <span className="flex-shrink-0 w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
-                                {pointIdx + 1}
-                              </span>
-                              <span className="text-sm text-slate-700 pt-0.5">{point}</span>
-                            </li>
-                          ))}
-                        </ol>
-                      )}
-                      {item.note && (
-                        <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                          <p className="text-xs text-amber-900"><strong>Note:</strong> {item.note}</p>
+              <div className="p-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {relatedExams.map((exam: any) => (
+                    <a
+                      key={exam.slug}
+                      href={`/exams/${exam.slug}`}
+                      className="block border border-slate-200 rounded-lg overflow-hidden hover:border-blue-400 hover:shadow-md transition-all duration-200"
+                    >
+                      {/* Image */}
+                      {exam.posterImage && (
+                        <div className="w-full h-32 bg-slate-100 overflow-hidden">
+                          <img
+                            src={exam.posterImage}
+                            alt={exam.title}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
                       )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* How to Apply */}
-          {examData.enabledSections?.howToApply && examData.howToApply && examData.howToApply.length > 0 && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <span>📝</span> How to Apply
-                </h2>
-              </div>
-              <div className="p-5 space-y-4">
-                {examData.howToApply.map((item: any, idx: number) => {
-                  const listItems = item.content?.match(/<li>[\s\S]*?<\/li>/g)?.map((listItem: string) => 
-                    listItem.replace(/<\/?li>/g, '').trim()
-                  ) || [];
-                  
-                  return (
-                    <div key={idx} className={idx > 0 ? 'pt-4 border-t border-slate-200' : ''}>
-                      {item.description && (
-                        <p className="text-sm text-slate-700 mb-3 leading-relaxed description">{item.description}</p>
-                      )}
-                      {item.listStyle === 'bullets' ? (
-                        <ul className="space-y-2">
-                          {listItems.map((point: string, pointIdx: number) => (
-                            <li key={pointIdx} className="flex gap-2 text-sm text-slate-700">
-                              <span className="text-cyan-600 font-bold">•</span>
-                              <span>{point}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <ol className="space-y-2">
-                          {listItems.map((point: string, pointIdx: number) => (
-                            <li key={pointIdx} className="flex gap-3">
-                              <div className="flex-shrink-0 w-7 h-7 bg-slate-900 text-white rounded-full flex items-center justify-center font-bold text-xs">
-                                {pointIdx + 1}
-                              </div>
-                              <div className="flex-1 pt-0.5">
-                                <p className="text-sm text-slate-700 leading-relaxed">{point}</p>
-                              </div>
-                            </li>
-                          ))}
-                        </ol>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Important Links */}
-          {examData.enabledSections?.importantLinks && examData.importantLinks && examData.importantLinks.length > 0 && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <span>🔗</span> Important Links
-                </h2>
-              </div>
-              <div className="p-5">
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="bg-slate-100">
-                        <th className="px-4 py-2 text-left text-sm font-semibold text-slate-700 border border-slate-200">Link Name</th>
-                        <th className="px-4 py-2 text-center text-sm font-semibold text-slate-700 border border-slate-200 w-32">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {examData.importantLinks.map((link: any, idx: number) => {
-                        // Direct Cloudinary URL — now that "Allow delivery of PDF and ZIP Files"
-                        // is checked in Cloudinary dashboard, PDFs open directly in browser.
-                        const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-                        const href = link.type === 'pdf'
-                          ? (link.file?.startsWith('http') ? link.file : `${BACKEND}${link.file || ''}`)
-                          : (link.url || '#');
-                        return (
-                        <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
-                          <td className="px-4 py-2 text-sm text-slate-900 border border-slate-200">{link.label}</td>
-                          <td className="px-4 py-2 text-center border border-slate-200">
-                            <a
-                              href={href}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
-                            >
-                              Click Here
-                              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                              </svg>
-                            </a>
-                          </td>
-                        </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* FAQs */}
-          {examData.enabledSections?.faqs && examData.faqs && examData.faqs.length > 0 && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <span>❓</span> Frequently Asked Questions
-                </h2>
-              </div>
-              <div className="p-5 space-y-3">
-                {examData.faqs.map((faq: any, idx: number) => (
-                  <div key={idx} className="pb-3 border-b border-slate-200 last:border-0 last:pb-0">
-                    <h3 className="font-bold text-sm text-slate-900 mb-1.5 flex items-start gap-2">
-                      <span className="text-slate-600">Q{idx + 1}.</span>
-                      <span>{faq.question}</span>
-                    </h3>
-                    <p className="text-sm text-slate-700 leading-relaxed ml-7">
-                      <span className="text-slate-900 font-semibold">Ans:</span> {faq.answer}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Tags */}
-          {examData.tags && examData.tags.length > 0 && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
-              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <span>🏷️</span> Tags
-                </h2>
-              </div>
-              <div className="p-5">
-                <div className="flex flex-wrap gap-2">
-                  {examData.tags.map((tag: string, idx: number) => (
-                    <span
-                      key={idx}
-                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium border border-slate-200 transition cursor-pointer"
-                    >
-                      {tag}
-                    </span>
+                      
+                      {/* Content */}
+                      <div className="p-4">
+                        {/* Category Badge */}
+                        <div className="mb-2">
+                          <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                            {exam.category}
+                          </span>
+                        </div>
+                        
+                        {/* Title */}
+                        <h3 className="text-sm font-bold text-slate-900 mb-2 line-clamp-2 hover:text-blue-600">
+                          {exam.title}
+                        </h3>
+                        
+                        {/* Description */}
+                        {exam.metaDescription && (
+                          <p className="text-xs text-slate-600 line-clamp-2 mb-2">
+                            {exam.metaDescription}
+                          </p>
+                        )}
+                        
+                        {/* Date */}
+                        <div className="flex items-center gap-1 text-xs text-slate-500">
+                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                          </svg>
+                          <span>
+                            {new Date(exam.updatedAt).toLocaleDateString('en-IN', { 
+                              day: 'numeric', 
+                              month: 'short', 
+                              year: 'numeric' 
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                    </a>
                   ))}
                 </div>
               </div>
             </div>
           )}
+
+          
+
+          
 
         </div>
       </div>
