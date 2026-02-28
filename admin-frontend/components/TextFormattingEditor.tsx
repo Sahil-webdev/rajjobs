@@ -25,6 +25,15 @@ export default function TextFormattingEditor({
   const [tableWidth, setTableWidth] = useState("100");
   const [editingTable, setEditingTable] = useState<HTMLTableElement | null>(null);
   
+  // PDF upload states
+  const [showPdfUpload, setShowPdfUpload] = useState(false);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [pdfUploading, setPdfUploading] = useState(false);
+  const [pdfLinkText, setPdfLinkText] = useState("");
+  
+  // Context menu for table
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; cell: HTMLTableCellElement } | null>(null);
+  
   // ⭐ Active states for formatting (REAL-TIME DETECTION)
   const [activeBold, setActiveBold] = useState(false);
   const [activeItalic, setActiveItalic] = useState(false);
@@ -204,6 +213,130 @@ export default function TextFormattingEditor({
       setEditingTable(null);
     }
   };
+
+  // 📄 PDF UPLOAD HANDLER
+  const handlePdfUpload = async () => {
+    if (!pdfFile) {
+      alert("Please select a PDF file!");
+      return;
+    }
+    if (!pdfLinkText.trim()) {
+      alert("Please enter link text!");
+      return;
+    }
+
+    setPdfUploading(true);
+    const formData = new FormData();
+    formData.append('pdf', pdfFile);
+
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/file/upload-pdf`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData,
+          credentials: 'include'
+        }
+      );
+
+      const result = await response.json();
+      
+      if (result.success && result.url) {
+        // Use pdf-proxy URL for better compatibility
+        const proxyUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/public/pdf-proxy?url=${encodeURIComponent(result.url)}`;
+        
+        // Insert link with PDF icon
+        const pdfHtml = `<a href="${proxyUrl}" target="_blank" rel="noopener noreferrer" style="color: #3b82f6; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px;">📄 ${pdfLinkText}</a>`;
+        execCmd('insertHTML', pdfHtml);
+        
+        // Reset form
+        setShowPdfUpload(false);
+        setPdfFile(null);
+        setPdfLinkText("");
+        savedSelectionRef.current = null;
+      } else {
+        alert(result.message || 'Failed to upload PDF');
+      }
+    } catch (error) {
+      console.error('PDF upload error:', error);
+      alert('Failed to upload PDF. Please try again.');
+    } finally {
+      setPdfUploading(false);
+    }
+  };
+
+  const handlePdfButtonClick = () => {
+    saveSelection();
+    setShowPdfUpload(true);
+  };
+
+  // 🖱️ TABLE CONTEXT MENU HANDLERS
+  const handleTableContextMenu = (e: React.MouseEvent) => {
+    // Check if click is inside a table cell
+    let target = e.target as HTMLElement;
+    while (target && target !== editorRef.current) {
+      if (target.tagName === 'TD' || target.tagName === 'TH') {
+        e.preventDefault();
+        setContextMenu({
+          x: e.clientX,
+          y: e.clientY,
+          cell: target as HTMLTableCellElement
+        });
+        return;
+      }
+      target = target.parentElement as HTMLElement;
+    }
+  };
+
+  const deleteTableRow = () => {
+    if (!contextMenu) return;
+    const row = contextMenu.cell.parentElement as HTMLTableRowElement;
+    const table = row.parentElement?.parentElement as HTMLTableElement;
+    if (table && table.rows.length > 1) {
+      row.remove();
+      handleInput();
+    } else {
+      alert("Cannot delete the last row!");
+    }
+    setContextMenu(null);
+  };
+
+  const deleteTableColumn = () => {
+    if (!contextMenu) return;
+    const cellIndex = contextMenu.cell.cellIndex;
+    const row = contextMenu.cell.parentElement as HTMLTableRowElement;
+    const table = row.parentElement?.parentElement as HTMLTableElement;
+    
+    if (table) {
+      const colCount = table.rows[0]?.cells.length || 0;
+      if (colCount <= 1) {
+        alert("Cannot delete the last column!");
+        return;
+      }
+      
+      // Delete cell from each row
+      Array.from(table.rows).forEach(row => {
+        if (row.cells[cellIndex]) {
+          row.deleteCell(cellIndex);
+        }
+      });
+      handleInput();
+    }
+    setContextMenu(null);
+  };
+
+  // Close context menu on click outside
+  useEffect(() => {
+    const closeContextMenu = () => setContextMenu(null);
+    if (contextMenu) {
+      document.addEventListener('click', closeContextMenu);
+      return () => document.removeEventListener('click', closeContextMenu);
+    }
+  }, [contextMenu]);
 
   // 💾 SAVE SELECTION - for link functionality
   const saveSelection = () => {
@@ -491,6 +624,14 @@ export default function TextFormattingEditor({
           </svg>
         </ToolbarButton>
 
+        {/* PDF Upload */}
+        <ToolbarButton onClick={handlePdfButtonClick} title="Upload PDF">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H4z"/>
+            <path d="M4.603 12.087a.81.81 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.68 7.68 0 0 1 1.482-.645 19.701 19.701 0 0 0 1.062-2.227 7.269 7.269 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.187-.012.395-.047.614-.084.51-.27 1.134-.52 1.794a10.954 10.954 0 0 0 .98 1.686 5.753 5.753 0 0 1 1.334.05c.364.065.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.856.856 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.716 5.716 0 0 1-.911-.95 11.642 11.642 0 0 0-1.997.406 11.311 11.311 0 0 1-1.021 1.51c-.29.35-.608.655-.926.787a.793.793 0 0 1-.58.029zm1.379-1.901c-.166.076-.32.156-.459.238-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361.01.022.02.036.026.044a.27.27 0 0 0 .035-.012c.137-.056.355-.235.635-.572a8.18 8.18 0 0 0 .45-.606zm1.64-1.33a12.647 12.647 0 0 1 1.01-.193 11.666 11.666 0 0 1-.51-.858 20.741 20.741 0 0 1-.5 1.05zm2.446.45c.15.162.296.3.435.41.24.19.407.253.498.256a.107.107 0 0 0 .07-.015.307.307 0 0 0 .094-.125.436.436 0 0 0 .059-.2.095.095 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a3.881 3.881 0 0 0-.612-.053zM8.078 5.8a6.7 6.7 0 0 0 .2-.828c.031-.188.043-.343.038-.465a.613.613 0 0 0-.032-.198.517.517 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822.024.111.054.227.09.346z"/>
+          </svg>
+        </ToolbarButton>
+
         {/* Link Input - with preserved selection */}
         {showLinkInput && (
           <div style={{
@@ -568,6 +709,112 @@ export default function TextFormattingEditor({
             </button>
           </div>
         )}
+
+        {/* PDF Upload Input */}
+        {showPdfUpload && (
+          <div style={{
+            position: 'absolute',
+            top: '100%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            marginTop: '8px',
+            background: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            border: '1.5px solid #3b82f6',
+            boxShadow: '0 10px 25px rgba(59, 130, 246, 0.2)',
+            zIndex: 1000,
+            minWidth: '400px'
+          }}>
+            <div style={{ marginBottom: '12px', fontSize: '16px', fontWeight: '600', color: '#1e293b' }}>
+              📄 Upload PDF File
+            </div>
+            
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#475569' }}>
+                Link Text *
+              </label>
+              <input
+                type="text"
+                value={pdfLinkText}
+                onChange={(e) => setPdfLinkText(e.target.value)}
+                placeholder="e.g., Download Notification PDF"
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #cbd5e0',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  outline: 'none'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#475569' }}>
+                PDF File *
+              </label>
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #cbd5e0',
+                  borderRadius: '6px',
+                  fontSize: '13px'
+                }}
+              />
+              {pdfFile && (
+                <div style={{ marginTop: '6px', fontSize: '12px', color: '#10b981' }}>
+                  ✓ {pdfFile.name} ({(pdfFile.size / 1024).toFixed(2)} KB)
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPdfUpload(false);
+                  setPdfFile(null);
+                  setPdfLinkText("");
+                  savedSelectionRef.current = null;
+                }}
+                style={{
+                  padding: '8px 16px',
+                  background: '#f1f5f9',
+                  color: '#64748b',
+                  border: '1px solid #cbd5e0',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handlePdfUpload}
+                disabled={pdfUploading}
+                style={{
+                  padding: '8px 20px',
+                  background: pdfUploading ? '#94a3b8' : '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: pdfUploading ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}
+              >
+                {pdfUploading ? 'Uploading...' : 'Upload & Insert'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 👁️ RESIZABLE EDITOR with LIVE PREVIEW */}
@@ -580,6 +827,7 @@ export default function TextFormattingEditor({
           onBlur={() => setIsFocused(false)}
           onMouseUp={updateActiveStates} // ⭐ Update states when selection changes
           onKeyUp={updateActiveStates}   // ⭐ Update states when cursor moves
+          onContextMenu={handleTableContextMenu} // 🖱️ Right-click for table operations
           style={{
             width: '100%',
             height: `${editorHeight}px`,
@@ -722,7 +970,6 @@ export default function TextFormattingEditor({
                     value={tableRows}
                     onChange={(e) => setTableRows(e.target.value)}
                     min="1"
-                    max="20"
                     style={{
                       width: '100%',
                       padding: '8px 12px',
@@ -782,7 +1029,6 @@ export default function TextFormattingEditor({
                     value={tableCols}
                     onChange={(e) => setTableCols(e.target.value)}
                     min="1"
-                    max="10"
                     style={{
                       width: '100%',
                       padding: '8px 12px',
@@ -941,6 +1187,74 @@ export default function TextFormattingEditor({
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🖱️ TABLE CONTEXT MENU - Right-click on table cells */}
+      {contextMenu && (
+        <div
+          style={{
+            position: 'fixed',
+            top: contextMenu.y,
+            left: contextMenu.x,
+            background: 'white',
+            border: '1px solid #cbd5e0',
+            borderRadius: '8px',
+            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+            zIndex: 10000,
+            minWidth: '180px',
+            overflow: 'hidden'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div style={{ padding: '8px 0' }}>
+            <button
+              type="button"
+              onClick={deleteTableRow}
+              style={{
+                width: '100%',
+                padding: '10px 16px',
+                background: 'transparent',
+                border: 'none',
+                textAlign: 'left',
+                cursor: 'pointer',
+                fontSize: '14px',
+                color: '#1e293b',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                transition: 'background 0.15s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+            >
+              <span style={{ fontSize: '16px' }}>➖</span>
+              Delete Row
+            </button>
+            <button
+              type="button"
+              onClick={deleteTableColumn}
+              style={{
+                width: '100%',
+                padding: '10px 16px',
+                background: 'transparent',
+                border: 'none',
+                textAlign: 'left',
+                cursor: 'pointer',
+                fontSize: '14px',
+                color: '#1e293b',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                transition: 'background 0.15s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+            >
+              <span style={{ fontSize: '16px' }}>↕️</span>
+              Delete Column
+            </button>
           </div>
         </div>
       )}

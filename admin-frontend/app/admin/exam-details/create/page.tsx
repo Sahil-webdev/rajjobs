@@ -288,7 +288,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
                 <option value="Railway">Railway</option>
                 <option value="Banking">Banking</option>
                 <option value="Defence">Defence</option>
-                <option value="State Govt">State Govt</option>
+                <option value="State Wise">State Wise</option>
                 <option value="Teaching">Teaching</option>
                 <option value="Police">Police</option>
               </select>

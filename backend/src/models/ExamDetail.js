@@ -19,7 +19,7 @@ const examDetailSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Category is required'],
     enum: {
-      values: ['SSC', 'UPSC', 'Railway', 'Banking', 'Defence', 'State Govt', 'Teaching', 'Police'],
+      values: ['SSC', 'UPSC', 'Railway', 'Banking', 'Defence', 'State Wise', 'Teaching', 'Police'],
       message: '{VALUE} is not a valid category'
     }
   },
