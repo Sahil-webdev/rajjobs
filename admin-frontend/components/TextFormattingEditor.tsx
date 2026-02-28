@@ -171,17 +171,25 @@ export default function TextFormattingEditor({
     const numRows = parseInt(tableRows);
     const numCols = parseInt(tableCols);
     
+    console.log('🔧 Table Insert - Rows:', tableRows, 'Parsed:', numRows);
+    console.log('🔧 Table Insert - Cols:', tableCols, 'Parsed:', numCols);
+    
     if (isNaN(numRows) || isNaN(numCols) || numRows < 1 || numCols < 1) {
       alert("Please enter valid numbers (minimum 1)");
       return;
     }
     
+    // Warning for large tables (not blocking)
     if (numRows > 20 || numCols > 10) {
-      if (!confirm("Large table detected. This may slow down the editor. Continue?")) return;
+      const confirmed = confirm("Large table detected. This may slow down the editor. Continue?");
+      console.log('⚠️ Large table warning - User confirmed:', confirmed);
+      if (!confirmed) return;
     }
     
     const borderSize = parseInt(tableBorderSize) || 1;
     const width = parseInt(tableWidth) || 100;
+    
+    console.log('✅ Creating table:', numRows, 'x', numCols);
     
     let tableHTML = `<table border="${borderSize}" style="border-collapse: collapse; width: ${width}%; margin: 16px 0; font-size: 14px;"><tbody>`;
     
@@ -198,7 +206,13 @@ export default function TextFormattingEditor({
     }
     
     tableHTML += '</tbody></table><p><br></p>';
+    
+    console.log('📝 Table HTML length:', tableHTML.length);
+    console.log('📝 Table HTML preview:', tableHTML.substring(0, 200));
+    
     execCmd('insertHTML', tableHTML);
+    console.log('✅ Table inserted successfully');
+    
     setShowTableModal(false);
     setTableRows("3");
     setTableCols("3");
@@ -216,6 +230,10 @@ export default function TextFormattingEditor({
 
   // 📄 PDF UPLOAD HANDLER
   const handlePdfUpload = async () => {
+    console.log('📄 PDF Upload Started');
+    console.log('📄 PDF File:', pdfFile?.name, pdfFile?.size);
+    console.log('📄 Link Text:', pdfLinkText);
+    
     if (!pdfFile) {
       alert("Please select a PDF file!");
       return;
@@ -231,6 +249,8 @@ export default function TextFormattingEditor({
 
     try {
       const token = localStorage.getItem('accessToken');
+      console.log('📤 Uploading to:', `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/file/upload-pdf`);
+      
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/file/upload-pdf`,
         {
@@ -244,6 +264,7 @@ export default function TextFormattingEditor({
       );
 
       const result = await response.json();
+      console.log('📥 Upload Response:', result);
       
       if (result.success && result.url) {
         // Use pdf-proxy URL for better compatibility
@@ -252,6 +273,7 @@ export default function TextFormattingEditor({
         // Insert link with PDF icon
         const pdfHtml = `<a href="${proxyUrl}" target="_blank" rel="noopener noreferrer" style="color: #3b82f6; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px;">📄 ${pdfLinkText}</a>`;
         execCmd('insertHTML', pdfHtml);
+        console.log('✅ PDF link inserted successfully');
         
         // Reset form
         setShowPdfUpload(false);
@@ -259,10 +281,11 @@ export default function TextFormattingEditor({
         setPdfLinkText("");
         savedSelectionRef.current = null;
       } else {
+        console.error('❌ Upload failed:', result.message);
         alert(result.message || 'Failed to upload PDF');
       }
     } catch (error) {
-      console.error('PDF upload error:', error);
+      console.error('❌ PDF upload error:', error);
       alert('Failed to upload PDF. Please try again.');
     } finally {
       setPdfUploading(false);
@@ -270,8 +293,11 @@ export default function TextFormattingEditor({
   };
 
   const handlePdfButtonClick = () => {
+    console.log('📄 PDF Button Clicked');
+    console.log('📄 Current selection:', window.getSelection()?.toString());
     saveSelection();
     setShowPdfUpload(true);
+    console.log('📄 PDF Modal should be visible now');
   };
 
   // 🖱️ TABLE CONTEXT MENU HANDLERS
@@ -463,6 +489,7 @@ export default function TextFormattingEditor({
 
       {/* 🎨 PROFESSIONAL TOOLBAR - Modern & Clean */}
       <div style={{
+        position: 'relative', // ✅ Added for absolute positioning of PDF modal
         display: 'flex',
         gap: '6px',
         padding: '10px 12px',
