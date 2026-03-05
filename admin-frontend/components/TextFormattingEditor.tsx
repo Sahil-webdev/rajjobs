@@ -210,10 +210,34 @@ export default function TextFormattingEditor({
     console.log('📝 Table HTML length:', tableHTML.length);
     console.log('📝 Table HTML preview:', tableHTML.substring(0, 200));
     
-    execCmd('insertHTML', tableHTML);
-    console.log('✅ Table inserted successfully');
-    
+    // Close modal first
     setShowTableModal(false);
+    
+    // Focus editor and insert after a brief delay to ensure focus is set
+    setTimeout(() => {
+      if (editorRef.current) {
+        editorRef.current.focus();
+        
+        // Get or create selection at end of content
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) {
+          const range = document.createRange();
+          range.selectNodeContents(editorRef.current);
+          range.collapse(false); // Collapse to end
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+        }
+        
+        // Insert table
+        document.execCommand('insertHTML', false, tableHTML);
+        console.log('✅ Table inserted successfully');
+        
+        // Update content
+        handleInput();
+      }
+    }, 100);
+    
+    // Reset form
     setTableRows("3");
     setTableCols("3");
     setEditingTable(null);
@@ -270,13 +294,40 @@ export default function TextFormattingEditor({
         // Use pdf-proxy URL for better compatibility
         const proxyUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/public/pdf-proxy?url=${encodeURIComponent(result.url)}`;
         
-        // Insert link with PDF icon
-        const pdfHtml = `<a href="${proxyUrl}" target="_blank" rel="noopener noreferrer" style="color: #3b82f6; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px;">📄 ${pdfLinkText}</a>`;
-        execCmd('insertHTML', pdfHtml);
-        console.log('✅ PDF link inserted successfully');
+        // Close modal first
+        setShowPdfUpload(false);
+        
+        // Insert link after modal closes
+        setTimeout(() => {
+          if (editorRef.current) {
+            editorRef.current.focus();
+            
+            // Restore selection if saved, otherwise insert at end
+            if (savedSelectionRef.current) {
+              const selection = window.getSelection();
+              selection?.removeAllRanges();
+              selection?.addRange(savedSelectionRef.current);
+            } else {
+              // No saved selection, insert at end
+              const selection = window.getSelection();
+              const range = document.createRange();
+              range.selectNodeContents(editorRef.current);
+              range.collapse(false);
+              selection?.removeAllRanges();
+              selection?.addRange(range);
+            }
+            
+            // Insert link with PDF icon
+            const pdfHtml = `<a href="${proxyUrl}" target="_blank" rel="noopener noreferrer" style="color: #3b82f6; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px;">📄 ${pdfLinkText}</a>&nbsp;`;
+            document.execCommand('insertHTML', false, pdfHtml);
+            console.log('✅ PDF link inserted successfully');
+            
+            // Update content
+            handleInput();
+          }
+        }, 100);
         
         // Reset form
-        setShowPdfUpload(false);
         setPdfFile(null);
         setPdfLinkText("");
         savedSelectionRef.current = null;
@@ -737,22 +788,43 @@ export default function TextFormattingEditor({
           </div>
         )}
 
-        {/* PDF Upload Input */}
+        {/* PDF Upload Modal with Backdrop */}
         {showPdfUpload && (
-          <div style={{
-            position: 'absolute',
-            top: '100%',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            marginTop: '8px',
-            background: 'white',
-            padding: '20px',
-            borderRadius: '8px',
-            border: '1.5px solid #3b82f6',
-            boxShadow: '0 10px 25px rgba(59, 130, 246, 0.2)',
-            zIndex: 1000,
-            minWidth: '400px'
-          }}>
+          <>
+            {/* Backdrop */}
+            <div 
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'rgba(0, 0, 0, 0.5)',
+                zIndex: 9999
+              }}
+              onClick={() => {
+                setShowPdfUpload(false);
+                setPdfFile(null);
+                setPdfLinkText("");
+                savedSelectionRef.current = null;
+              }}
+            />
+            
+            {/* Modal */}
+            <div style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              background: 'white',
+              padding: '24px',
+              borderRadius: '12px',
+              border: '1.5px solid #3b82f6',
+              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3)',
+              zIndex: 10000,
+              minWidth: '450px',
+              maxWidth: '90vw'
+            }}>
             <div style={{ marginBottom: '12px', fontSize: '16px', fontWeight: '600', color: '#1e293b' }}>
               📄 Upload PDF File
             </div>
@@ -841,6 +913,7 @@ export default function TextFormattingEditor({
               </button>
             </div>
           </div>
+          </>
         )}
       </div>
 
