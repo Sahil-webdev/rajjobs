@@ -30,6 +30,7 @@ export default function TextFormattingEditor({
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [pdfUploading, setPdfUploading] = useState(false);
   const [pdfLinkText, setPdfLinkText] = useState("");
+  const [selectedTextForPdf, setSelectedTextForPdf] = useState("");
   
   // Context menu for table
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; cell: HTMLTableCellElement } | null>(null);
@@ -296,17 +297,30 @@ export default function TextFormattingEditor({
         
         // Close modal first
         setShowPdfUpload(false);
+        setPdfUploading(false);
         
         // Insert link after modal closes
         setTimeout(() => {
           if (editorRef.current) {
             editorRef.current.focus();
             
-            // Restore selection if saved, otherwise insert at end
+            // Restore selection if saved
             if (savedSelectionRef.current) {
-              const selection = window.getSelection();
-              selection?.removeAllRanges();
-              selection?.addRange(savedSelectionRef.current);
+              try {
+                const selection = window.getSelection();
+                selection?.removeAllRanges();
+                selection?.addRange(savedSelectionRef.current);
+                console.log('✅ Selection restored successfully');
+              } catch (e) {
+                console.warn('⚠️ Could not restore selection, will insert at end');
+                // If restoration fails, insert at end
+                const selection = window.getSelection();
+                const range = document.createRange();
+                range.selectNodeContents(editorRef.current);
+                range.collapse(false);
+                selection?.removeAllRanges();
+                selection?.addRange(range);
+              }
             } else {
               // No saved selection, insert at end
               const selection = window.getSelection();
@@ -317,19 +331,21 @@ export default function TextFormattingEditor({
               selection?.addRange(range);
             }
             
-            // Insert link with PDF icon
-            const pdfHtml = `<a href="${proxyUrl}" target="_blank" rel="noopener noreferrer" style="color: #3b82f6; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px;">📄 ${pdfLinkText}</a>&nbsp;`;
+            // Insert link with PDF icon - wraps selected text if any
+            const displayText = pdfLinkText || 'PDF Document';
+            const pdfHtml = `<a href="${proxyUrl}" target="_blank" rel="noopener noreferrer" style="color: #3b82f6; text-decoration: underline; font-weight: 500;">📄 ${displayText}</a>&nbsp;`;
             document.execCommand('insertHTML', false, pdfHtml);
-            console.log('✅ PDF link inserted successfully');
+            console.log('✅ PDF link inserted:', displayText);
             
             // Update content
             handleInput();
           }
-        }, 100);
+        }, 150);
         
         // Reset form
         setPdfFile(null);
         setPdfLinkText("");
+        setSelectedTextForPdf("");
         savedSelectionRef.current = null;
       } else {
         console.error('❌ Upload failed:', result.message);
@@ -345,10 +361,21 @@ export default function TextFormattingEditor({
 
   const handlePdfButtonClick = () => {
     console.log('📄 PDF Button Clicked');
-    console.log('📄 Current selection:', window.getSelection()?.toString());
+    const selection = window.getSelection();
+    const selectedText = selection?.toString().trim() || "";
+    console.log('📄 Current selection:', selectedText);
+    
+    // Save both the range and the selected text
     saveSelection();
+    setSelectedTextForPdf(selectedText);
+    
+    // Pre-fill link text with selected text if available
+    if (selectedText) {
+      setPdfLinkText(selectedText);
+    }
+    
     setShowPdfUpload(true);
-    console.log('📄 PDF Modal should be visible now');
+    console.log('📄 PDF Modal opened with selected text:', selectedText);
   };
 
   // 🖱️ TABLE CONTEXT MENU HANDLERS
@@ -806,6 +833,7 @@ export default function TextFormattingEditor({
                 setShowPdfUpload(false);
                 setPdfFile(null);
                 setPdfLinkText("");
+                setSelectedTextForPdf("");
                 savedSelectionRef.current = null;
               }}
             />
@@ -879,6 +907,7 @@ export default function TextFormattingEditor({
                   setShowPdfUpload(false);
                   setPdfFile(null);
                   setPdfLinkText("");
+                  setSelectedTextForPdf("");
                   savedSelectionRef.current = null;
                 }}
                 style={{
