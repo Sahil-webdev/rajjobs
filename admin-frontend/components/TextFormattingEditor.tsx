@@ -192,7 +192,7 @@ export default function TextFormattingEditor({
     
     console.log('✅ Creating table:', numRows, 'x', numCols);
     
-    let tableHTML = `<table border="${borderSize}" style="border-collapse: collapse; width: ${width}%; margin: 16px 0; font-size: 14px;"><tbody>`;
+    let tableHTML = `<table border="${borderSize}" style="border-collapse: collapse; width: ${width}%; margin: 16px 0;"><tbody>`;
     
     for (let i = 0; i < numRows; i++) {
       tableHTML += '<tr>';
@@ -201,7 +201,7 @@ export default function TextFormattingEditor({
                         (tableHeaders === 'firstCol' && j === 0) ||
                         (tableHeaders === 'both' && (i === 0 || j === 0));
         const tag = isHeader ? 'th' : 'td';
-        tableHTML += `<${tag} style="border: ${borderSize}px solid #cbd5e0; padding: 10px 12px; ${isHeader ? 'background: #f7fafc; font-weight: 600; color: #2d3748;' : 'background: white; color: #4a5568;'}">${isHeader ? (i === 0 ? `Column ${j+1}` : `Row ${i+1}`) : ''}</${tag}>`;
+        tableHTML += `<${tag} style="border: ${borderSize}px solid #cbd5e0; padding: 10px 12px; font-size: 14px; line-height: 1.5; ${isHeader ? 'background: #f7fafc; font-weight: 600; color: #2d3748;' : 'background: white; color: #4a5568;'}">${isHeader ? (i === 0 ? `Column ${j+1}` : `Row ${i+1}`) : ''}</${tag}>`;
       }
       tableHTML += '</tr>';
     }
@@ -430,6 +430,50 @@ export default function TextFormattingEditor({
         if (row.cells[cellIndex]) {
           row.deleteCell(cellIndex);
         }
+      });
+      handleInput();
+    }
+    setContextMenu(null);
+  };
+
+  const insertTableRowAbove = () => {
+    if (!contextMenu) return;
+    const currentRow = contextMenu.cell.parentElement as HTMLTableRowElement;
+    const table = currentRow.parentElement?.parentElement as HTMLTableElement;
+    
+    if (table) {
+      const colCount = currentRow.cells.length;
+      const newRow = table.insertRow(currentRow.rowIndex);
+      
+      for (let i = 0; i < colCount; i++) {
+        const newCell = newRow.insertCell();
+        newCell.style.border = '1px solid #cbd5e0';
+        newCell.style.padding = '10px 12px';
+        newCell.style.fontSize = '14px';
+        newCell.style.lineHeight = '1.5';
+        newCell.style.background = 'white';
+        newCell.style.color = '#4a5568';
+      }
+      handleInput();
+    }
+    setContextMenu(null);
+  };
+
+  const insertTableColumnLeft = () => {
+    if (!contextMenu) return;
+    const cellIndex = contextMenu.cell.cellIndex;
+    const row = contextMenu.cell.parentElement as HTMLTableRowElement;
+    const table = row.parentElement?.parentElement as HTMLTableElement;
+    
+    if (table) {
+      Array.from(table.rows).forEach(row => {
+        const newCell = row.insertCell(cellIndex);
+        newCell.style.border = '1px solid #cbd5e0';
+        newCell.style.padding = '10px 12px';
+        newCell.style.fontSize = '14px';
+        newCell.style.lineHeight = '1.5';
+        newCell.style.background = 'white';
+        newCell.style.color = '#4a5568';
       });
       handleInput();
     }
@@ -1343,7 +1387,7 @@ export default function TextFormattingEditor({
           <div style={{ padding: '8px 0' }}>
             <button
               type="button"
-              onClick={deleteTableRow}
+              onClick={insertTableRowAbove}
               style={{
                 width: '100%',
                 padding: '10px 16px',
@@ -1361,12 +1405,12 @@ export default function TextFormattingEditor({
               onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}
               onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
             >
-              <span style={{ fontSize: '16px' }}>➖</span>
-              Delete Row
+              <span style={{ fontSize: '16px' }}>➕</span>
+              Insert Row Above
             </button>
             <button
               type="button"
-              onClick={deleteTableColumn}
+              onClick={insertTableColumnLeft}
               style={{
                 width: '100%',
                 padding: '10px 16px',
@@ -1382,6 +1426,53 @@ export default function TextFormattingEditor({
                 transition: 'background 0.15s'
               }}
               onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+            >
+              <span style={{ fontSize: '16px' }}>➕</span>
+              Insert Column Left
+            </button>
+            <div style={{ height: '1px', background: '#e2e8f0', margin: '8px 0' }} />
+            <button
+              type="button"
+              onClick={deleteTableRow}
+              style={{
+                width: '100%',
+                padding: '10px 16px',
+                background: 'transparent',
+                border: 'none',
+                textAlign: 'left',
+                cursor: 'pointer',
+                fontSize: '14px',
+                color: '#dc2626',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                transition: 'background 0.15s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#fef2f2'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+            >
+              <span style={{ fontSize: '16px' }}>➖</span>
+              Delete Row
+            </button>
+            <button
+              type="button"
+              onClick={deleteTableColumn}
+              style={{
+                width: '100%',
+                padding: '10px 16px',
+                background: 'transparent',
+                border: 'none',
+                textAlign: 'left',
+                cursor: 'pointer',
+                fontSize: '14px',
+                color: '#dc2626',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                transition: 'background 0.15s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#fef2f2'}
               onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
             >
               <span style={{ fontSize: '16px' }}>↕️</span>
