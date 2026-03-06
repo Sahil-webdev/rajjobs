@@ -48,6 +48,10 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
 
   if (!mounted || !isOpen) return null;
 
+  // Provide default values for optional properties to avoid TypeScript errors
+  const enabledSections = formData.enabledSections || {};
+  const seoData = formData.seoData || {};
+  
   const currentDate = new Date().toLocaleDateString('en-IN', { 
     day: 'numeric', 
     month: 'long', 
@@ -99,7 +103,7 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
                 </span>
               </div>
               <h1 className="text-xl md:text-2xl font-bold text-slate-900 mb-3">
-                {formData.seoData?.metaTitle || formData.title || "Untitled Exam"}
+                {seoData.metaTitle || formData.title || "Untitled Exam"}
               </h1>
               <p className="text-slate-700 text-sm leading-relaxed">
                 {formData.metaDescription || "No description provided"}
@@ -111,7 +115,7 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
               <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm">
                 <img 
                   src={formData.posterImage} 
-                  alt={formData.seoData?.imageAltTexts?.posterImage || `${formData.title} notification poster`}
+                  alt={seoData.imageAltTexts?.posterImage || `${formData.title} notification poster`}
                   className="w-full h-64 md:h-96 object-contain bg-white"
                 />
               </div>
@@ -133,7 +137,7 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
             )}
 
             {/* Quick Highlights */}
-            {formData.enabledSections?.quickHighlights && formData.quickHighlights && Object.keys(formData.quickHighlights).length > 0 && (
+            {enabledSections.quickHighlights && formData.quickHighlights && Object.keys(formData.quickHighlights).length > 0 && (
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
                   <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
@@ -156,7 +160,7 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
             )}
 
             {/* Important Dates */}
-            {formData.enabledSections?.importantDates && formData.importantDates && formData.importantDates.length > 0 && (
+            {enabledSections.importantDates && formData.importantDates && formData.importantDates.length > 0 && (
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
                   <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
@@ -185,7 +189,7 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
             )}
 
             {/* Eligibility Criteria */}
-            {formData.enabledSections?.eligibility && formData.eligibility && formData.eligibility.length > 0 && (
+            {enabledSections.eligibility && formData.eligibility && formData.eligibility.length > 0 && (
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
                   <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
@@ -207,7 +211,7 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
             )}
 
             {/* Application Fee */}
-            {formData.enabledSections?.applicationFee && formData.applicationFee && formData.applicationFee.length > 0 && (
+            {enabledSections.applicationFee && formData.applicationFee && formData.applicationFee.length > 0 && (
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
                   <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
@@ -236,7 +240,7 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
             )}
 
             {/* Exam Pattern */}
-            {formData.enabledSections?.examPattern && formData.examPattern && formData.examPattern.length > 0 && (
+            {enabledSections.examPattern && formData.examPattern && formData.examPattern.length > 0 && (
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
                   <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
@@ -249,7 +253,7 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
                       <tr className="bg-slate-100">
                         <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 border border-slate-200">Subject</th>
                         <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 border border-slate-200">Marks</th>
-                        {formData.examPattern.some(item => item.duration) && (
+                        {formData.examPattern?.some(item => item.duration) && (
                           <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 border border-slate-200">Duration</th>
                         )}
                       </tr>
@@ -259,7 +263,7 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
                         <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
                           <td className="px-3 py-2 text-sm text-slate-900 border border-slate-200">{item.subject}</td>
                           <td className="px-3 py-2 text-sm text-blue-600 font-semibold border border-slate-200">{item.marks}</td>
-                          {formData.examPattern.some(item => item.duration) && (
+                          {formData.examPattern?.some(item => item.duration) && (
                             <td className="px-3 py-2 text-sm text-slate-700 border border-slate-200">{item.duration || '-'}</td>
                           )}
                         </tr>
@@ -271,7 +275,7 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
             )}
 
             {/* Syllabus */}
-            {formData.enabledSections?.syllabus && formData.syllabus && formData.syllabus.length > 0 && (
+            {enabledSections.syllabus && formData.syllabus && formData.syllabus.length > 0 && (
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
                   <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
@@ -292,7 +296,7 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
             )}
 
             {/* How to Apply */}
-            {formData.enabledSections?.howToApply && formData.howToApply && formData.howToApply.length > 0 && (
+            {enabledSections.howToApply && formData.howToApply && formData.howToApply.length > 0 && (
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
                   <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
