@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import TextFormattingEditor from "@/components/TextFormattingEditor";
 import ImageUploader from "@/components/ImageUploader";
 import SEOEditor from "@/components/SEOEditor";
+import ExamPreview from "@/components/ExamPreview";
 
 interface CreateExamPageProps {
   examId?: string;
@@ -40,6 +41,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
 
   // Auto-generate slug from title
   useEffect(() => {
@@ -401,41 +403,74 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
         </div>
 
         {/* Action Buttons */}
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'space-between' }}>
           <button
             type="button"
-            onClick={() => router.push('/admin/exam-details')}
+            onClick={() => setShowPreview(true)}
             style={{
               padding: '12px 24px',
-              background: '#f3f4f6',
-              border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#374151',
-              cursor: 'pointer'
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              padding: '12px 24px',
-              background: loading ? '#9ca3af' : '#3b82f6',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               fontSize: '14px',
               fontWeight: '600',
-              cursor: loading ? 'not-allowed' : 'pointer'
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 4px 6px rgba(102, 126, 234, 0.25)'
             }}
           >
-            {loading ? 'Saving...' : (isEdit ? 'Update Exam' : 'Create Exam')}
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            Preview
           </button>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button
+              type="button"
+              onClick={() => router.push('/admin/exam-details')}
+              style={{
+                padding: '12px 24px',
+                background: '#f3f4f6',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#374151',
+                cursor: 'pointer'
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                padding: '12px 24px',
+                background: loading ? '#9ca3af' : '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: loading ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {loading ? 'Saving...' : (isEdit ? 'Update Exam' : 'Create Exam')}
+            </button>
+          </div>
         </div>
       </form>
+
+      {/* Preview Modal */}
+      <ExamPreview 
+        formData={formData}
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+      />
     </div>
   );
 }

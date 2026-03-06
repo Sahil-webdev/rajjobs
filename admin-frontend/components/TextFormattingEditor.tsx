@@ -255,9 +255,9 @@ export default function TextFormattingEditor({
 
   // 📄 PDF UPLOAD HANDLER
   const handlePdfUpload = async () => {
-    console.log('📄 PDF Upload Started');
-    console.log('📄 PDF File:', pdfFile?.name, pdfFile?.size);
-    console.log('📄 Link Text:', pdfLinkText);
+    console.log('PDF Upload Started');
+    console.log('PDF File:', pdfFile?.name, pdfFile?.size);
+    console.log('Link Text:', pdfLinkText);
     
     if (!pdfFile) {
       alert("Please select a PDF file!");
@@ -291,9 +291,12 @@ export default function TextFormattingEditor({
       const result = await response.json();
       console.log('📥 Upload Response:', result);
       
-      if (result.success && result.url) {
+      // Backend sends URL in result.data.url
+      const uploadedUrl = result.data?.url || result.url;
+      
+      if (result.success && uploadedUrl) {
         // Use pdf-proxy URL for better compatibility
-        const proxyUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/public/pdf-proxy?url=${encodeURIComponent(result.url)}`;
+        const proxyUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/public/pdf-proxy?url=${encodeURIComponent(uploadedUrl)}`;
         
         // Close modal first
         setShowPdfUpload(false);
@@ -333,7 +336,7 @@ export default function TextFormattingEditor({
             
             // Insert link with PDF icon - wraps selected text if any
             const displayText = pdfLinkText || 'PDF Document';
-            const pdfHtml = `<a href="${proxyUrl}" target="_blank" rel="noopener noreferrer" style="color: #3b82f6; text-decoration: underline; font-weight: 500;">📄 ${displayText}</a>&nbsp;`;
+            const pdfHtml = `<a href="${proxyUrl}" target="_blank" rel="noopener noreferrer" style="color: #3b82f6; text-decoration: underline; font-weight: 500;">${displayText}</a>&nbsp;`;
             document.execCommand('insertHTML', false, pdfHtml);
             console.log('✅ PDF link inserted:', displayText);
             
@@ -360,10 +363,10 @@ export default function TextFormattingEditor({
   };
 
   const handlePdfButtonClick = () => {
-    console.log('📄 PDF Button Clicked');
+    console.log('PDF Button Clicked');
     const selection = window.getSelection();
     const selectedText = selection?.toString().trim() || "";
-    console.log('📄 Current selection:', selectedText);
+    console.log('Current selection:', selectedText);
     
     // Save both the range and the selected text
     saveSelection();
