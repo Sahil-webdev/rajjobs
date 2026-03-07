@@ -223,31 +223,82 @@ export default function TextFormattingEditor({
 
   const handleHeadingChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const heading = e.target.value;
-    if (heading === 'normal') {
-      execCmd('formatBlock', 'p');
-      // Remove any nested span tags inside the paragraph
-      if (editorRef.current) {
-        const paragraphs = editorRef.current.querySelectorAll('p > span');
-        paragraphs.forEach(span => {
-          while (span.firstChild) {
-            span.parentNode?.insertBefore(span.firstChild, span);
-          }
-          span.parentNode?.removeChild(span);
-        });
+    
+    // Get selected range
+    const selection = window.getSelection();
+    if (!selection || selection.toString().length === 0) {
+      e.target.value = currentBlockFormat; // Reset to current format
+      return;
+    }
+    
+    const range = selection.getRangeAt(0);
+    let selectedContainer = range.commonAncestorContainer;
+    if (selectedContainer.nodeType === 3) {
+      selectedContainer = selectedContainer.parentElement as HTMLElement;
+    }
+    
+    let targetElement = selectedContainer as HTMLElement;
+    
+    // Walk up to find the actual block element (p, h1-h6, or created p if inside span)
+    while (targetElement && targetElement !== editorRef.current) {
+      const tag = targetElement.tagName.toLowerCase();
+      if (['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tag)) {
+        break;
       }
-    } else {
-      execCmd('formatBlock', heading);
-      // Remove any nested span tags inside headings
-      if (editorRef.current) {
-        const headings = editorRef.current.querySelectorAll(`${heading} > span`);
-        headings.forEach(span => {
-          while (span.firstChild) {
-            span.parentNode?.insertBefore(span.firstChild, span);
-          }
-          span.parentNode?.removeChild(span);
-        });
+      targetElement = targetElement.parentElement as HTMLElement;
+    }
+    
+    // If we didn't find a block element, create a paragraph wrapper
+    if (!targetElement || targetElement === editorRef.current) {
+      targetElement = document.createElement('p');
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        sel.getRangeAt(0).surroundContents(targetElement);
       }
     }
+    
+    // Heading sizes with proper styling
+    const headingSizes: Record<string, {size: string, weight: string, margin: string}> = {
+      'normal': {size: '11px', weight: 'normal', margin: '0'},
+      'h1': {size: '32px', weight: 'bold', margin: '12px 0 8px 0'},
+      'h2': {size: '24px', weight: 'bold', margin: '10px 0 6px 0'},
+      'h3': {size: '19px', weight: 'bold', margin: '8px 0 4px 0'},
+      'h4': {size: '16px', weight: 'bold', margin: '6px 0 2px 0'},
+      'h5': {size: '14px', weight: 'bold', margin: '4px 0 0 0'},
+      'h6': {size: '13px', weight: 'bold', margin: '4px 0 0 0'}
+    };
+    
+    const styles = headingSizes[heading] || headingSizes['normal'];
+    const newTag = heading === 'normal' ? 'P' : heading.toUpperCase();
+    
+    // Only replace if different from current tag
+    if (targetElement.tagName !== newTag) {
+      const newElement = document.createElement(newTag);
+      newElement.innerHTML = targetElement.innerHTML;
+      newElement.style.fontSize = styles.size;
+      newElement.style.fontWeight = styles.weight;
+      newElement.style.margin = styles.margin;
+      newElement.style.lineHeight = heading === 'normal' ? '1.6' : '1.3';
+      
+      targetElement.replaceWith(newElement);
+    } else {
+      // Update styles if same tag
+      targetElement.style.fontSize = styles.size;
+      targetElement.style.fontWeight = styles.weight;
+      targetElement.style.margin = styles.margin;
+      targetElement.style.lineHeight = heading === 'normal' ? '1.6' : '1.3';
+    }
+    
+    // Clean up and trigger update
+    setTimeout(() => {
+      cleanupSpanTags();
+      if (editorRef.current) {
+        onChange(editorRef.current.innerHTML);
+      }
+    }, 0);
+    
+    editorRef.current?.focus();
+    updateActiveStates();
   };
 
   // 🎨 TABLE MODAL - Beautiful dialog with edit/delete!
@@ -1111,6 +1162,7 @@ export default function TextFormattingEditor({
         <div
           ref={editorRef}
           contentEditable
+          suppressContentEditableWarning
           onInput={handleInput}
           onFocus={() => { setIsFocused(true); updateActiveStates(); }}
           onBlur={() => {
@@ -1128,7 +1180,7 @@ export default function TextFormattingEditor({
             borderRight: isFocused ? '1px solid #3b82f6' : '1px solid #e2e8f0',
             borderBottom: 'none',
             borderTop: 'none',
-            fontSize: '15px',
+            fontSize: '11px',
             lineHeight: '1.7',
             background: 'white',
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
