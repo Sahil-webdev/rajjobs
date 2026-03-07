@@ -93,9 +93,45 @@ export default function TextFormattingEditor({
   };
 
   // Handle content changes
+  const cleanupSpanTags = () => {
+    if (!editorRef.current) return;
+    
+    // Remove unnecessary span tags from headings and paragraphs
+    const headings = editorRef.current.querySelectorAll('h1, h2, h3, h4, h5, h6, p');
+    headings.forEach(heading => {
+      const spans = heading.querySelectorAll('span');
+      spans.forEach(span => {
+        // Only remove spans that have only style attributes
+        if (span.attributes.length === 1 && span.attributes[0]?.name === 'style') {
+          // Move children outside span
+          while (span.firstChild) {
+            span.parentNode?.insertBefore(span.firstChild, span);
+          }
+          span.parentNode?.removeChild(span);
+        }
+      });
+    });
+
+    // Also clean up table cells - remove nested spans that are creating layout issues
+    const tableCells = editorRef.current.querySelectorAll('td, th');
+    tableCells.forEach(cell => {
+      const spans = cell.querySelectorAll('span');
+      spans.forEach(span => {
+        // For table cells, only keep spans with classes, remove style-only spans
+        if (span.attributes.length === 1 && span.attributes[0]?.name === 'style') {
+          while (span.firstChild) {
+            span.parentNode?.insertBefore(span.firstChild, span);
+          }
+          span.parentNode?.removeChild(span);
+        }
+      });
+    });
+  };
+
   const handleInput = () => {
     if (editorRef.current) {
       isTypingRef.current = true;
+      cleanupSpanTags(); // Clean up span tags after each input
       const html = editorRef.current.innerHTML;
       onChange(html);
       updateActiveStates(); // Update button states as user types
@@ -120,9 +156,19 @@ export default function TextFormattingEditor({
   const handleFontSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const size = e.target.value;
     if (size && size !== 'default') {
+      // Use standard execCommand instead of insertHTML with span tags
+      // This applies font size without wrapping in span tags
+      execCmd('fontSize', false, '7'); // Size index 7 = 48px
+      
+      // Apply the exact size using CSS class approach
       const selection = window.getSelection();
       if (selection && !selection.isCollapsed) {
-        execCmd('insertHTML', `<span style="font-size: ${size}px;">${selection.toString()}</span>`);
+        const range = selection.getRangeAt(0);
+        const span = document.createElement('span');
+        span.style.fontSize = `${size}px`;
+        span.style.lineHeight = 'inherit';
+        range.surroundContents(span);
+        handleInput();
       }
     }
   };
@@ -131,8 +177,28 @@ export default function TextFormattingEditor({
     const heading = e.target.value;
     if (heading === 'normal') {
       execCmd('formatBlock', 'p');
+      // Remove any nested span tags inside the paragraph
+      if (editorRef.current) {
+        const paragraphs = editorRef.current.querySelectorAll('p > span');
+        paragraphs.forEach(span => {
+          while (span.firstChild) {
+            span.parentNode?.insertBefore(span.firstChild, span);
+          }
+          span.parentNode?.removeChild(span);
+        });
+      }
     } else {
       execCmd('formatBlock', heading);
+      // Remove any nested span tags inside headings
+      if (editorRef.current) {
+        const headings = editorRef.current.querySelectorAll(`${heading} > span`);
+        headings.forEach(span => {
+          while (span.firstChild) {
+            span.parentNode?.insertBefore(span.firstChild, span);
+          }
+          span.parentNode?.removeChild(span);
+        });
+      }
     }
   };
 
@@ -999,7 +1065,10 @@ export default function TextFormattingEditor({
           contentEditable
           onInput={handleInput}
           onFocus={() => { setIsFocused(true); updateActiveStates(); }}
-          onBlur={() => setIsFocused(false)}
+          onBlur={() => {
+            setIsFocused(false);
+            cleanupSpanTags(); // Final cleanup when leaving editor
+          }}
           onMouseUp={updateActiveStates} // ⭐ Update states when selection changes
           onKeyUp={updateActiveStates}   // ⭐ Update states when cursor moves
           onContextMenu={handleTableContextMenu} // 🖱️ Right-click for table operations
