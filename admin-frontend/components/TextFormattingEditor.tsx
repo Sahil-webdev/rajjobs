@@ -142,8 +142,82 @@ export default function TextFormattingEditor({
   }
 
   const handleFontSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    // Font size changes disabled to prevent unnecessary span tag creation
-    // Users should use heading styles (H1-H6) or normal text instead
+    const fontSize = e.target.value;
+    if (fontSize === 'default') return;
+
+    const selection = window.getSelection();
+    if (!selection || selection.toString().length === 0) {
+      e.target.value = 'default';
+      return;
+    }
+
+    // Check if selection contains table cells
+    const range = selection.getRangeAt(0);
+    const container = range.commonAncestorContainer;
+    const parentNode = container.nodeType === 3 ? container.parentElement : (container as HTMLElement);
+    
+    // Check if we're inside a table
+    let isTableSelection = false;
+    let tableCell: HTMLTableCellElement | null = null;
+    
+    let node = parentNode;
+    while (node && node !== editorRef.current) {
+      if (node.tagName === 'TABLE') {
+        isTableSelection = true;
+        break;
+      }
+      if (node.tagName === 'TD' || node.tagName === 'TH') {
+        tableCell = node as HTMLTableCellElement;
+      }
+      node = node.parentElement;
+    }
+
+    // Special handling for table cells
+    if (isTableSelection || tableCell) {
+      // For table selections, apply font-size inline to avoid breaking table structure
+      const cells = editorRef.current?.querySelectorAll('td, th') || [];
+      let selectedCellCount = 0;
+      
+      cells.forEach(cell => {
+        const cellRange = document.createRange();
+        cellRange.selectNodeContents(cell);
+        
+        try {
+          if (selection.containsNode(cell, true)) {
+            (cell as HTMLElement).style.fontSize = fontSize + 'px';
+            selectedCellCount++;
+          }
+        } catch (e) {
+          // Ignore containsNode errors in some browsers
+        }
+      });
+
+      if (selectedCellCount > 0) {
+        onChange(editorRef.current?.innerHTML || '');
+        e.target.value = 'default';
+        cleanupSpanTags(); // Clean up any stray spans
+        return;
+      }
+    }
+
+    // Normal text - use execCommand but with cleanup
+    document.execCommand('fontSize', false, '7'); // Built-in sizes: 1-7
+    
+    // Map our font sizes to built-in levels
+    const sizeMap: Record<string, string> = {
+      '12': '1', '14': '2', '16': '3', '18': '4',
+      '20': '5', '24': '6', '32': '7'
+    };
+    
+    const builtinSize = sizeMap[fontSize] || '3';
+    document.execCommand('fontSize', false, builtinSize);
+    
+    // Immediately clean up the span tags created by execCommand
+    setTimeout(() => {
+      cleanupSpanTags();
+      onChange(editorRef.current?.innerHTML || '');
+    }, 0);
+
     e.target.value = 'default';
   };
 
