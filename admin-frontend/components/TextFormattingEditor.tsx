@@ -156,20 +156,23 @@ export default function TextFormattingEditor({
   const handleFontSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const size = e.target.value;
     if (size && size !== 'default') {
-      // Use standard execCommand instead of insertHTML with span tags
-      // This applies font size without wrapping in span tags
-      execCmd('fontSize', false, '7'); // Size index 7 = 48px
-      
-      // Apply the exact size using CSS class approach
+      // Apply the exact size using proper DOM manipulation
       const selection = window.getSelection();
       if (selection && !selection.isCollapsed) {
         const range = selection.getRangeAt(0);
         const span = document.createElement('span');
         span.style.fontSize = `${size}px`;
         span.style.lineHeight = 'inherit';
-        range.surroundContents(span);
-        handleInput();
+        try {
+          range.surroundContents(span);
+          handleInput();
+        } catch (err) {
+          // If surroundContents fails (e.g., complex selection), use insertHTML
+          document.execCommand('insertHTML', false, `<span style="font-size: ${size}px;">${selection.toString()}</span>`);
+          handleInput();
+        }
       }
+      e.target.value = 'default';
     }
   };
 
