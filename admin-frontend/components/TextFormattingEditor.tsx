@@ -96,35 +96,23 @@ export default function TextFormattingEditor({
   const cleanupSpanTags = () => {
     if (!editorRef.current) return;
     
-    // Remove unnecessary span tags from headings and paragraphs
-    const headings = editorRef.current.querySelectorAll('h1, h2, h3, h4, h5, h6, p');
-    headings.forEach(heading => {
-      const spans = heading.querySelectorAll('span');
-      spans.forEach(span => {
-        // Only remove spans that have only style attributes
-        if (span.attributes.length === 1 && span.attributes[0]?.name === 'style') {
-          // Move children outside span
-          while (span.firstChild) {
-            span.parentNode?.insertBefore(span.firstChild, span);
-          }
-          span.parentNode?.removeChild(span);
+    // Aggressively remove ALL unnecessary span tags from the editor
+    const allSpans = editorRef.current.querySelectorAll('span');
+    allSpans.forEach(span => {
+      // Check if span has meaningful attributes (classes, data attributes, etc.)
+      const hasClass = span.className && span.className.length > 0;
+      const hasDataAttribute = Array.from(span.attributes).some(attr => attr.name.startsWith('data-'));
+      const hasId = span.id && span.id.length > 0;
+      
+      // Only keep spans with actual classes or data attributes
+      // Remove ALL style-only spans
+      if (!hasClass && !hasDataAttribute && !hasId) {
+        // Move children outside span
+        while (span.firstChild) {
+          span.parentNode?.insertBefore(span.firstChild, span);
         }
-      });
-    });
-
-    // Also clean up table cells - remove nested spans that are creating layout issues
-    const tableCells = editorRef.current.querySelectorAll('td, th');
-    tableCells.forEach(cell => {
-      const spans = cell.querySelectorAll('span');
-      spans.forEach(span => {
-        // For table cells, only keep spans with classes, remove style-only spans
-        if (span.attributes.length === 1 && span.attributes[0]?.name === 'style') {
-          while (span.firstChild) {
-            span.parentNode?.insertBefore(span.firstChild, span);
-          }
-          span.parentNode?.removeChild(span);
-        }
-      });
+        span.parentNode?.removeChild(span);
+      }
     });
   };
 
@@ -154,26 +142,9 @@ export default function TextFormattingEditor({
   }
 
   const handleFontSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const size = e.target.value;
-    if (size && size !== 'default') {
-      // Apply the exact size using proper DOM manipulation
-      const selection = window.getSelection();
-      if (selection && !selection.isCollapsed) {
-        const range = selection.getRangeAt(0);
-        const span = document.createElement('span');
-        span.style.fontSize = `${size}px`;
-        span.style.lineHeight = 'inherit';
-        try {
-          range.surroundContents(span);
-          handleInput();
-        } catch (err) {
-          // If surroundContents fails (e.g., complex selection), use insertHTML
-          document.execCommand('insertHTML', false, `<span style="font-size: ${size}px;">${selection.toString()}</span>`);
-          handleInput();
-        }
-      }
-      e.target.value = 'default';
-    }
+    // Font size changes disabled to prevent unnecessary span tag creation
+    // Users should use heading styles (H1-H6) or normal text instead
+    e.target.value = 'default';
   };
 
   const handleHeadingChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
