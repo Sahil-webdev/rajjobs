@@ -194,7 +194,7 @@ export default function TextFormattingEditor({
     
     console.log('✅ Creating table:', numRows, 'x', numCols);
     
-    let tableHTML = `<table border="${borderSize}" style="border-collapse: collapse; width: ${width}%; margin: 16px 0;"><tbody>`;
+    let tableHTML = `<table border="${borderSize}" style="border-collapse: collapse; width: 100%; max-width: 100%; margin: 16px 0; table-layout: auto; overflow-x: auto;"><tbody>`;
     
     for (let i = 0; i < numRows; i++) {
       tableHTML += '<tr>';
@@ -203,7 +203,7 @@ export default function TextFormattingEditor({
                         (tableHeaders === 'firstCol' && j === 0) ||
                         (tableHeaders === 'both' && (i === 0 || j === 0));
         const tag = isHeader ? 'th' : 'td';
-        tableHTML += `<${tag} style="border: ${borderSize}px solid #cbd5e0; padding: 10px 12px; font-size: 14px; line-height: 1.5; ${isHeader ? 'background: #f7fafc; font-weight: 600; color: #2d3748;' : 'background: white; color: #4a5568;'}">${isHeader ? (i === 0 ? `Column ${j+1}` : `Row ${i+1}`) : ''}</${tag}>`;
+        tableHTML += `<${tag} style="border: ${borderSize}px solid #cbd5e0; padding: 10px 12px; font-size: 14px; line-height: 1.5; word-wrap: break-word; overflow-wrap: break-word; ${isHeader ? 'background: #f7fafc; font-weight: 600; color: #2d3748;' : 'background: white; color: #4a5568;'}">${isHeader ? (i === 0 ? `Column ${j+1}` : `Row ${i+1}`) : ''}</${tag}>`;
       }
       tableHTML += '</tr>';
     }
@@ -446,6 +446,8 @@ export default function TextFormattingEditor({
         newCell.style.padding = '10px 12px';
         newCell.style.fontSize = '14px';
         newCell.style.lineHeight = '1.5';
+        newCell.style.wordWrap = 'break-word';
+        newCell.style.overflowWrap = 'break-word';
         newCell.style.background = 'white';
         newCell.style.color = '#4a5568';
       }
@@ -467,6 +469,8 @@ export default function TextFormattingEditor({
         newCell.style.padding = '10px 12px';
         newCell.style.fontSize = '14px';
         newCell.style.lineHeight = '1.5';
+        newCell.style.wordWrap = 'break-word';
+        newCell.style.overflowWrap = 'break-word';
         newCell.style.background = 'white';
         newCell.style.color = '#4a5568';
       });
