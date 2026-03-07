@@ -25,8 +25,7 @@ const examDetailSchema = new mongoose.Schema({
   },
   metaDescription: {
     type: String,
-    required: [true, 'Meta description is required'],
-    maxlength: [300, 'Meta description cannot exceed 300 characters']
+    default: '' // Optional field - not required
   },
   
   // Main Content
