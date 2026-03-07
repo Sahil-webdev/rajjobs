@@ -19,6 +19,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
     title: "",
     slug: "",
     category: "SSC",
+    metaDescription: "", // Hidden from UI - kept for type compatibility
     formattedNote: "", // Main content
     posterImage: "",
     status: "published" as "draft" | "published", // Changed default to published
@@ -87,6 +88,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
           title: data.data.title || "",
           slug: data.data.slug || "",
           category: data.data.category || "SSC",
+          metaDescription: data.data.metaDescription || "",
           formattedNote: data.data.formattedNote || "", // This is the critical one!
           posterImage: data.data.posterImage || "",
           status: data.data.status || "draft",
@@ -372,6 +374,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
           <SEOEditor
             seoData={formData.seoData}
             examTitle={formData.title}
+            metaDescription={formData.metaDescription}
             onChange={(seoData) => setFormData({ ...formData, seoData })}
           />
         </div>
