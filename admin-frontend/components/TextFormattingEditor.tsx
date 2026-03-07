@@ -18,8 +18,8 @@ export default function TextFormattingEditor({
   const [linkUrl, setLinkUrl] = useState("");
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [showTableModal, setShowTableModal] = useState(false);
-  const [tableRows, setTableRows] = useState("3");
-  const [tableCols, setTableCols] = useState("3");
+  const [tableRows, setTableRows] = useState("0");
+  const [tableCols, setTableCols] = useState("0");
   const [tableHeaders, setTableHeaders] = useState("firstRow");
   const [tableBorderSize, setTableBorderSize] = useState("1");
   const [tableWidth, setTableWidth] = useState("100");
@@ -160,8 +160,10 @@ export default function TextFormattingEditor({
     
     // No table found, create new
     setEditingTable(null);
-    setTableRows("3");
-    setTableCols("3");
+    setTableRows("0");
+    setTableCols("0");
+    // 💾 Save cursor position before opening modal
+    saveSelection();
     setTableHeaders("firstRow");
     setTableBorderSize("1");
     setTableWidth("100");
@@ -176,7 +178,7 @@ export default function TextFormattingEditor({
     console.log('🔧 Table Insert - Cols:', tableCols, 'Parsed:', numCols);
     
     if (isNaN(numRows) || isNaN(numCols) || numRows < 1 || numCols < 1) {
-      alert("Please enter valid numbers (minimum 1)");
+      alert("Please enter valid numbers (minimum 1 row and 1 column)");
       return;
     }
     
@@ -219,19 +221,12 @@ export default function TextFormattingEditor({
       if (editorRef.current) {
         editorRef.current.focus();
         
-        // Get or create selection at end of content
-        const selection = window.getSelection();
-        if (!selection || selection.rangeCount === 0) {
-          const range = document.createRange();
-          range.selectNodeContents(editorRef.current);
-          range.collapse(false); // Collapse to end
-          selection?.removeAllRanges();
-          selection?.addRange(range);
-        }
+        // 🎯 Restore the saved cursor position from before modal was opened
+        restoreSelection();
         
-        // Insert table
+        // Insert table at cursor position
         document.execCommand('insertHTML', false, tableHTML);
-        console.log('✅ Table inserted successfully');
+        console.log('✅ Table inserted successfully at cursor position');
         
         // Update content
         handleInput();
@@ -239,8 +234,8 @@ export default function TextFormattingEditor({
     }, 100);
     
     // Reset form
-    setTableRows("3");
-    setTableCols("3");
+    setTableRows("0");
+    setTableCols("0");
     setEditingTable(null);
   };
 

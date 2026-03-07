@@ -19,7 +19,6 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
     title: "",
     slug: "",
     category: "SSC",
-    metaDescription: "",
     formattedNote: "", // Main content
     posterImage: "",
     status: "published" as "draft" | "published", // Changed default to published
@@ -88,7 +87,6 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
           title: data.data.title || "",
           slug: data.data.slug || "",
           category: data.data.category || "SSC",
-          metaDescription: data.data.metaDescription || "",
           formattedNote: data.data.formattedNote || "", // This is the critical one!
           posterImage: data.data.posterImage || "",
           status: data.data.status || "draft",
@@ -338,30 +336,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
             </div>
           </div>
 
-          <div>
-            <label style={{ fontWeight: '600', fontSize: '14px', color: '#374151', display: 'block', marginBottom: '8px' }}>
-              Meta Description (for SEO)
-            </label>
-            <textarea
-              rows={3}
-              value={formData.metaDescription}
-              onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
-              placeholder="Brief description for search engines..."
-              maxLength={160}
-              style={{
-                width: '100%',
-                padding: '10px 14px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '14px',
-                outline: 'none',
-                fontFamily: 'inherit'
-              }}
-            />
-            <small style={{ color: '#6b7280', fontSize: '12px' }}>
-              {formData.metaDescription.length}/160 characters
-            </small>
-          </div>
+
         </div>
 
         {/* Poster Image */}
@@ -397,7 +372,6 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
           <SEOEditor
             seoData={formData.seoData}
             examTitle={formData.title}
-            metaDescription={formData.metaDescription}
             onChange={(seoData) => setFormData({ ...formData, seoData })}
           />
         </div>
