@@ -34,16 +34,8 @@ const PORT = process.env.PORT;
 
 const app = express();
 
-// 🐞 Enable Mongoose debug mode to see exact MongoDB operations
-mongoose.set('debug', true);
-mongoose.set('debug', function(coll, method, query, doc) {
-  console.log('🔍 MONGOOSE DEBUG:');
-  console.log('   Collection:', coll);
-  console.log('   Method:', method);
-  if (method === 'insertOne' || method === 'updateOne' || method === 'save') {
-    console.log('   Document being saved:', JSON.stringify(doc, null, 2));
-  }
-});
+// ⚠️ Mongoose debug mode DISABLED - causes significant performance degradation
+// mongoose.set('debug', true);
 
 const originCandidates = [
   process.env.CORS_ORIGINS,

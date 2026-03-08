@@ -67,15 +67,22 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
     try {
       console.log('📥 Loading exam data for edit, ID:', id);
       const token = localStorage.getItem('accessToken');
+      
+      // Use AbortController to handle timeout (30 seconds)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/exam-details/${id}`,
         { 
           credentials: "include",
+          signal: controller.signal,
           headers: {
             'Authorization': `Bearer ${token}`
           }
         }
       );
+      clearTimeout(timeoutId);
       const data = await response.json();
       console.log('📦 Loaded exam data:', data);
       console.log('🔍 Backend returned formattedNote:', !!data.data?.formattedNote);
@@ -105,7 +112,11 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
       }
     } catch (err: any) {
       console.error('❌ Error loading exam:', err);
-      setError("Failed to load exam details");
+      if (err.name === 'AbortError') {
+        setError("Request timeout - Server took too long to respond. Please try again.");
+      } else {
+        setError("Failed to load exam details");
+      }
     }
   };
 
