@@ -38,9 +38,8 @@ const localStorage = multer.diskStorage({
 });
 
 // Use memory storage when Cloudinary is active (stream directly to cloud)
-const multerStorage = CLOUDINARY_CONFIGURED
-  ? multer.memoryStorage()
-  : localStorage;
+// BUT we'll also save locally as fallback for pdf-proxy
+const multerStorage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
   if (file.mimetype === 'application/pdf') {
@@ -64,6 +63,12 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
     }
 
     let absoluteUrl;
+    let localFilename = null;
+
+    // Generate unique local filename
+    const localFileUnique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const localFileName = localFileUnique + '-' + req.file.originalname;
+    const localFilePath = path.join(uploadsDir, localFileName);
 
     if (CLOUDINARY_CONFIGURED) {
       // ── Upload buffer to Cloudinary ──
@@ -91,10 +96,24 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
         );
         stream.end(req.file.buffer);
       });
+
       absoluteUrl = uploadResult.secure_url; // permanent Cloudinary HTTPS URL
+
+      // ✅ ALSO save locally as fallback for pdf-proxy
+      try {
+        fs.writeFileSync(localFilePath, req.file.buffer);
+        localFilename = localFileName;
+        console.log('✅ Saved backup copy locally:', localFileName);
+      } catch (writeErr) {
+        console.warn('⚠️  Failed to save local backup:', writeErr.message);
+        // Don't fail the upload if local save fails - Cloudinary is primary
+      }
     } else {
-      // ── Local storage: build absolute URL ──
-      const relativeUrl = `/uploads/pdfs/${req.file.filename}`;
+      // ── Local storage only ──
+      fs.writeFileSync(localFilePath, req.file.buffer);
+      localFilename = localFileName;
+      
+      const relativeUrl = `/uploads/pdfs/${localFileName}`;
       const backendBase =
         process.env.BACKEND_URL ||
         `${req.protocol}://${req.get('host')}`;
@@ -105,10 +124,11 @@ router.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
       success: true,
       message: 'File uploaded successfully',
       data: {
-        url: absoluteUrl,               // ← always an absolute URL
+        url: absoluteUrl,               // ← Cloudinary URL (primary)
+        localBackup: localFilename,     // ← Local filename (fallback)
         originalName: req.file.originalname,
         size: req.file.size,
-        storage: CLOUDINARY_CONFIGURED ? 'cloudinary' : 'local',
+        storage: CLOUDINARY_CONFIGURED ? 'cloudinary+local-backup' : 'local',
       },
     });
   } catch (error) {

@@ -1,5 +1,7 @@
 const express = require('express');
 const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 const router = express.Router();
 
 // ── Cloudinary SDK (same config as file-upload.js) ────────────────────────────
@@ -34,13 +36,52 @@ function extractCloudinaryPublicId(url) {
 }
 
 /**
+ * Extract filename from Cloudinary URL (e.g., "exam-guide-2024.pdf")
+ */
+function extractFilenameFromUrl(url) {
+  const urlPath = url.split('?')[0];
+  const filename = urlPath.split('/').pop() || 'document.pdf';
+  return filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
+}
+
+/**
+ * Serve PDF from local uploads folder
+ * Used as fallback if Cloudinary fails
+ */
+function serveLocalPdf(res, filename) {
+  const localPath = path.join(__dirname, '../../uploads/pdfs', filename);
+  
+  console.log('📂 Trying local fallback:', localPath);
+  
+  if (!fs.existsSync(localPath)) {
+    console.error('❌ Local file not found:', localPath);
+    return false;
+  }
+
+  try {
+    const stats = fs.statSync(localPath);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', stats.size);
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    console.log('✅ Serving PDF from local storage:', filename);
+    fs.createReadStream(localPath).pipe(res);
+    return true;
+  } catch (err) {
+    console.error('❌ Error serving local PDF:', err.message);
+    return false;
+  }
+}
+
+/**
  * GET /api/public/pdf-proxy?url=ENCODED_PDF_URL
  *
- * Streams PDF from source (Cloudinary, gov websites, etc) with FORCED DOWNLOAD behavior.
- * 
- * For Cloudinary URLs: generates a fresh signed URL to bypass account-level blocks.
- * Content-Disposition is set to 'attachment' so PDFs download directly instead of
- * trying to open in browser (which often fails due to CORS, signing, or viewer issues).
+ * Streams PDF from source with these fallbacks:
+ * 1. Try Cloudinary signed URL
+ * 2. If Cloudinary fails (404, timeout, etc), try local uploads folder
+ * 3. If both fail, return clear error with diagnosis
  */
 router.get('/', async (req, res) => {
   const { url } = req.query;
@@ -59,8 +100,11 @@ router.get('/', async (req, res) => {
     return res.status(400).json({ success: false, message: 'Malformed URL' });
   }
 
+  const filename = extractFilenameFromUrl(decodedUrl);
+
   try {
     let fetchUrl = decodedUrl;
+    let isCloudinary = false;
 
     // ── For Cloudinary URLs: generate a signed URL using SDK credentials ──────
     if (
@@ -68,6 +112,7 @@ router.get('/', async (req, res) => {
       decodedUrl.includes('res.cloudinary.com') &&
       decodedUrl.includes('/raw/upload/')
     ) {
+      isCloudinary = true;
       const publicId = extractCloudinaryPublicId(decodedUrl);
       if (publicId) {
         fetchUrl = cloudinary.url(publicId, {
@@ -81,45 +126,63 @@ router.get('/', async (req, res) => {
       }
     }
 
-    // ── Fetch the PDF as a stream ──────────────────────────────────────────
-    console.log('📥 Fetching PDF from:', fetchUrl.substring(0, 100) + '...');
-    const upstream = await axios.get(fetchUrl, {
-      responseType: 'stream',
-      timeout: 30000,
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; RajJobs/1.0)' },
-    });
+    // ── Try to fetch the PDF ──────────────────────────────────────────────
+    try {
+      console.log('📥 Fetching PDF from:', fetchUrl.substring(0, 80) + '...');
+      const upstream = await axios.get(fetchUrl, {
+        responseType: 'stream',
+        timeout: 30000,
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; RajJobs/1.0)' },
+        validateStatus: (status) => status < 500, // Don't throw on 4xx, only 5xx
+      });
 
-    // Get filename for Content-Disposition
-    const urlPath = decodedUrl.split('?')[0];
-    const filename = urlPath.split('/').pop() || 'document.pdf';
-    const safeName = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
+      // Check for 4xx errors (404, 403, etc.)
+      if (upstream.status >= 400 && upstream.status < 500) {
+        console.warn(`⚠️ Cloudinary returned ${upstream.status}, trying local fallback...`);
+        throw new Error(`HTTP ${upstream.status}`);
+      }
 
-    // ✅ SET TO 'attachment' — Forces direct download (more reliable than opening in browser)
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${safeName}"`);
-    res.setHeader('Cache-Control', 'public, max-age=3600');
-    res.setHeader('Access-Control-Allow-Origin', '*');
+      // Success - stream the PDF
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+      res.setHeader('Access-Control-Allow-Origin', '*');
 
-    if (upstream.headers['content-length']) {
-      res.setHeader('Content-Length', upstream.headers['content-length']);
+      if (upstream.headers['content-length']) {
+        res.setHeader('Content-Length', upstream.headers['content-length']);
+      }
+
+      console.log('✅ Streaming PDF from source:', filename);
+      upstream.data.pipe(res);
+      
+      upstream.data.on('error', (err) => {
+        console.error('❌ Stream error:', err.message);
+        if (!res.headersSent) {
+          res.status(502).json({ success: false, message: 'Download interrupted' });
+        }
+      });
+
+    } catch (cloudError) {
+      // Cloudinary failed - try local fallback
+      console.warn('⚠️ Source fetch failed:', cloudError.message);
+      
+      if (isCloudinary && serveLocalPdf(res, filename)) {
+        return; // Successfully served from local
+      }
+
+      // Both failed - return error
+      throw cloudError;
     }
 
-    console.log('✅ Streaming PDF:', safeName);
-    upstream.data.pipe(res);
-    
-    upstream.data.on('error', (err) => {
-      console.error('❌ Stream error:', err.message);
-      if (!res.headersSent) {
-        res.status(502).json({ success: false, message: 'Stream interrupted' });
-      }
-    });
-
   } catch (error) {
-    console.error('❌ PDF proxy error:', error.message);
+    console.error('❌ PDF proxy failed:', error.message);
+    
     if (!res.headersSent) {
       res.status(502).json({
         success: false,
-        message: 'Could not fetch PDF from source',
+        message: error.code === 'ECONNABORTED' 
+          ? 'PDF download timeout - file taking too long to fetch'
+          : 'Could not fetch PDF from source',
         error: error.message,
       });
     }
