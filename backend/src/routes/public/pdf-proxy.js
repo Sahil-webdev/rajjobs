@@ -36,14 +36,11 @@ function extractCloudinaryPublicId(url) {
 /**
  * GET /api/public/pdf-proxy?url=ENCODED_PDF_URL
  *
- * For Cloudinary URLs: generates a fresh signed URL using the SDK (bypasses
- * any account-level access restrictions / 401 errors), then streams the PDF
- * to the browser with Content-Type: application/pdf + Content-Disposition: inline.
- *
- * For non-Cloudinary URLs (e.g. government PDF links): fetches directly.
- *
- * This is how major job portals (freejobalert, sarkariresult) open PDFs —
- * they proxy through their own server so the browser always opens inline.
+ * Streams PDF from source (Cloudinary, gov websites, etc) with FORCED DOWNLOAD behavior.
+ * 
+ * For Cloudinary URLs: generates a fresh signed URL to bypass account-level blocks.
+ * Content-Disposition is set to 'attachment' so PDFs download directly instead of
+ * trying to open in browser (which often fails due to CORS, signing, or viewer issues).
  */
 router.get('/', async (req, res) => {
   const { url } = req.query;
@@ -66,9 +63,6 @@ router.get('/', async (req, res) => {
     let fetchUrl = decodedUrl;
 
     // ── For Cloudinary URLs: generate a signed URL using SDK credentials ──────
-    // Cloudinary free plan blocks raw delivery by default ("Blocked for delivery").
-    // cloudinary.url() with sign_url:true generates a time-limited signed URL
-    // that bypasses both per-asset access control AND account-level delivery blocks.
     if (
       CLOUDINARY_CONFIGURED &&
       decodedUrl.includes('res.cloudinary.com') &&
@@ -83,10 +77,12 @@ router.get('/', async (req, res) => {
           secure: true,
           expires_at: Math.floor(Date.now() / 1000) + 3600, // valid 1 hour
         });
+        console.log('🔗 Generated Cloudinary signed URL for:', publicId);
       }
     }
 
-    // ── Fetch the PDF as a stream ─────────────────────────────────────────────
+    // ── Fetch the PDF as a stream ──────────────────────────────────────────
+    console.log('📥 Fetching PDF from:', fetchUrl.substring(0, 100) + '...');
     const upstream = await axios.get(fetchUrl, {
       responseType: 'stream',
       timeout: 30000,
@@ -98,9 +94,9 @@ router.get('/', async (req, res) => {
     const filename = urlPath.split('/').pop() || 'document.pdf';
     const safeName = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
 
-    // Set headers — browser opens PDF natively (not downloads)
+    // ✅ SET TO 'attachment' — Forces direct download (more reliable than opening in browser)
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `inline; filename="${safeName}"`);
+    res.setHeader('Content-Disposition', `attachment; filename="${safeName}"`);
     res.setHeader('Cache-Control', 'public, max-age=3600');
     res.setHeader('Access-Control-Allow-Origin', '*');
 
@@ -108,79 +104,18 @@ router.get('/', async (req, res) => {
       res.setHeader('Content-Length', upstream.headers['content-length']);
     }
 
+    console.log('✅ Streaming PDF:', safeName);
     upstream.data.pipe(res);
-    upstream.data.on('error', () => {
-      if (!res.headersSent) res.status(502).end();
-    });
-
-  } catch (error) {
-    console.error('PDF proxy error:', error.message);
-    if (!res.headersSent) {
-      res.status(502).json({
-        success: false,
-        message: 'Could not fetch PDF from source',
-        error: error.message,
-      });
-    }
-  }
-});
-
-module.exports = router;
-
-router.get('/', async (req, res) => {
-  const { url } = req.query;
-
-  if (!url) {
-    return res.status(400).json({ success: false, message: 'url query param is required' });
-  }
-
-  let decodedUrl;
-  try {
-    decodedUrl = decodeURIComponent(url);
-    // Basic validation — must be http/https
-    if (!decodedUrl.startsWith('http://') && !decodedUrl.startsWith('https://')) {
-      return res.status(400).json({ success: false, message: 'Invalid URL' });
-    }
-  } catch {
-    return res.status(400).json({ success: false, message: 'Malformed URL' });
-  }
-
-  try {
-    // Fetch the PDF as a stream from the source (Cloudinary, etc.)
-    const upstream = await axios.get(decodedUrl, {
-      responseType: 'stream',
-      timeout: 30000,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; RajJobs/1.0)',
-      },
-    });
-
-    // Get filename from URL for the Content-Disposition header
-    const urlPath = decodedUrl.split('?')[0];
-    const filename = urlPath.split('/').pop() || 'document.pdf';
-    const safeName = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
-
-    // Set headers so browser opens PDF natively (not downloads)
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `inline; filename="${safeName}"`);
-    res.setHeader('Cache-Control', 'public, max-age=86400'); // cache 1 day
-    res.setHeader('Access-Control-Allow-Origin', '*');
-
-    // Forward content-length if available (lets browser show progress)
-    if (upstream.headers['content-length']) {
-      res.setHeader('Content-Length', upstream.headers['content-length']);
-    }
-
-    // Pipe the stream directly to the response
-    upstream.data.pipe(res);
-
-    upstream.data.on('error', () => {
+    
+    upstream.data.on('error', (err) => {
+      console.error('❌ Stream error:', err.message);
       if (!res.headersSent) {
-        res.status(502).json({ success: false, message: 'Failed to fetch PDF' });
+        res.status(502).json({ success: false, message: 'Stream interrupted' });
       }
     });
+
   } catch (error) {
-    console.error('PDF proxy error:', error.message);
+    console.error('❌ PDF proxy error:', error.message);
     if (!res.headersSent) {
       res.status(502).json({
         success: false,
