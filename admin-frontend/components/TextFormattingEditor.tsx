@@ -458,34 +458,20 @@ export default function TextFormattingEditor({
         // Use pdf-proxy URL for better compatibility
         const proxyUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/public/pdf-proxy?url=${encodeURIComponent(uploadedUrl)}`;
         
-        // Close modal first
-        setShowPdfUpload(false);
-        setPdfUploading(false);
-        
-        // Insert link after modal closes
-        setTimeout(() => {
-          if (editorRef.current) {
-            editorRef.current.focus();
-            
-            // Restore selection if saved
-            if (savedSelectionRef.current) {
-              try {
-                const selection = window.getSelection();
-                selection?.removeAllRanges();
-                selection?.addRange(savedSelectionRef.current);
-                console.log('✅ Selection restored successfully');
-              } catch (e) {
-                console.warn('⚠️ Could not restore selection, will insert at end');
-                // If restoration fails, insert at end
-                const selection = window.getSelection();
-                const range = document.createRange();
-                range.selectNodeContents(editorRef.current);
-                range.collapse(false);
-                selection?.removeAllRanges();
-                selection?.addRange(range);
-              }
-            } else {
-              // No saved selection, insert at end
+        // Focus editor and restore selection BEFORE closing modal (to maintain DOM context)
+        if (editorRef.current) {
+          editorRef.current.focus();
+          
+          // Restore the saved selection immediately while modal is still open
+          if (savedSelectionRef.current) {
+            try {
+              const selection = window.getSelection();
+              selection?.removeAllRanges();
+              selection?.addRange(savedSelectionRef.current);
+              console.log('✅ Selection restored successfully');
+            } catch (e) {
+              console.warn('⚠️ Could not restore selection, will insert at end');
+              // If restoration fails, insert at end
               const selection = window.getSelection();
               const range = document.createRange();
               range.selectNodeContents(editorRef.current);
@@ -493,17 +479,29 @@ export default function TextFormattingEditor({
               selection?.removeAllRanges();
               selection?.addRange(range);
             }
-            
-            // Insert link with PDF icon - wraps selected text if any
-            const displayText = pdfLinkText || 'PDF Document';
-            const pdfHtml = `<a href="${proxyUrl}" target="_blank" rel="noopener noreferrer" style="color: #3b82f6; text-decoration: underline; font-weight: 500;">${displayText}</a>&nbsp;`;
-            document.execCommand('insertHTML', false, pdfHtml);
-            console.log('✅ PDF link inserted:', displayText);
-            
-            // Update content
-            handleInput();
+          } else {
+            // No saved selection, insert at end
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(editorRef.current);
+            range.collapse(false);
+            selection?.removeAllRanges();
+            selection?.addRange(range);
           }
-        }, 150);
+          
+          // Insert link with PDF icon at the restored selection
+          const displayText = pdfLinkText || 'PDF Document';
+          const pdfHtml = `<a href="${proxyUrl}" target="_blank" rel="noopener noreferrer" style="color: #3b82f6; text-decoration: underline; font-weight: 500;">${displayText}</a>&nbsp;`;
+          document.execCommand('insertHTML', false, pdfHtml);
+          console.log('✅ PDF link inserted at correct position:', displayText);
+          
+          // Update content
+          handleInput();
+        }
+        
+        // Now close modal and cleanup
+        setShowPdfUpload(false);
+        setPdfUploading(false);
         
         // Reset form
         setPdfFile(null);
