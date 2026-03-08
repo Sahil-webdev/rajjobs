@@ -28,6 +28,12 @@ const examDetailSchema = new mongoose.Schema({
     default: '' // Optional field - not required
   },
   
+  // Description - shown below title on detail page
+  description: {
+    type: String,
+    default: ''
+  },
+  
   // Main Content
   formattedNote: {
     type: String,

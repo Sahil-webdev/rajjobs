@@ -19,6 +19,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
     title: "",
     slug: "",
     category: "SSC",
+    description: "", // NEW: Short description below title
     metaDescription: "", // Hidden from UI - kept for type compatibility
     formattedNote: "", // Main content
     posterImage: "",
@@ -95,6 +96,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
           title: data.data.title || "",
           slug: data.data.slug || "",
           category: data.data.category || "SSC",
+          description: data.data.description || "", // Load description
           metaDescription: data.data.metaDescription || "",
           formattedNote: data.data.formattedNote || "", // This is the critical one!
           posterImage: data.data.posterImage || "",
@@ -350,6 +352,32 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
           </div>
 
 
+        </div>
+
+        {/* Description - below title on detail page */}
+        <div style={{ background: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
+          <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '20px', color: '#3b82f6' }}>
+            📝 Description (shown below title)
+          </h3>
+          <textarea
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            placeholder="Brief description that appears below the title on the detail page (2-3 sentences)..."
+            rows={3}
+            style={{
+              width: '100%',
+              padding: '12px 14px',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              fontSize: '14px',
+              outline: 'none',
+              fontFamily: 'inherit',
+              resize: 'vertical'
+            }}
+          />
+          <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
+            💡 Keep it short (1-3 sentences). This is displayed directly below the title on the detailed page.
+          </p>
         </div>
 
         {/* Poster Image */}

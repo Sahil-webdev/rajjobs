@@ -197,6 +197,13 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
             <p className="text-slate-700 text-sm leading-relaxed">{examData.metaDescription}</p>
           </div>
 
+          {/* Description - shown below title */}
+          {examData.description && (
+            <div className="bg-blue-50 rounded-xl border border-blue-200 shadow-sm p-6 mb-5">
+              <p className="text-slate-800 text-base leading-relaxed font-medium">{examData.description}</p>
+            </div>
+          )}
+
           {/* Banner Image */}
           {examData.posterImage && (
             <div className="mb-5 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
