@@ -163,4 +163,91 @@ router.delete('/delete-pdf/:filename', (req, res) => {
   }
 });
 
+// ─── Image upload for CKEditor (supports multiple image formats) ──────────────
+const imageFilter = (req, file, cb) => {
+  const allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'];
+  if (allowedMimes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only JPEG, PNG, GIF, WebP, and BMP images are allowed!'), false);
+  }
+};
+
+const imageUpload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: imageFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB for images
+});
+
+const imageDir = path.join(__dirname, '../../../uploads/images');
+if (!fs.existsSync(imageDir)) {
+  fs.mkdirSync(imageDir, { recursive: true });
+}
+
+router.post('/upload-image', imageUpload.single('upload'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: { message: 'No file uploaded' }
+      });
+    }
+
+    let absoluteUrl;
+    const imageFileUnique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const imageFileName = imageFileUnique + '-' + req.file.originalname;
+    const imageFilePath = path.join(imageDir, imageFileName);
+
+    if (CLOUDINARY_CONFIGURED) {
+      // Upload to Cloudinary
+      const uploadResult = await new Promise((resolve, reject) => {
+        const sanitizedName = req.file.originalname
+          .replace(/\.[^/.]+$/, '')
+          .replace(/[^a-zA-Z0-9-_]/g, '_');
+        
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: 'image',
+            folder: 'rajjobs-images',
+            public_id: `${Date.now()}-${sanitizedName}`,
+            use_filename: false,
+            type: 'upload',
+            access_mode: 'public',
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(req.file.buffer);
+      });
+
+      absoluteUrl = uploadResult.secure_url;
+
+      // Save locally as fallback
+      try {
+        fs.writeFileSync(imageFilePath, req.file.buffer);
+        console.log('✅ Image saved locally:', imageFileName);
+      } catch (writeErr) {
+        console.warn('⚠️  Failed to save local image backup:', writeErr.message);
+      }
+    } else {
+      // Local storage only
+      fs.writeFileSync(imageFilePath, req.file.buffer);
+      const relativeUrl = `/uploads/images/${imageFileName}`;
+      const backendBase = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
+      absoluteUrl = `${backendBase}${relativeUrl}`;
+    }
+
+    // CKEditor expects specific response format
+    res.json({
+      url: absoluteUrl
+    });
+  } catch (error) {
+    console.error('❌ Image upload error:', error);
+    res.status(500).json({
+      error: { message: error.message || 'Image upload failed' }
+    });
+  }
+});
+
 module.exports = router;

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import TextFormattingEditor from "@/components/TextFormattingEditor";
+import RichCKEditor from "@/components/RichCKEditor";
 import ImageUploader from "@/components/ImageUploader";
 import SEOEditor from "@/components/SEOEditor";
 import ExamPreview from "@/components/ExamPreview";
@@ -395,14 +395,18 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
         {/* Main Content Editor */}
         <div style={{ background: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
           <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '20px', color: '#3b82f6' }}>
-            📄 Main Content
+            📄 Main Content (CKEditor)
           </h3>
-          <TextFormattingEditor
-            label="Exam Content"
-            value={formData.formattedNote || ""}
-            onChange={(value) => setFormData(prev => ({ ...prev, formattedNote: value }))}
-            placeholder="Write the complete exam details here... Use formatting buttons for tables, lists, headings, etc."
+          <RichCKEditor
+            editorData={formData.formattedNote || ""}
+            setEditorData={(data) => {
+              setFormData(prev => ({ ...prev, formattedNote: data }));
+            }}
+            handleOnUpdate={(editor: string, _field: string) => {
+              setFormData(prev => ({ ...prev, formattedNote: editor }));
+            }}
           />
+          
         </div>
 
         {/* SEO Optimization */}

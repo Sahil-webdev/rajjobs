@@ -1,6 +1,7 @@
 import './globals.css';
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'RajJobs Admin Panel',
@@ -16,7 +17,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <link rel="icon" href="/logo2.png" type="image/png" />
       </head>
-      <body>{children}</body>
+      <body>
+        <Script
+          src="https://cdn.ckbox.io/ckbox/2.9.2/ckbox.js"
+          strategy="beforeInteractive"
+          crossOrigin="anonymous"
+        />
+        {children}
+      </body>
     </html>
   );
 }
