@@ -27,7 +27,9 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-3">
               <a
-                href="#"
+                href="https://www.facebook.com/rajjobs12"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 text-slate-400 transition hover:bg-blue-600 hover:text-white"
                 aria-label="Facebook"
               >
@@ -36,7 +38,9 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
+                href="https://x.com/raj_jobs74018"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 text-slate-400 transition hover:bg-blue-600 hover:text-white"
                 aria-label="Twitter"
               >
@@ -45,7 +49,9 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/rajjobs12"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 text-slate-400 transition hover:bg-blue-600 hover:text-white"
                 aria-label="Instagram"
               >
@@ -54,7 +60,9 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
+                href="https://www.youtube.com/@rajjobs12"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 text-slate-400 transition hover:bg-blue-600 hover:text-white"
                 aria-label="YouTube"
               >
