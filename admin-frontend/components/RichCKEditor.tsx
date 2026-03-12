@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 // import { CKBox } from "@ckeditor/ckeditor5-ckbox";
 import {
@@ -52,11 +52,22 @@ const CkEditor: FC<CkEditorProps> = ({
   handleOnUpdate,
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const editorRef = useRef<any>(null);
 
   useEffect(() => {
     console.log("📝 Editor received data, length:", editorData?.length || 0);
     if (editorData) {
       console.log("📝 Editor data preview:", editorData.substring(0, 100));
+    }
+  }, [editorData]);
+  useEffect(() => {
+    if (!editorRef.current) return;
+
+    const nextData = editorData || "";
+    const currentData = editorRef.current.getData();
+
+    if (currentData !== nextData) {
+      editorRef.current.setData(nextData);
     }
   }, [editorData]);
 
@@ -367,7 +378,14 @@ const CkEditor: FC<CkEditorProps> = ({
           table: {
             contentToolbar: ["tableColumn", "tableRow", "mergeTableCells", "tableProperties", "tableCellProperties"],
           },
-          initialData: editorData,
+          initialData: editorData || "",
+        }}
+        onReady={(editor) => {
+          editorRef.current = editor;
+          const nextData = editorData || "";
+          if (editor.getData() !== nextData) {
+            editor.setData(nextData);
+          }
         }}
         onChange={(_event, editor) => {
           const data = editor.getData();
