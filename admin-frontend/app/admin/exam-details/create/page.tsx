@@ -398,6 +398,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
             📄 Main Content (CKEditor)
           </h3>
           <RichCKEditor
+            key={examId || 'new'}
             editorData={formData.formattedNote || ""}
             setEditorData={(data) => {
               setFormData(prev => ({ ...prev, formattedNote: data }));

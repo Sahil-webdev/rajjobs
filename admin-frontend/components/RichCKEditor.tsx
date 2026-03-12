@@ -54,7 +54,10 @@ const CkEditor: FC<CkEditorProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
-    console.log("what is editorData: ", editorData);
+    console.log("📝 Editor received data, length:", editorData?.length || 0);
+    if (editorData) {
+      console.log("📝 Editor data preview:", editorData.substring(0, 100));
+    }
   }, [editorData]);
 
   return (
