@@ -21,16 +21,18 @@ interface SEOData {
 interface SEOEditorProps {
   seoData: SEOData;
   examTitle: string;
+  slug: string;
   metaDescription: string;
   onChange: (seoData: SEOData) => void;
   onAnalyze?: () => void;
 }
 
-export default function SEOEditor({ seoData, examTitle, metaDescription, onChange, onAnalyze }: SEOEditorProps) {
+export default function SEOEditor({ seoData, examTitle, slug, metaDescription, onChange, onAnalyze }: SEOEditorProps) {
   const [lsiKeywordInput, setLsiKeywordInput] = useState("");
   const [metaKeywordInput, setMetaKeywordInput] = useState("");
 
   const metaTitle = seoData.metaTitle || examTitle;
+  const previewSlug = slug || examTitle.toLowerCase().replace(/\s+/g, '-');
   const metaTitleLength = metaTitle.length;
   // seoDescription is the separate SEO-only meta description (max 160 chars)
   const seoDesc = seoData.seoDescription || '';
@@ -241,7 +243,7 @@ export default function SEOEditor({ seoData, examTitle, metaDescription, onChang
         {/* Google Preview */}
         <div className="mt-3 border border-gray-300 rounded-lg p-3 bg-gray-50">
           <p className="text-xs text-gray-400 mb-1 font-medium">Google Preview:</p>
-          <div className="text-xs text-gray-500 mb-0.5">rajjobs.com › exams › {examTitle.toLowerCase().replace(/\s+/g, '-')}</div>
+          <div className="text-xs text-gray-500 mb-0.5">rajjobs.com › exams › {previewSlug}</div>
           <div className="text-blue-600 font-medium text-sm mb-1">{seoData.metaTitle || examTitle}</div>
           <div className="text-sm text-gray-700">{seoData.seoDescription || <span className="text-gray-400 italic">Meta description will appear here...</span>}</div>
         </div>

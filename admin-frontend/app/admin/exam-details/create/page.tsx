@@ -14,6 +14,14 @@ interface CreateExamPageProps {
 export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
   const router = useRouter();
   const isEdit = !!examId;
+  const slugify = (value: string) =>
+    value
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '');
 
   const [formData, setFormData] = useState({
     title: "",
@@ -43,19 +51,15 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showPreview, setShowPreview] = useState(false);
+  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
 
   // Auto-generate slug from title
   useEffect(() => {
-    if (formData.title && !isEdit) {
-      const slug = formData.title
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .trim();
+    if (formData.title && !isSlugManuallyEdited) {
+      const slug = slugify(formData.title);
       setFormData(prev => ({ ...prev, slug }));
     }
-  }, [formData.title, isEdit]);
+  }, [formData.title, isSlugManuallyEdited]);
 
   // Load exam data for editing
   useEffect(() => {
@@ -104,6 +108,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
           postedBy: data.data.postedBy || "J. Kaushik",
           seoData: data.data.seoData || prev.seoData
         }));
+        setIsSlugManuallyEdited(true);
 
         console.log('✅ Form data set with:');
         console.log('   title:', data.data.title);
@@ -246,7 +251,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
               required
               type="text"
               value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
               placeholder="e.g., SSC CGL 2024 Notification"
               style={{
                 width: '100%',
@@ -267,7 +272,10 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
               required
               type="text"
               value={formData.slug}
-              onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+              onChange={(e) => {
+                setIsSlugManuallyEdited(true);
+                setFormData(prev => ({ ...prev, slug: slugify(e.target.value) }));
+              }}
               placeholder="ssc-cgl-2024-notification"
               style={{
                 width: '100%',
@@ -418,6 +426,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
           <SEOEditor
             seoData={formData.seoData}
             examTitle={formData.title}
+            slug={formData.slug}
             metaDescription={formData.metaDescription}
             onChange={(seoData) => setFormData({ ...formData, seoData })}
           />
