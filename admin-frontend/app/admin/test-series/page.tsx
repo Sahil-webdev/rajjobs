@@ -9,7 +9,6 @@ type FormState = {
   thumbnailUrl: string;
   priceOriginal: number | string;
   priceSale: number | string;
-  category: string;
   isFree: boolean;
   externalLink?: string;
 };
@@ -19,7 +18,6 @@ const initialForm: FormState = {
   thumbnailUrl: "",
   priceOriginal: "",
   priceSale: "",
-  category: "SSC",
   isFree: false,
   externalLink: ""
 };
@@ -66,7 +64,6 @@ export default function TestSeriesPage() {
         thumbnailUrl: form.thumbnailUrl,
         priceOriginal: Number(form.priceOriginal) || 0,
         priceSale: Number(form.priceSale) || 0,
-        category: form.category,
         isFree: form.isFree
       };
 
@@ -94,7 +91,6 @@ export default function TestSeriesPage() {
       thumbnailUrl: ts.thumbnailUrl || "",
       priceOriginal: ts.priceOriginal,
       priceSale: ts.priceSale,
-      category: ts.category || "SSC",
       isFree: ts.isFree || false
     });
     setEditingId(ts._id);
@@ -155,26 +151,6 @@ export default function TestSeriesPage() {
               currentImage={form.thumbnailUrl || ''}
               onUpload={(url: string) => setForm({ ...form, thumbnailUrl: url })}
             />
-          </div>
-
-          {/* Category */}
-          <div>
-            <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">
-              Category *
-            </label>
-            <select
-              className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-              value={form.category}
-              onChange={(e) => setForm({ ...form, category: e.target.value })}
-            >
-              <option value="SSC">SSC Exam</option>
-              <option value="Banking">Banking Exam</option>
-              <option value="Railway">Railway Exam</option>
-              <option value="UPSC">UPSC Exam</option>
-              <option value="Defence">Defence Exam</option>
-              <option value="Teacher">Teacher Exam</option>
-              <option value="State">State Exams</option>
-            </select>
           </div>
 
           {/* Pricing */}
@@ -275,7 +251,6 @@ export default function TestSeriesPage() {
                   <tr className="border-b border-slate-200">
                     <th className="text-left py-2 px-2 sm:px-3 font-semibold text-slate-700 whitespace-nowrap">Thumbnail</th>
                     <th className="text-left py-2 px-2 sm:px-3 font-semibold text-slate-700 whitespace-nowrap">Title</th>
-                    <th className="text-left py-2 px-2 sm:px-3 font-semibold text-slate-700 whitespace-nowrap hidden lg:table-cell">Category</th>
                     <th className="text-left py-2 px-2 sm:px-3 font-semibold text-slate-700 whitespace-nowrap hidden md:table-cell">Original</th>
                     <th className="text-left py-2 px-2 sm:px-3 font-semibold text-slate-700 whitespace-nowrap">Sale Price</th>
                     <th className="text-left py-2 px-2 sm:px-3 font-semibold text-slate-700 whitespace-nowrap hidden xl:table-cell">Discount</th>
@@ -305,11 +280,6 @@ export default function TestSeriesPage() {
                         )}
                       </td>
                       <td className="py-2 px-2 sm:px-3 font-medium text-slate-900 max-w-[100px] sm:max-w-[150px] truncate">{ts.title}</td>
-                      <td className="py-2 px-2 sm:px-3 hidden lg:table-cell">
-                        <span className="inline-block px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-[10px] font-semibold whitespace-nowrap">
-                          {ts.category}
-                        </span>
-                      </td>
                       <td className="py-2 px-2 sm:px-3 text-slate-600 whitespace-nowrap hidden md:table-cell">₹{ts.priceOriginal}</td>
                       <td className="py-2 px-2 sm:px-3 font-semibold text-green-600 whitespace-nowrap">₹{ts.priceSale}</td>
                       <td className="py-2 px-2 sm:px-3 hidden xl:table-cell">

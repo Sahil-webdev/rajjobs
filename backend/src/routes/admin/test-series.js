@@ -118,7 +118,7 @@ router.get('/:id', asyncHandler(async (req, res) => {
 
 // Create test series
 router.post('/', asyncHandler(async (req, res) => {
-  const { title, thumbnailUrl, priceOriginal, priceSale, category, isFree, externalLink } = req.body;
+  const { title, thumbnailUrl, priceOriginal, priceSale, isFree, externalLink } = req.body;
 
   // Validation
   if (!title || !title.trim()) {
@@ -157,7 +157,6 @@ router.post('/', asyncHandler(async (req, res) => {
     thumbnailUrl: finalThumbnailUrl,
     priceOriginal,
     priceSale,
-    category: category || 'SSC',
     isFree: isFree || false,
     externalLink: externalLink || ''
   });
@@ -173,7 +172,7 @@ router.post('/', asyncHandler(async (req, res) => {
 
 // Update test series
 router.put('/:id', asyncHandler(async (req, res) => {
-  const { title, thumbnailUrl, priceOriginal, priceSale, category, isFree, externalLink } = req.body;
+  const { title, thumbnailUrl, priceOriginal, priceSale, isFree, externalLink } = req.body;
 
   const testSeries = await TestSeries.findById(req.params.id);
 
@@ -185,7 +184,6 @@ router.put('/:id', asyncHandler(async (req, res) => {
   if (title !== undefined) testSeries.title = title.trim();
   if (priceOriginal !== undefined) testSeries.priceOriginal = priceOriginal;
   if (priceSale !== undefined) testSeries.priceSale = priceSale;
-  if (category !== undefined) testSeries.category = category;
   if (isFree !== undefined) testSeries.isFree = isFree;
   if (externalLink !== undefined) testSeries.externalLink = externalLink;
 

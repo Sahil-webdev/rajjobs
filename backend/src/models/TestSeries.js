@@ -20,10 +20,6 @@ const testSeriesSchema = new mongoose.Schema({
     required: true,
     min: 0
   },
-  category: {
-    type: String,
-    default: 'SSC'
-  },
   isFree: {
     type: Boolean,
     default: false

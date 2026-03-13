@@ -32,7 +32,6 @@ type TestSeries = {
   thumbnailUrl?: string;
   priceOriginal: number;
   priceSale: number;
-  category: string;
   isFree: boolean;
   externalLink?: string;
   createdAt: string;
@@ -390,7 +389,7 @@ export default function Home() {
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
-                            e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center"><h3 class="text-xl font-bold text-white text-center">${ts.category}</h3></div>`;
+                            e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center"><h3 class="text-xl font-bold text-white text-center">Test Series</h3></div>`;
                           }}
                         />
                         {discount > 0 && (
@@ -401,7 +400,7 @@ export default function Home() {
                       </div>
                     ) : (
                       <div className="relative h-36 bg-gradient-to-br from-blue-600 to-blue-700 p-6 flex items-center justify-center">
-                        <h3 className="text-xl font-bold text-white text-center">{ts.category}</h3>
+                        <h3 className="text-xl font-bold text-white text-center">Test Series</h3>
                         {discount > 0 && (
                           <div className="absolute right-3 top-3 rounded-full bg-blue-200 bg-opacity-80 px-3 py-1 text-xs font-bold text-blue-900">
                             {discount}% OFF

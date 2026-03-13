@@ -6,15 +6,9 @@ const asyncHandler = require('../../utils/asyncHandler');
 // Get all test series (public)
 router.get('/', asyncHandler(async (req, res) => {
   const limit = parseInt(req.query.limit) || 0;
-  const category = req.query.category;
   const search = req.query.search;
 
   let query = {};
-
-  // Filter by category
-  if (category && category !== 'all') {
-    query.category = category;
-  }
 
   // Search by title
   if (search) {
