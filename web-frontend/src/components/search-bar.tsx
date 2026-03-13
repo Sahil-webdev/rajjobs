@@ -111,17 +111,6 @@ export function SearchBar() {
                 className="w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-0"
               >
                 <div className="flex items-start gap-3">
-                  {/* Image Thumbnail */}
-                  {exam.posterImage && (
-                    <div className="flex-shrink-0 w-16 h-12 bg-gray-100 rounded overflow-hidden">
-                      <img
-                        src={exam.posterImage}
-                        alt={exam.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-                  
                   <div className="flex-1 min-w-0">
                     {/* Category Badge */}
                     <div className="mb-1">

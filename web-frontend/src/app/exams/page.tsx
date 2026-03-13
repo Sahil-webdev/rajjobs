@@ -7,9 +7,7 @@ interface Exam {
   title: string;
   slug: string;
   category: string;
-  description?: string;
   metaDescription: string;
-  posterImage?: string;
   lastUpdated: string;
 }
 
@@ -207,9 +205,6 @@ export default function ExamsPage() {
                             />
                           </svg>
                         </div>
-                        {exam.description && (
-                          <p className="text-sm text-slate-600 line-clamp-1 mb-1">{exam.description}</p>
-                        )}
                         <p className="text-sm text-slate-600 line-clamp-1 overflow-hidden text-ellipsis whitespace-nowrap">{exam.metaDescription}</p>
                       </div>
                     </Link>

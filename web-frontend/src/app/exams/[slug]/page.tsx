@@ -76,15 +76,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   ].filter(Boolean).join(', ');
 
   return {
-    title: examData.seoData?.metaTitle || examData.title,
+    title: examData.title,
     // seoDescription = separate 160-char Google-only meta desc; fallback to first 160 chars of page description
     description: examData.seoData?.seoDescription || examData.metaDescription?.slice(0, 160),
     keywords: keywords,
     authors: [{ name: examData.postedBy || 'RajJobs Admin' }],
     openGraph: {
-      title: examData.seoData?.ogTitle || examData.seoData?.metaTitle || examData.title,
+      title: examData.title,
       description: examData.seoData?.seoDescription || examData.metaDescription?.slice(0, 160),
-      images: examData.posterImage && !examData.posterImage.startsWith('data:') ? [{ url: examData.posterImage, width: 1200, height: 630 }] : [],
+      images: [],
       type: 'article',
       publishedTime: examData.createdAt,
       modifiedTime: examData.lastUpdated,
@@ -92,9 +92,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     },
     twitter: {
       card: 'summary_large_image',
-      title: examData.seoData?.twitterTitle || examData.seoData?.metaTitle || examData.title,
+      title: examData.title,
       description: examData.seoData?.seoDescription || examData.metaDescription?.slice(0, 160),
-      images: examData.posterImage && !examData.posterImage.startsWith('data:') ? [examData.posterImage] : [],
+      images: [],
     },
     alternates: {
       canonical: `https://www.rajjobs.com/exams/${unwrappedParams.slug}`,
@@ -143,7 +143,6 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
     "@type": "Article",
     "headline": examData.title,
     "description": examData.metaDescription,
-    "image": examData.posterImage,
     "datePublished": examData.createdAt,
     "dateModified": examData.lastUpdated,
     "author": {
@@ -192,35 +191,10 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
               </span>
             </div>
             <h1 className="text-xl md:text-2xl font-bold text-slate-900 mb-3">
-              {examData.seoData?.metaTitle || examData.title}
+              {examData.title}
             </h1>
             <p className="text-slate-700 text-sm leading-relaxed">{examData.metaDescription}</p>
           </div>
-
-          {/* Description - shown below title (wraps normally) */}
-          {examData.description && (
-            <div className="bg-blue-50 rounded-xl border border-blue-200 shadow-sm p-6 mb-5">
-              <p className="text-slate-800 text-base leading-relaxed font-medium">{examData.description}</p>
-            </div>
-          )}
-
-          {/* Banner Image */}
-          {examData.posterImage && (
-            <div className="mb-5 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
-              <img 
-                src={examData.posterImage} 
-                alt={examData.seoData?.imageAltTexts?.posterImage || `${examData.title} notification poster with important dates and details`}
-                className="w-full h-64 md:h-96 object-contain bg-white"
-              />
-            </div>
-          )}
-
-          {/* Description 2 - shown below image */}
-          {examData.description2 && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-5">
-              <p className="text-slate-700 text-sm leading-relaxed whitespace-pre-line">{examData.description2}</p>
-            </div>
-          )}
 
           {/* Main Content - formatted note displayed as primary content */}
           {examData.formattedNote && examData.formattedNote.trim().length > 0 && (
@@ -594,17 +568,6 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
                       href={`/exams/${exam.slug}`}
                       className="block border border-slate-200 rounded-lg overflow-hidden hover:border-blue-400 hover:shadow-md transition-all duration-200"
                     >
-                      {/* Image */}
-                      {exam.posterImage && (
-                        <div className="w-full h-32 bg-slate-100 overflow-hidden">
-                          <img
-                            src={exam.posterImage}
-                            alt={exam.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
-                      
                       {/* Content */}
                       <div className="p-4">
                         {/* Category Badge */}
@@ -656,3 +619,4 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
     </>
   );
 }
+

@@ -9,14 +9,10 @@ interface ExamPreviewProps {
     category: string;
     metaDescription: string;
     formattedNote: string;
-    posterImage: string;
     status: string;
     postedBy: string;
     seoData?: {
-      metaTitle?: string;
-      imageAltTexts?: {
-        posterImage?: string;
-      };
+      seoDescription?: string;
     };
     quickHighlights?: Record<string, string>;
     importantDates?: Array<{ event: string; date: string }>;
@@ -103,23 +99,12 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
                 </span>
               </div>
               <h1 className="text-xl md:text-2xl font-bold text-slate-900 mb-3">
-                {seoData.metaTitle || formData.title || "Untitled Exam"}
+                {formData.title || "Untitled Exam"}
               </h1>
               <p className="text-slate-700 text-sm leading-relaxed">
-                {formData.metaDescription || "No description provided"}
+                {seoData.seoDescription || formData.metaDescription || "No description provided"}
               </p>
             </div>
-
-            {/* Banner Image */}
-            {formData.posterImage && (
-              <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm">
-                <img 
-                  src={formData.posterImage} 
-                  alt={seoData.imageAltTexts?.posterImage || `${formData.title} notification poster`}
-                  className="w-full h-64 md:h-96 object-contain bg-white"
-                />
-              </div>
-            )}
 
             {/* Main Content - Formatted Note */}
             {formData.formattedNote && formData.formattedNote.trim().length > 0 && (
@@ -320,11 +305,11 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
             )}
 
             {/* Empty state if no content */}
-            {!formData.formattedNote && !formData.posterImage && (
+            {!formData.formattedNote && (
               <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center">
                 <div className="text-slate-400 text-6xl mb-4">📄</div>
                 <h3 className="text-lg font-semibold text-slate-700 mb-2">No content to preview</h3>
-                <p className="text-sm text-slate-500">Add title, description, image, or formatted content to see preview</p>
+                <p className="text-sm text-slate-500">Add title or formatted content to see preview</p>
               </div>
             )}
 
@@ -349,3 +334,4 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
     </div>
   );
 }
+

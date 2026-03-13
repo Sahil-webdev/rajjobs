@@ -28,20 +28,8 @@ const examDetailSchema = new mongoose.Schema({
     default: '' // Optional field - not required
   },
   
-  // Description - shown below title on detail page
-  description: {
-    type: String,
-    default: ''
-  },
-  
   // Main Content
   formattedNote: {
-    type: String,
-    default: ''
-  },
-  
-  // Media
-  posterImage: {
     type: String,
     default: ''
   },
@@ -60,15 +48,8 @@ const examDetailSchema = new mongoose.Schema({
   // SEO
   seoData: {
     focusKeyword: { type: String, default: '' },
-    lsiKeywords: { type: [String], default: [] },
-    metaTitle: { type: String, default: '' },
     seoDescription: { type: String, default: '' },
     metaKeywords: { type: [String], default: [] },
-    imageAltTexts: {
-      posterImage: { type: String, default: '' }
-    },
-    seoScore: { type: Number, default: 0, min: 0, max: 100 },
-    readabilityScore: { type: Number, default: 0, min: 0, max: 100 }
   }
 }, {
   timestamps: true  // Adds createdAt and updatedAt automatically

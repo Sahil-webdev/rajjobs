@@ -22,7 +22,7 @@ router.get('/', asyncHandler(async (req, res) => {
   
   const examDetails = await ExamDetail.find(query)
     .sort({ createdAt: -1 })
-    .select('title slug category status posterImage updatedAt');
+    .select('title slug category status updatedAt');
   
   res.json({
     success: true,
@@ -59,10 +59,8 @@ router.post('/', asyncHandler(async (req, res) => {
     title,
     slug,
     category,
-    description,
     metaDescription,
     formattedNote,
-    posterImage,
     status,
     postedBy,
     seoData
@@ -72,10 +70,8 @@ router.post('/', asyncHandler(async (req, res) => {
     title,
     slug,
     category,
-    description,
     metaDescription,
     formattedNote,
-    posterImage,
     status,
     postedBy,
     seoData
@@ -97,10 +93,8 @@ router.put('/:id', asyncHandler(async (req, res) => {
     title,
     slug,
     category,
-    description,
     metaDescription,
     formattedNote,
-    posterImage,
     status,
     postedBy,
     seoData
@@ -112,10 +106,8 @@ router.put('/:id', asyncHandler(async (req, res) => {
       title,
       slug,
       category,
-      description,
       metaDescription,
       formattedNote,
-      posterImage,
       status,
       postedBy,
       seoData

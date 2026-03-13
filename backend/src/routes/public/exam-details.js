@@ -14,7 +14,7 @@ router.get('/', asyncHandler(async (req, res) => {
   
   const examDetails = await ExamDetail.find(query)
     .sort({ updatedAt: -1 })
-    .select('title slug category metaDescription posterImage updatedAt');
+    .select('title slug category metaDescription updatedAt');
   
   res.json({
     success: true,
@@ -48,7 +48,7 @@ router.get('/search/:query', asyncHandler(async (req, res) => {
   })
     .sort({ updatedAt: -1 })
     .limit(limit)
-    .select('title slug category metaDescription posterImage updatedAt');
+    .select('title slug category metaDescription updatedAt');
   
   res.json({
     success: true,
@@ -82,7 +82,7 @@ router.get('/:slug/related', asyncHandler(async (req, res) => {
   })
     .sort({ updatedAt: -1 })
     .limit(4)
-    .select('title slug category metaDescription posterImage updatedAt');
+    .select('title slug category metaDescription updatedAt');
   
   res.json({
     success: true,

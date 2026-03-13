@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import RichCKEditor from "@/components/RichCKEditor";
-import ImageUploader from "@/components/ImageUploader";
 import SEOEditor from "@/components/SEOEditor";
 import ExamPreview from "@/components/ExamPreview";
 
@@ -27,23 +26,14 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
     title: "",
     slug: "",
     category: "SSC",
-    description: "", // NEW: Short description below title
     metaDescription: "", // Hidden from UI - kept for type compatibility
     formattedNote: "", // Main content
-    posterImage: "",
     status: "published" as "draft" | "published", // Changed default to published
     postedBy: "J. Kaushik",
     seoData: {
       focusKeyword: "",
-      lsiKeywords: [] as string[],
-      metaTitle: "",
       seoDescription: "",
       metaKeywords: [] as string[],
-      imageAltTexts: {
-        posterImage: ""
-      },
-      seoScore: 0,
-      readabilityScore: 0
     }
   });
 
@@ -100,10 +90,8 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
           title: data.data.title || "",
           slug: data.data.slug || "",
           category: data.data.category || "SSC",
-          description: data.data.description || "", // Load description
           metaDescription: data.data.metaDescription || "",
           formattedNote: data.data.formattedNote || "", // This is the critical one!
-          posterImage: data.data.posterImage || "",
           status: data.data.status || "draft",
           postedBy: data.data.postedBy || "J. Kaushik",
           seoData: data.data.seoData || prev.seoData
@@ -362,44 +350,6 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
 
         </div>
 
-        {/* Description - below title on detail page */}
-        <div style={{ background: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
-          <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '20px', color: '#3b82f6' }}>
-            📝 Description (shown below title)
-          </h3>
-          <textarea
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            placeholder="Brief description that appears below the title on the detail page (2-3 sentences)..."
-            rows={3}
-            style={{
-              width: '100%',
-              padding: '12px 14px',
-              border: '1px solid #d1d5db',
-              borderRadius: '6px',
-              fontSize: '14px',
-              outline: 'none',
-              fontFamily: 'inherit',
-              resize: 'vertical'
-            }}
-          />
-          <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
-            💡 Keep it short (1-3 sentences). This is displayed directly below the title on the detailed page.
-          </p>
-        </div>
-
-        {/* Poster Image */}
-        <div style={{ background: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
-          <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '20px', color: '#3b82f6' }}>
-            🖼️ Poster Image
-          </h3>
-          <ImageUploader
-            currentImage={formData.posterImage}
-            onUpload={(url) => setFormData({ ...formData, posterImage: url })}
-            label="Click to upload exam poster"
-          />
-        </div>
-
         {/* Main Content Editor */}
         <div style={{ background: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
           <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '20px', color: '#3b82f6' }}>
@@ -418,16 +368,15 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
           
         </div>
 
-        {/* SEO Optimization */}
+        {/* SEO Tool */}
         <div style={{ background: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
           <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '20px', color: '#8b5cf6' }}>
-            🎯 SEO Optimization
+            🎯 SEO Tool
           </h3>
           <SEOEditor
             seoData={formData.seoData}
             examTitle={formData.title}
             slug={formData.slug}
-            metaDescription={formData.metaDescription}
             onChange={(seoData) => setFormData({ ...formData, seoData })}
           />
         </div>
@@ -504,3 +453,4 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
     </div>
   );
 }
+

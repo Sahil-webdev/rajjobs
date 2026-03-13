@@ -9,7 +9,6 @@ interface ExamDetail {
   slug: string;
   category: string;
   status: string;
-  posterImage: string;
   lastUpdated: string;
 }
 
@@ -252,26 +251,13 @@ export default function ExamDetailsPage() {
                 e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.08)';
               }}
             >
-              {/* Image */}
-              <div style={{ height: '160px', background: 'linear-gradient(135deg, #dbeafe, #bfdbfe)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                {exam.posterImage ? (
-                  <img
-                    src={exam.posterImage}
-                    alt={exam.title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                ) : (
-                  <div style={{ fontSize: '48px', color: '#93c5fd' }}>📝</div>
-                )}
-                <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
+              {/* Content */}
+              <div style={{ padding: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px' }}>
                   <span className={exam.status === "published" ? "badge-success" : "badge-warning"}>
                     {exam.status === "published" ? "Published" : "Draft"}
                   </span>
                 </div>
-              </div>
-
-              {/* Content */}
-              <div style={{ padding: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                   <span className="badge-primary">{exam.category}</span>
                   <span style={{ fontSize: '11px', color: '#9ca3af' }}>
@@ -320,3 +306,4 @@ export default function ExamDetailsPage() {
     </div>
   );
 }
+
