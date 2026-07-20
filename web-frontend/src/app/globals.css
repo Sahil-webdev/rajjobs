@@ -539,3 +539,155 @@ body {
   padding: 0;
   color: inherit;
 }
+
+/* ── Exam Content (formattedNote from CKEditor) ────────────────────────────── */
+/* This class ensures the HTML output from CKEditor renders with the same      */
+/* paragraph spacing visible in the editor — no excessive gaps between lines.  */
+.exam-content {
+  color: #1e293b;
+  font-size: 14px;
+  line-height: 1.7;
+  word-break: break-word;
+}
+
+/* CKEditor wraps each Enter press in a <p> tag.                                */
+/* Default browser + Tailwind base give p { margin-top: 1em; margin-bottom: 1em }  */
+/* This causes double the expected spacing. We reset it to match editor look.  */
+.exam-content p {
+  margin: 0;
+  padding: 0;
+  min-height: 1em; /* ensure empty <p> lines (Enter in editor) render as blank lines */
+}
+
+.exam-content p + p {
+  margin-top: 0;
+}
+
+/* Empty <p><br></p> lines from editor — keep them visible as line breaks */
+.exam-content p:empty,
+.exam-content p > br:only-child {
+  display: block;
+  height: 1em;
+}
+
+.exam-content h1, .exam-content h2, .exam-content h3,
+.exam-content h4, .exam-content h5, .exam-content h6 {
+  font-weight: 700;
+  color: #0f172a;
+  margin: 1em 0 0.4em;
+  line-height: 1.3;
+}
+
+.exam-content h1 { font-size: 1.5em; }
+.exam-content h2 { font-size: 1.25em; }
+.exam-content h3 { font-size: 1.1em; }
+
+.exam-content ul, .exam-content ol {
+  margin: 0.4em 0;
+  padding-left: 2em;
+}
+
+/* Explicitly set bullet styles — Tailwind preflight resets these to 'none' */
+.exam-content ul {
+  list-style-type: disc;
+}
+
+.exam-content ol {
+  list-style-type: decimal;
+}
+
+/* Nested unordered list levels — matches CKEditor's default indent behavior */
+.exam-content ul ul {
+  list-style-type: circle;
+  margin: 0.2em 0;
+}
+
+.exam-content ul ul ul {
+  list-style-type: square;
+}
+
+/* Nested ordered lists */
+.exam-content ol ol {
+  list-style-type: lower-alpha;
+  margin: 0.2em 0;
+}
+
+.exam-content ol ol ol {
+  list-style-type: lower-roman;
+}
+
+.exam-content li {
+  margin: 0.25em 0;
+  display: list-item; /* ensure li renders as list-item not block */
+}
+
+.exam-content strong, .exam-content b {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.exam-content em, .exam-content i {
+  font-style: italic;
+}
+
+.exam-content u {
+  text-decoration: underline;
+}
+
+.exam-content a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.exam-content a:hover {
+  color: #1d4ed8;
+}
+
+.exam-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 0.75em 0;
+  display: block;
+}
+
+.exam-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75em 0;
+  font-size: 13px;
+}
+
+.exam-content table th,
+.exam-content table td {
+  border: 1px solid #e2e8f0;
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.exam-content table th {
+  background-color: #f1f5f9;
+  font-weight: 600;
+  color: #374151;
+}
+
+.exam-content table tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.exam-content blockquote {
+  border-left: 3px solid #3b82f6;
+  padding-left: 12px;
+  margin: 0.75em 0;
+  color: #475569;
+  font-style: italic;
+}
+
+.exam-content pre, .exam-content code {
+  font-family: monospace;
+  background: #f1f5f9;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 13px;
+}
+

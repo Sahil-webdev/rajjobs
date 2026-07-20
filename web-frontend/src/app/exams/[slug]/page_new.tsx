@@ -3,10 +3,12 @@ import React, { useEffect, useState } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
 // Fetch exam data from backend
 const getExamData = async (slug: string) => {
   try {
-    const response = await fetch(`http://localhost:5000/api/public/exam-details/${slug}`);
+    const response = await fetch(`${API_BASE}/api/public/exam-details/${slug}`);
     const result = await response.json();
     
     if (result.success) {

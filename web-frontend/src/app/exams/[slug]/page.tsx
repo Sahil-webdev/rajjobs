@@ -164,7 +164,6 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
     "keywords": examData.tags?.join(', '),
     "articleSection": examData.category,
   };
-
   return (
     <>
       {/* JSON-LD Structured Data */}
@@ -200,13 +199,8 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
           {examData.formattedNote && examData.formattedNote.trim().length > 0 && (
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-5">
               <div 
-                className="formatted-content prose prose-sm max-w-none"
+                className="exam-content"
                 dangerouslySetInnerHTML={{ __html: examData.formattedNote }}
-                style={{ 
-                  whiteSpace: 'pre-wrap',
-                  lineHeight: '1.8',
-                  color: '#1f2937'
-                }}
               />
             </div>
           )}

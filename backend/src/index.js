@@ -114,8 +114,11 @@ app.use(errorHandler);
 
 async function start() {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log('MongoDB connected');
+    // Atlas URIs without a database path default to `test`. Keep the
+    // application data in the RajJobs database unless explicitly overridden.
+    const dbName = process.env.MONGO_DB_NAME || 'rajjobs';
+    await mongoose.connect(process.env.MONGO_URI, { dbName });
+    console.log(`MongoDB connected (database: ${dbName})`);
     app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
   } catch (err) {
     console.error('Failed to start server', err);

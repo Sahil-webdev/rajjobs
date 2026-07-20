@@ -12,7 +12,7 @@ export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
       <div className="mx-auto max-w-4xl px-4 py-6">
         
         {/* Title & Meta */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-5">
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 mb-5">
           <div className="flex flex-wrap items-center gap-2 mb-3">
             <span className="px-2.5 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
               {examData.category}
@@ -42,7 +42,7 @@ export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
 
         {/* Quick Highlights */}
         {examData.enabledSections?.quickHighlights && examData.quickHighlights && Object.keys(examData.quickHighlights).length > 0 && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <span>⚡</span> Quick Highlights
@@ -65,7 +65,7 @@ export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
 
         {/* Important Dates */}
         {examData.enabledSections?.importantDates && examData.importantDates && examData.importantDates.length > 0 && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <span>📅</span> Important Dates
@@ -94,7 +94,7 @@ export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
 
         {/* Vacancy Details */}
         {examData.enabledSections?.vacancyDetails && examData.vacancyDetails && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <span>👥</span> Vacancy Details
@@ -128,7 +128,7 @@ export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
 
         {/* Eligibility Criteria */}
         {examData.enabledSections?.eligibility && examData.eligibility && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <span>✅</span> Eligibility Criteria
@@ -172,7 +172,7 @@ export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
 
         {/* Exam Pattern */}
         {examData.enabledSections?.examPattern && examData.examPattern && examData.examPattern.length > 0 && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <span>📝</span> Exam Pattern
@@ -202,7 +202,7 @@ export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
 
         {/* Salary */}
         {examData.enabledSections?.salary && examData.salary && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <span>💰</span> Salary Structure
@@ -245,7 +245,7 @@ export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
 
         {/* Application Fees */}
         {examData.enabledSections?.applicationFees && examData.applicationFees && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <span>💳</span> Application Fees
@@ -283,7 +283,7 @@ export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
 
         {/* How to Apply */}
         {examData.enabledSections?.howToApply && examData.howToApply && examData.howToApply.length > 0 && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <span>📝</span> How to Apply
@@ -308,7 +308,7 @@ export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
 
         {/* Important Links */}
         {examData.enabledSections?.importantLinks && examData.importantLinks && examData.importantLinks.length > 0 && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <span>🔗</span> Important Links
@@ -352,7 +352,7 @@ export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
 
         {/* FAQs */}
         {examData.enabledSections?.faqs && examData.faqs && examData.faqs.length > 0 && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <span>❓</span> Frequently Asked Questions
@@ -376,7 +376,7 @@ export default function ExamDetailClient({ examData }: ExamDetailClientProps) {
 
         {/* Tags */}
         {examData.tags && examData.tags.length > 0 && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden mb-5">
             <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <span>🏷️</span> Tags

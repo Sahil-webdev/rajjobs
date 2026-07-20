@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import ImageUploader from "../../../../../components/ImageUploader";
-import RichTextEditor from "../../../../../components/RichTextEditor";
+import RichEditor from "../../../../../components/RichEditor";
 
 export default function EditCoursePage() {
   const router = useRouter();
@@ -181,12 +181,14 @@ export default function EditCoursePage() {
             />
           </div>
 
-          <RichTextEditor
-            value={formData.description}
-            onChange={(value) => setFormData({ ...formData, description: value })}
-            placeholder="Enter detailed course description with bullet points, formatting, etc."
-            label="Course Description"
-          />
+          <div>
+            <label style={{ fontWeight: 600, fontSize: 14, color: '#374151', display: 'block', marginBottom: 8 }}>Course Description</label>
+            <RichEditor
+              editorData={formData.description}
+              setEditorData={(val: string) => setFormData({ ...formData, description: val })}
+              handleOnUpdate={(val: string) => setFormData({ ...formData, description: val })}
+            />
+          </div>
 
           <div className="form-group">
             <label>Category *</label>

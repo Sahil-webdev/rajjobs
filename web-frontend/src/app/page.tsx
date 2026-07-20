@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import EnquiryForm from "@/components/enquiry-form";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
 type Course = {
   _id: string;
   title: string;
@@ -76,7 +78,7 @@ export default function Home() {
   const fetchCourses = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/public/courses?limit=4`
+        `${API_BASE}/api/public/courses?limit=4`
       );
       const data = await response.json();
       setCourses(data);
@@ -88,7 +90,7 @@ export default function Home() {
   const fetchTestSeries = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/public/test-series?limit=4`
+        `${API_BASE}/api/public/test-series?limit=4`
       );
       const data = await response.json();
       setTestSeries(data);
@@ -106,7 +108,7 @@ export default function Home() {
         categories.map(async (category) => {
           try {
             const response = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/public/exam-details?category=${category}&status=published`
+              `${API_BASE}/api/public/exam-details?category=${category}&status=published`
             );
             const data = await response.json();
             counts[category] = data.count || 0;
@@ -135,7 +137,7 @@ export default function Home() {
 
   useEffect(() => {
     // Fetch notifications from API
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/public/notifications?limit=4`)
+    fetch(`${API_BASE}/api/public/notifications?limit=4`)
       .then(res => res.json())
       .then(data => setNotifications(data))
       .catch(err => console.error('Error fetching notifications:', err));
@@ -384,7 +386,7 @@ export default function Home() {
                     {ts.thumbnailUrl && ts.thumbnailUrl.trim() !== '' ? (
                       <div className="relative aspect-[1050/600]">
                         <img 
-                          src={ts.thumbnailUrl.startsWith('http') ? ts.thumbnailUrl : `http://localhost:4000${ts.thumbnailUrl}`}
+                          src={ts.thumbnailUrl.startsWith('http') ? ts.thumbnailUrl : `${API_BASE}${ts.thumbnailUrl}`}
                           alt={ts.title}
                           className="w-full h-full object-cover"
                           onError={(e) => {

@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import RichCKEditor from "@/components/RichCKEditor";
+import RichEditor from "@/components/RichEditor";
 import SEOEditor from "@/components/SEOEditor";
 import ExamPreview from "@/components/ExamPreview";
+import api from "@/lib/api";
 
 interface CreateExamPageProps {
   examId?: string;
@@ -61,56 +62,37 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
   const fetchExamDetail = async (id: string) => {
     try {
       console.log('📥 Loading exam data for edit, ID:', id);
-      const token = localStorage.getItem('accessToken');
-      
-      // Use AbortController to handle timeout (30 seconds)
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
-      
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/exam-details/${id}`,
-        { 
-          credentials: "include",
-          signal: controller.signal,
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
-      clearTimeout(timeoutId);
-      const data = await response.json();
-      console.log('📦 Loaded exam data:', data);
-      console.log('🔍 Backend returned formattedNote:', !!data.data?.formattedNote);
-      console.log('🔍 Backend formattedNote length:', data.data?.formattedNote?.length || 0);
-      
+      // Use the api axios instance (has auto token-refresh interceptor)
+      const res = await api.get(`/api/admin/exam-details/${id}`);
+      const data = res.data;
+      console.log('📦 Loaded exam data successfully');
+
       if (data.success) {
-        // ✅ SAFE: Explicitly map each field instead of direct overwrite
         setFormData(prev => ({
           ...prev,
           title: data.data.title || "",
           slug: data.data.slug || "",
           category: data.data.category || "SSC",
           metaDescription: data.data.metaDescription || "",
-          formattedNote: data.data.formattedNote || "", // This is the critical one!
+          formattedNote: data.data.formattedNote || "",
           status: data.data.status || "draft",
           postedBy: data.data.postedBy || "J. Kaushik",
           seoData: data.data.seoData || prev.seoData
         }));
         setIsSlugManuallyEdited(true);
-
-        console.log('✅ Form data set with:');
-        console.log('   title:', data.data.title);
-        console.log('   formattedNote length:', data.data.formattedNote?.length || 0);
-        console.log('   formattedNote preview:', data.data.formattedNote?.substring(0, 100) || 'EMPTY');
       } else {
         setError(data.message || "Failed to load exam details");
       }
     } catch (err: any) {
       console.error('❌ Error loading exam:', err);
-      if (err.name === 'AbortError') {
-        setError("Request timeout - Server took too long to respond. Please try again.");
+      const status = err?.response?.status;
+      if (status === 401 || status === 403) {
+        setError("Session expired. Please log in again.");
+        setTimeout(() => router.push('/login'), 2000);
+      } else if (err.code === 'ECONNREFUSED' || err.message?.includes('Network Error')) {
+        setError("Cannot connect to server. Please check if backend is running.");
       } else {
-        setError("Failed to load exam details");
+        setError("Failed to load exam details. Please refresh and try again.");
       }
     }
   };
@@ -152,40 +134,13 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
       console.log(JSON.stringify(formData, null, 2));
       console.log('========================================');
 
-      const url = examId
-        ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/exam-details/${examId}`
-        : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/exam-details`;
-      
-      console.log('🌐 API URL:', url);
-      console.log('🔐 Has Token:', !!token);
-      console.log('✏️ Is Edit Mode:', isEdit);
+      const payload = { ...formData };
 
-      // Add timeout to fetch request
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      const res = examId
+        ? await api.put(`/api/admin/exam-details/${examId}`, payload)
+        : await api.post(`/api/admin/exam-details`, payload);
 
-      const response = await fetch(url, {
-        method: examId ? "PUT" : "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        credentials: "include",
-        body: JSON.stringify(formData),
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-      console.log('📡 Response Status:', response.status);
-      const data = await response.json();
-      console.log('📥 Response Data:', data);
-      
-      if (response.status === 401) {
-        setError("Session expired. Please login again.");
-        localStorage.removeItem('accessToken');
-        setTimeout(() => router.push('/login'), 1500);
-        return;
-      }
+      const data = res.data;
       
       if (data.success) {
         setSuccess(isEdit ? "Exam updated!" : "Exam created!");
@@ -195,12 +150,14 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
       }
     } catch (err: any) {
       console.error("❌ Error saving exam:", err);
-      if (err.name === 'AbortError') {
-        setError("Request timeout - Server took too long to respond. Please try again.");
-      } else if (err.message.includes('Failed to fetch')) {
-        setError("Cannot connect to server. Please check if backend is running on port 4000.");
+      const status = err?.response?.status;
+      if (status === 401 || status === 403) {
+        setError("Session expired. Please login again.");
+        setTimeout(() => router.push('/login'), 1500);
+      } else if (err.message?.includes('Network Error') || err.code === 'ECONNREFUSED') {
+        setError("Cannot connect to server. Please check if backend is running.");
       } else {
-        setError(err.message || "Network error - Please check your connection");
+        setError(err?.response?.data?.message || err.message || "Network error - Please check your connection");
       }
     } finally {
       setLoading(false);
@@ -353,19 +310,18 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
         {/* Main Content Editor */}
         <div style={{ background: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
           <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '20px', color: '#3b82f6' }}>
-            📄 Main Content (CKEditor)
+            📄 Main Content
           </h3>
-          <RichCKEditor
+          <RichEditor
             key={examId || 'new'}
             editorData={formData.formattedNote || ""}
             setEditorData={(data) => {
               setFormData(prev => ({ ...prev, formattedNote: data }));
             }}
-            handleOnUpdate={(editor: string, _field: string) => {
-              setFormData(prev => ({ ...prev, formattedNote: editor }));
+            handleOnUpdate={(html: string, _field: string) => {
+              setFormData(prev => ({ ...prev, formattedNote: html }));
             }}
           />
-          
         </div>
 
         {/* SEO Tool */}

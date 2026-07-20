@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
 export default function EnquiryForm() {
   const [formData, setFormData] = useState({
     name: "",
@@ -28,7 +30,7 @@ export default function EnquiryForm() {
     setSubmitStatus({ type: null, message: "" });
 
     try {
-      const response = await fetch("http://localhost:4000/api/public/enquiry", {
+      const response = await fetch(`${API_BASE}/api/public/enquiry`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
