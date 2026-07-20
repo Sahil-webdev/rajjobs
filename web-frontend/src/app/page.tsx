@@ -54,10 +54,10 @@ export default function Home() {
   });
 
   // Hero section right-side carousel images
-    const heroImages = [
-      { src: "/g1.png", alt: "RajJobs Hero Graphic 1" },
-      { src: "/g3.png", alt: "RajJobs Hero Graphic 2" },
-    ];
+  const heroImages = [
+    { src: "/g1.png", alt: "RajJobs Hero Graphic 1" },
+    { src: "/g3.png", alt: "RajJobs Hero Graphic 2" },
+  ];
 
   // Fade carousel for hero graphic
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function Home() {
     fetchTestSeries();
   }, []);
 
-    // Removed old banners carousel effect, not needed
+  // Removed old banners carousel effect, not needed
 
   const fetchCourses = async () => {
     try {
@@ -103,7 +103,7 @@ export default function Home() {
     try {
       const categories = ["SSC", "UPSC", "Railway", "Defence", "Teacher", "Banking"];
       const counts: any = {};
-      
+
       await Promise.all(
         categories.map(async (category) => {
           try {
@@ -117,7 +117,7 @@ export default function Home() {
           }
         })
       );
-      
+
       setExamCounts(counts);
     } catch (error) {
       console.error("Error fetching exam counts:", error);
@@ -203,7 +203,7 @@ export default function Home() {
                   fill
                   className={`object-contain drop-shadow-xl transition-opacity duration-1000 ${heroImageIdx === idx ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
                   priority={idx === 0}
-                  style={{transitionProperty:'opacity'}}
+                  style={{ transitionProperty: 'opacity' }}
                 />
               ))}
             </div>
@@ -224,7 +224,7 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-2 md:gap-4 xl:grid-cols-3">
               {exams.map((exam) => (
-                <Link 
+                <Link
                   key={exam.title}
                   href={exam.link}
                   className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition"
@@ -297,17 +297,17 @@ export default function Home() {
               </div>
             ) : (
               courses.slice(0, 3).map((course) => {
-                const discount = course.priceOriginal > 0 
+                const discount = course.priceOriginal > 0
                   ? Math.round(((course.priceOriginal - course.priceSale) / course.priceOriginal) * 100)
                   : 0;
                 const category = course.categories?.[0] || 'Course';
-                
+
                 return (
                   <div key={course._id} className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-lg">
                     {course.thumbnailUrl ? (
                       <div className="relative h-48">
-                        <img 
-                          src={course.thumbnailUrl} 
+                        <img
+                          src={course.thumbnailUrl}
                           alt={course.title}
                           className="w-full h-full object-cover"
                         />
@@ -343,7 +343,7 @@ export default function Home() {
                             <span className="text-sm text-slate-400 line-through">₹{course.priceOriginal}</span>
                           )}
                         </div>
-                        <a 
+                        <a
                           href={course.externalLink || "https://play.google.com/store/apps/details?id=com.yqkbnq.aofamv&hl=en"}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -377,15 +377,15 @@ export default function Home() {
               </div>
             ) : (
               testSeries.map((ts) => {
-                const discount = ts.priceOriginal > 0 
+                const discount = ts.priceOriginal > 0
                   ? Math.round(((ts.priceOriginal - ts.priceSale) / ts.priceOriginal) * 100)
                   : 0;
-                
+
                 return (
                   <div key={ts._id} className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-lg">
                     {ts.thumbnailUrl && ts.thumbnailUrl.trim() !== '' ? (
                       <div className="relative aspect-[1050/600]">
-                        <img 
+                        <img
                           src={ts.thumbnailUrl.startsWith('http') ? ts.thumbnailUrl : `${API_BASE}${ts.thumbnailUrl}`}
                           alt={ts.title}
                           className="w-full h-full object-cover"
@@ -425,7 +425,7 @@ export default function Home() {
                             )}
                           </div>
                         )}
-                        <a 
+                        <a
                           href={ts.externalLink || "https://play.google.com/store/apps/details?id=com.yqkbnq.aofamv&hl=en"}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -444,122 +444,157 @@ export default function Home() {
       </section>
 
       {/* Mobile App Banner - Redesigned */}
-      <section className="bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 py-8 md:py-12 relative overflow-hidden">
-        {/* Subtle Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-        </div>
+      <section className="bg-white py-12 md:py-16">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="relative overflow-hidden rounded-[28px] md:rounded-[36px] bg-[#07111F] border border-white/10 shadow-2xl min-h-[500px] flex items-center p-6 sm:p-10 md:p-16">
 
-        <div className="mx-auto max-w-6xl px-4 relative z-10">
-          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
-            {/* Left Content */}
-            <div className="flex-1 text-center md:text-left">
-              {/* Badge */}
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-white border border-white/30">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
-                </svg>
-                Download Now
-              </div>
-              
-              {/* Title */}
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">
-                Learn Anytime, Anywhere with <br className="hidden md:block" />
-                <span className="text-yellow-300">Raj Jobs Mobile App</span>
-              </h2>
-              
-              {/* Description */}
-              <p className="text-sm md:text-base text-white/90 mb-5 max-w-lg">
-                Access 10,000+ video lectures, mock tests, current affairs & study materials on the go.
-              </p>
-              
-              {/* Download Buttons */}
-              <div className="flex flex-wrap items-center gap-3 justify-center md:justify-start mb-5">
-                <a
-                  href="https://play.google.com/store/apps/details?id=com.yqkbnq.aofamv"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl bg-white text-gray-900 px-4 py-2.5 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
-                >
-                  <svg className="h-6 w-6" viewBox="0 0 512 512" fill="currentColor">
-                    <path d="M325.3 234.3 104 121.8c-7.6-3.9-16.4-3.7-23.7.7-7.3 4.4-11.7 11.9-11.7 20.3v226.4c0 8.4 4.4 15.9 11.7 20.3 4 2.4 8.4 3.7 12.9 3.7 3.7 0 7.5-.9 10.8-2.6l221.3-112.5c8.2-4.1 13.2-12 13.2-21.4.1-9.3-4.9-17.2-13.2-21.4z"/>
+            {/* Ambient Background Glows */}
+            <div className="absolute top-0 right-0 w-[300px] md:w-[400px] h-[300px] md:h-[400px] bg-gradient-to-br from-[#2563EB]/20 to-transparent rounded-full blur-[60px] md:blur-[80px] pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-[200px] md:w-[300px] h-[200px] md:h-[300px] bg-gradient-to-br from-[#EF3B3B]/10 to-transparent rounded-full blur-[45px] md:blur-[60px] pointer-events-none"></div>
+
+            {/* Grid Pattern */}
+            <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
+
+            <div className="relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+              {/* Left Column (55%) */}
+              <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left">
+                {/* Eyebrow badge */}
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3.5 py-1.5 text-xs font-semibold text-[#CBD5E1] tracking-wider uppercase">
+                  <svg className="h-4.5 w-4.5 text-[#2563EB]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                    <line x1="12" y1="18" x2="12.01" y2="18" />
                   </svg>
-                  <div className="text-left">
-                    <div className="text-[9px] font-medium text-gray-600">GET IT ON</div>
-                    <div className="text-sm font-bold">Google Play</div>
+                  Raj Jobs Mobile App
+                </div>
+
+                {/* Main Heading */}
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight tracking-tight">
+                  Prepare Smarter.<br />
+                  <span className="bg-gradient-to-r from-[#2563EB] to-[#EF3B3B] bg-clip-text text-transparent">Learn Anywhere.</span>
+                </h2>
+
+                {/* Supporting Text */}
+                <p className="text-sm sm:text-base md:text-lg text-[#CBD5E1] mb-8 leading-relaxed max-w-xl">
+                  Video classes, mock tests, current affairs and study material — everything you need for Rajasthan government exam preparation in one place.
+                </p>
+
+                {/* CTA Buttons */}
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mb-8">
+                  {/* Google Play */}
+                  <a
+                    href="https://play.google.com/store/apps/details?id=com.yqkbnq.aofamv"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative inline-flex items-center gap-3 rounded-xl bg-white text-[#07111F] px-5 py-3 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 font-semibold"
+                  >
+                    <svg className="h-6 w-6 text-[#07111F]" viewBox="0 0 512 512" fill="currentColor">
+                      <path d="M325.3 234.3 104 121.8c-7.6-3.9-16.4-3.7-23.7.7-7.3 4.4-11.7 11.9-11.7 20.3v226.4c0 8.4 4.4 15.9 11.7 20.3 4 2.4 8.4 3.7 12.9 3.7 3.7 0 7.5-.9 10.8-2.6l221.3-112.5c8.2-4.1 13.2-12 13.2-21.4.1-9.3-4.9-17.2-13.2-21.4z" />
+                    </svg>
+                    <div className="text-left">
+                      <div className="text-[10px] font-medium text-gray-500 uppercase tracking-wider leading-none">GET IT ON</div>
+                      <div className="text-sm font-bold mt-0.5 leading-none">Google Play</div>
+                    </div>
+                  </a>
+
+                  {/* App Store (Modal trigger) */}
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowAppStoreModal(true);
+                    }}
+                    className="inline-flex items-center gap-3 rounded-xl bg-white/5 border border-white/10 text-white px-5 py-3 hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-300 font-semibold cursor-pointer"
+                  >
+                    <svg className="h-6 w-6 text-white" viewBox="0 0 384 512" fill="currentColor">
+                      <path d="M318.7 268.7c-.3-35.2 15.8-61.8 48.2-81.4-18-26.2-45.2-40.6-82-43.1-34.4-2.5-72 20.1-85.5 20.1-14 0-47.7-19.2-73.8-19.2C76.6 146 27 187.6 27 266.4c0 25.6 4.7 52 14.1 79.2C52 372 90 448 130.2 447.7c25.6-.2 43.7-18.2 76.9-18.2 32.6 0 49.4 18.2 73.8 18.2 40.6-.6 75.8-70.4 89.3-102.5-56.6-24.5-51.5-71.6-51.5-76.5zM252.4 96.6c26.3-31.9 23.8-61 23-71.6-22.5 1.3-48.5 15.3-63.8 33.8-16.8 19.5-25 43.5-23 68 24.3 1.9 46.6-10.7 63.8-30.2z" />
+                    </svg>
+                    <div className="text-left">
+                      <div className="text-[10px] font-medium text-gray-400 uppercase tracking-wider leading-none">Download on the</div>
+                      <div className="text-sm font-bold mt-0.5 leading-none">App Store</div>
+                    </div>
+                  </a>
+
+                  {/* Explore Courses */}
+                  <Link
+                    href="/courses"
+                    className="inline-flex items-center gap-2 rounded-xl text-white px-5 py-3 hover:text-[#2563EB] transition-colors duration-300 font-semibold group"
+                  >
+                    Explore Courses
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                </div>
+
+                {/* Trust/Stats Row */}
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 text-[#CBD5E1] text-xs sm:text-sm pt-4 border-t border-white/5 w-full">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-white text-base">10,000+</span>
+                    <span className="text-[#CBD5E1]">Video Lessons</span>
                   </div>
-                </a>
-                
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setShowAppStoreModal(true);
-                  }}
-                  className="inline-flex items-center gap-2 rounded-xl bg-white text-gray-900 px-4 py-2.5 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 cursor-pointer"
-                >
-                  <svg className="h-6 w-6" viewBox="0 0 384 512" fill="currentColor">
-                    <path d="M318.7 268.7c-.3-35.2 15.8-61.8 48.2-81.4-18-26.2-45.2-40.6-82-43.1-34.4-2.5-72 20.1-85.5 20.1-14 0-47.7-19.2-73.8-19.2C76.6 146 27 187.6 27 266.4c0 25.6 4.7 52 14.1 79.2C52 372 90 448 130.2 447.7c25.6-.2 43.7-18.2 76.9-18.2 32.6 0 49.4 18.2 73.8 18.2 40.6-.6 75.8-70.4 89.3-102.5-56.6-24.5-51.5-71.6-51.5-76.5zM252.4 96.6c26.3-31.9 23.8-61 23-71.6-22.5 1.3-48.5 15.3-63.8 33.8-16.8 19.5-25 43.5-23 68 24.3 1.9 46.6-10.7 63.8-30.2z"/>
-                  </svg>
-                  <div className="text-left">
-                    <div className="text-[9px] font-medium text-gray-600">Download on the</div>
-                    <div className="text-sm font-bold">App Store</div>
+                  <div className="h-4 w-px bg-white/10 hidden sm:block"></div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-white text-base">50K+</span>
+                    <span className="text-[#CBD5E1]">Learners</span>
                   </div>
-                </a>
+                  <div className="h-4 w-px bg-white/10 hidden sm:block"></div>
+                  <div className="flex items-center gap-2">
+                    <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                    </svg>
+                    <span className="font-bold text-white text-base">4.8</span>
+                    <span className="text-[#CBD5E1]">App Rating</span>
+                  </div>
+                </div>
               </div>
 
-              {/* Stats */}
-              <div className="flex items-center gap-4 justify-center md:justify-start text-white text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="flex -space-x-1">
-                    <div className="h-6 w-6 rounded-full bg-yellow-400 border-2 border-white"></div>
-                    <div className="h-6 w-6 rounded-full bg-green-400 border-2 border-white"></div>
-                    <div className="h-6 w-6 rounded-full bg-blue-400 border-2 border-white"></div>
+              {/* Right Column (45%) */}
+              <div className="lg:col-span-5 relative flex items-center justify-center min-h-[300px] lg:min-h-[420px]">
+
+                {/* Glowing radial circles */}
+                <div className="absolute w-[240px] md:w-[320px] h-[240px] md:h-[320px] bg-[#2563EB]/15 rounded-full blur-[50px] md:blur-[60px] pointer-events-none z-0"></div>
+
+                {/* Main Composition Wrapper */}
+                <div className="relative w-full max-w-[280px] sm:max-w-[340px] md:max-w-[380px] h-[300px] sm:h-[360px] md:h-[400px] flex items-center justify-center z-10">
+
+                  {/* Photo of student holding phone */}
+                  <div className="absolute inset-0 select-none">
+                    <Image
+                      src="/mobileapp.png"
+                      alt="Raj Jobs Mobile App Learner"
+                      fill
+                      className="object-contain drop-shadow-2xl"
+                      sizes="(max-width: 1024px) 280px, 380px"
+                      priority
+                    />
                   </div>
-                  <span className="font-semibold">50K+ Users</span>
-                </div>
-                <div className="h-4 w-px bg-white/40"></div>
-                <div className="flex items-center gap-1">
-                  <svg className="h-5 w-5 text-yellow-300" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                  </svg>
-                  <span className="font-semibold">4.8 Rating</span>
-                </div>
-              </div>
-            </div>
 
-            {/* Right Image - Mobile Phone */}
-            <div className="flex-shrink-0 relative">
-              <div className="relative w-[240px] h-[340px] md:w-[280px] md:h-[400px]">
-                {/* Glow Effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 via-orange-400 to-pink-500 rounded-[2.5rem] blur-2xl opacity-40"></div>
-                
-                {/* Phone Image */}
-                <div className="absolute inset-0">
-                  <Image
-                    src="/mobileapp.png"
-                    alt="Raj Jobs Mobile App"
-                    fill
-                    className="object-contain drop-shadow-2xl"
-                    priority
-                  />
-                </div>
+                  {/* Floating Glass Cards */}
+                  {/* Card 1: Mock Tests */}
+                  <div className="absolute -left-6 sm:-left-4 top-0 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 sm:p-3.5 shadow-xl flex items-center gap-2 sm:gap-3 animate-float-slow hover:bg-white/10 transition-colors duration-300 select-none cursor-default">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[#2563EB]/20 flex items-center justify-center text-lg sm:text-xl">
+                      📝
+                    </div>
+                    <div>
+                      <div className="text-[10px] sm:text-xs font-semibold text-white">Mock Tests</div>
+                      <div className="text-[8px] sm:text-[10px] text-[#CBD5E1]">State Level Ranks</div>
+                    </div>
+                  </div>
 
-                {/* Floating Badges - Minimal */}
-                <div className="absolute -top-2 -left-2 bg-green-500 text-white rounded-lg px-3 py-1 shadow-lg text-xs font-bold">
-                  FREE
-                </div>
-                
-                <div className="absolute top-12 -right-2 bg-orange-500 text-white rounded-lg px-2 py-1 shadow-lg text-xs font-bold">
-                  NEW
+                  {/* Card 2: Live Classes */}
+                  <div className="absolute -right-6 sm:-right-4 bottom-1/4 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 sm:p-3.5 shadow-xl flex items-center gap-2 sm:gap-3 animate-float-delayed hover:bg-white/10 transition-colors duration-300 select-none cursor-default">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[#EF3B3B]/20 flex items-center justify-center text-lg sm:text-xl">
+                      🎥
+                    </div>
+                    <div>
+                      <div className="text-[10px] sm:text-xs font-semibold text-white">Live Classes</div>
+                      <div className="text-[8px] sm:text-[10px] text-[#CBD5E1]">Interactive Sessions</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
-
       {/* Why Choose Us + Enquiry Form */}
       <section className="bg-white py-12">
         <div className="mx-auto max-w-6xl px-4">
@@ -573,7 +608,7 @@ export default function Home() {
                 <div className="flex gap-4 group">
                   <div className="flex-shrink-0 h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition">
                     <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
                     </svg>
                   </div>
                   <div>
@@ -585,7 +620,7 @@ export default function Home() {
                 <div className="flex gap-4 group">
                   <div className="flex-shrink-0 h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition">
                     <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9l2 2 4-4"/>
+                      <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9l2 2 4-4" />
                     </svg>
                   </div>
                   <div>
@@ -597,8 +632,8 @@ export default function Home() {
                 <div className="flex gap-4 group">
                   <div className="flex-shrink-0 h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition">
                     <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"/>
-                      <polyline points="12 6 12 12 16 14"/>
+                      <circle cx="12" cy="12" r="10" />
+                      <polyline points="12 6 12 12 16 14" />
                     </svg>
                   </div>
                   <div>
@@ -610,7 +645,7 @@ export default function Home() {
                 <div className="flex gap-4 group">
                   <div className="flex-shrink-0 h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition">
                     <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                     </svg>
                   </div>
                   <div>
@@ -622,10 +657,10 @@ export default function Home() {
                 <div className="flex gap-4 group">
                   <div className="flex-shrink-0 h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition">
                     <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                      <circle cx="9" cy="7" r="4"/>
-                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                     </svg>
                   </div>
                   <div>
@@ -646,11 +681,11 @@ export default function Home() {
 
       {/* App Store Download Modal */}
       {showAppStoreModal && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
           onClick={() => setShowAppStoreModal(false)}
         >
-          <div 
+          <div
             className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative animate-fadeIn"
             onClick={(e) => e.stopPropagation()}
           >
@@ -669,7 +704,7 @@ export default function Home() {
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                 <svg className="w-7 h-7 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 22 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.09997 22C7.78997 22.05 6.79997 20.68 5.95997 19.47C4.24997 17 2.93997 12.45 4.69997 9.39C5.56997 7.87 7.12997 6.91 8.81997 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.09 16.67C20.06 16.74 19.67 18.11 18.71 19.5ZM13 3.5C13.73 2.67 14.94 2.04 15.94 2C16.07 3.17 15.6 4.35 14.9 5.19C14.21 6.04 13.07 6.7 11.95 6.61C11.8 5.46 12.36 4.26 13 3.5Z"/>
+                  <path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 22 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.09997 22C7.78997 22.05 6.79997 20.68 5.95997 19.47C4.24997 17 2.93997 12.45 4.69997 9.39C5.56997 7.87 7.12997 6.91 8.81997 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.09 16.67C20.06 16.74 19.67 18.11 18.71 19.5ZM13 3.5C13.73 2.67 14.94 2.04 15.94 2C16.07 3.17 15.6 4.35 14.9 5.19C14.21 6.04 13.07 6.7 11.95 6.61C11.8 5.46 12.36 4.26 13 3.5Z" />
                 </svg>
               </div>
               <div>
