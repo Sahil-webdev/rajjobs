@@ -3,6 +3,8 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const ExamDetail = require('./src/models/ExamDetail');
 
+//dwwewewe
+
 const testExams = async () => {
   try {
     console.log('🔗 Connecting to MongoDB...');
