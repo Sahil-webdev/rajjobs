@@ -150,6 +150,7 @@ export default function TestSeriesPage() {
               label="Test Series Thumbnail (Recommended: 1050x600px)"
               currentImage={form.thumbnailUrl || ''}
               onUpload={(url: string) => setForm({ ...form, thumbnailUrl: url })}
+              folder="test-series"
             />
           </div>
 

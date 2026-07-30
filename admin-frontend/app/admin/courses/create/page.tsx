@@ -129,6 +129,7 @@ export default function CreateCoursePage() {
               editorData={formData.description}
               setEditorData={(val: string) => setFormData({ ...formData, description: val })}
               handleOnUpdate={(val: string) => setFormData({ ...formData, description: val })}
+              uploadFolder="course-content"
             />
           </div>
 
@@ -168,6 +169,7 @@ export default function CreateCoursePage() {
             currentImage={formData.thumbnailUrl}
             onUpload={(url: string) => setFormData({ ...formData, thumbnailUrl: url })}
             label="Course Thumbnail (Recommended: 1050x600px)"
+            folder="course-thumbnails"
           />
         </div>
 

@@ -1,11 +1,13 @@
 "use client";
 
 import React, { FC, useEffect, useRef, useState } from "react";
+import api from "../lib/api";
 
 interface EditorProps {
   editorData: string;
   setEditorData: (html: string) => void;
   handleOnUpdate: (html: string, field: string) => void;
+  uploadFolder?: string;
 }
 
 declare global {
@@ -34,7 +36,7 @@ const FULL_TOOLBAR = [
   { name: "about", items: ["About"] },
 ];
 
-const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate }) => {
+const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate, uploadFolder = "editor-images" }) => {
   const editorRef = useRef<any>(null);
   const latestDataRef = useRef(editorData || "");
   const hasInitialisedRef = useRef(false);
@@ -217,7 +219,7 @@ const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate
     syncEditorData(editor);
   };
 
-  const insertCustomImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const insertCustomImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const input = event.target;
     const file = input.files?.[0];
     input.value = "";
@@ -228,11 +230,16 @@ const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate
     }
 
     const altText = window.prompt("Image alt text:", file.name) || "";
-    const reader = new FileReader();
-    reader.onload = (loadEvent) => {
+    setStatus("Uploading image to media storage…");
+    setError("");
+    try {
+      const body = new FormData();
+      body.append("upload", file);
+      body.append("folder", uploadFolder);
+      const response = await api.post("/api/admin/file/upload-image", body);
+      const source = response.data?.url;
       const editor = editorRef.current;
       const CKEDITOR = window.CKEDITOR;
-      const source = loadEvent.target?.result;
       if (!editor || !CKEDITOR || typeof source !== "string") return;
 
       const image = new CKEDITOR.dom.element("img");
@@ -243,9 +250,12 @@ const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate
       editor.insertElement(image);
       editor.insertHtml("<p><br></p>");
       syncEditorData(editor);
-    };
-    reader.onerror = () => window.alert("Image read नहीं हो पाई.");
-    reader.readAsDataURL(file);
+      setStatus("Image uploaded to Cloudflare R2.");
+    } catch (uploadError: any) {
+      const message = uploadError?.response?.data?.error?.message || uploadError?.message || "Image upload failed.";
+      setError(message);
+      setStatus("Image upload failed.");
+    }
   };
 
   return (
@@ -260,7 +270,7 @@ const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate
             Add Link
           </button>
           <label id="customImageBtn" htmlFor="ckCustomImage" style={actionButtonStyle}>
-            Insert Local Image
+            Insert Image
           </label>
           <input type="file" id="ckCustomImage" accept="image/*" hidden onChange={insertCustomImage} />
         </div>

@@ -134,6 +134,7 @@ export default function BannersPage() {
                   onUpload={(url) => setBannerImage(order, url)}
                   previewHeight={0}
                   id={`banner-${order}`}
+                  folder="banners"
                 />
 
                 {banner && (

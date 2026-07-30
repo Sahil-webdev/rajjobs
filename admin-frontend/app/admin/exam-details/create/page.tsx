@@ -321,6 +321,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
             handleOnUpdate={(html: string, _field: string) => {
               setFormData(prev => ({ ...prev, formattedNote: html }));
             }}
+            uploadFolder="exam-details"
           />
         </div>
 

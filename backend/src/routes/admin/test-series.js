@@ -5,9 +5,10 @@ const asyncHandler = require('../../utils/asyncHandler');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { dataUrlToFile, deleteByPublicUrl, isR2Configured, uploadBuffer } = require('../../utils/r2');
 
 // Helper function to save base64 image
-const saveBase64Image = (base64String, uploadDir) => {
+const saveBase64Image = async (base64String, uploadDir) => {
   if (!base64String || !base64String.startsWith('data:image')) {
     return null;
   }
@@ -20,6 +21,12 @@ const saveBase64Image = (base64String, uploadDir) => {
     const ext = matches[1];
     const data = matches[2];
     const buffer = Buffer.from(data, 'base64');
+
+    if (isR2Configured) {
+      const file = dataUrlToFile(base64String, 'test-series');
+      const result = await uploadBuffer({ ...file, folder: 'test-series' });
+      return result.url;
+    }
 
     // Create uploads directory if it doesn't exist
     if (!fs.existsSync(uploadDir)) {
@@ -56,7 +63,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({
-  storage: storage,
+  storage: isR2Configured ? multer.memoryStorage() : storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|webp/;
@@ -75,7 +82,14 @@ router.post('/upload-thumbnail', upload.single('thumbnail'), asyncHandler(async 
     return res.status(400).json({ message: 'No file uploaded' });
   }
   
-  const thumbnailUrl = `/uploads/test-series/${req.file.filename}`;
+  const thumbnailUrl = isR2Configured
+    ? (await uploadBuffer({
+        buffer: req.file.buffer,
+        originalName: req.file.originalname,
+        contentType: req.file.mimetype,
+        folder: 'test-series',
+      })).url
+    : `/uploads/test-series/${req.file.filename}`;
   res.status(200).json({ 
     message: 'Thumbnail uploaded successfully',
     thumbnailUrl 
@@ -140,7 +154,7 @@ router.post('/', asyncHandler(async (req, res) => {
   if (thumbnailUrl && thumbnailUrl.startsWith('data:image')) {
     console.log('🔄 Converting base64 to file...');
     const uploadDir = path.join(__dirname, '../../../uploads/test-series');
-    finalThumbnailUrl = saveBase64Image(thumbnailUrl, uploadDir) || '';
+    finalThumbnailUrl = await saveBase64Image(thumbnailUrl, uploadDir) || '';
     console.log('✅ Image saved at:', finalThumbnailUrl || 'FAILED');
   } else if (thumbnailUrl && thumbnailUrl.startsWith('/uploads')) {
     finalThumbnailUrl = thumbnailUrl;
@@ -192,6 +206,11 @@ router.put('/:id', asyncHandler(async (req, res) => {
     // Delete old thumbnail if it exists and we're replacing it
     if (testSeries.thumbnailUrl && testSeries.thumbnailUrl !== thumbnailUrl) {
       const oldPath = path.join(__dirname, '../../../', testSeries.thumbnailUrl);
+      try {
+        await deleteByPublicUrl(testSeries.thumbnailUrl);
+      } catch (err) {
+        console.error('Error deleting old R2 thumbnail:', err);
+      }
       if (fs.existsSync(oldPath)) {
         try {
           fs.unlinkSync(oldPath);
@@ -204,7 +223,7 @@ router.put('/:id', asyncHandler(async (req, res) => {
     // Handle base64 image
     if (thumbnailUrl && thumbnailUrl.startsWith('data:image')) {
       const uploadDir = path.join(__dirname, '../../../uploads/test-series');
-      const savedUrl = saveBase64Image(thumbnailUrl, uploadDir);
+      const savedUrl = await saveBase64Image(thumbnailUrl, uploadDir);
       testSeries.thumbnailUrl = savedUrl || '';
     } else if (thumbnailUrl && (thumbnailUrl.startsWith('/uploads') || thumbnailUrl.startsWith('http'))) {
       testSeries.thumbnailUrl = thumbnailUrl;
@@ -231,6 +250,11 @@ router.delete('/:id', asyncHandler(async (req, res) => {
 
   // Delete thumbnail file if exists
   if (testSeries.thumbnailUrl) {
+    try {
+      await deleteByPublicUrl(testSeries.thumbnailUrl);
+    } catch (err) {
+      console.error('Error deleting R2 thumbnail:', err);
+    }
     const thumbnailPath = path.join(__dirname, '../../../', testSeries.thumbnailUrl);
     if (fs.existsSync(thumbnailPath)) {
       fs.unlinkSync(thumbnailPath);

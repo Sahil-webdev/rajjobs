@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import api from '../lib/api';
 
 interface ImageUploaderProps {
   label: string;
@@ -8,28 +9,49 @@ interface ImageUploaderProps {
   onUpload: (url: string) => void;
   previewHeight?: number;
   id?: string;
+  folder?: string;
 }
 
-export default function ImageUploader({ label, currentImage, onUpload, previewHeight = 150, id = Math.random().toString() }: ImageUploaderProps) {
+export default function ImageUploader({ label, currentImage, onUpload, previewHeight = 150, id = Math.random().toString(), folder = 'images' }: ImageUploaderProps) {
   const [preview, setPreview] = useState<string>(currentImage || "");
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
 
   // Sync preview with currentImage prop when it changes
   useEffect(() => {
     setPreview(currentImage || "");
   }, [currentImage]);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
     if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('Please choose an image file.');
+      return;
+    }
 
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      setPreview(dataUrl);
-      onUpload(dataUrl);
-    };
-    reader.readAsDataURL(file);
+    const objectUrl = URL.createObjectURL(file);
+    setPreview(objectUrl);
+    setError('');
+    setUploading(true);
+
+    try {
+      const body = new FormData();
+      body.append('upload', file);
+      body.append('folder', folder);
+      const response = await api.post('/api/admin/file/upload-image', body);
+      const url = response.data?.url;
+      if (!url) throw new Error('The server did not return an image URL.');
+      setPreview(url);
+      onUpload(url);
+    } catch (uploadError: any) {
+      URL.revokeObjectURL(objectUrl);
+      setPreview(currentImage || '');
+      setError(uploadError?.response?.data?.error?.message || uploadError?.message || 'Image upload failed.');
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -59,7 +81,7 @@ export default function ImageUploader({ label, currentImage, onUpload, previewHe
         {preview ? (
           <div>
             <img src={preview} alt="Preview" style={{ maxHeight: previewHeight, maxWidth: '100%', borderRadius: 6, marginBottom: 8 }} />
-            <p style={{ margin: 0, color: '#3b82f6', fontWeight: 600, fontSize: 12 }}>Click to change image</p>
+            <p style={{ margin: 0, color: '#3b82f6', fontWeight: 600, fontSize: 12 }}>{uploading ? 'Uploading to media storage…' : 'Click to change image'}</p>
           </div>
         ) : (
           <div>
@@ -69,6 +91,7 @@ export default function ImageUploader({ label, currentImage, onUpload, previewHe
           </div>
         )}
       </div>
+      {error && <p style={{ margin: '6px 0 0', color: '#dc2626', fontSize: 12 }}>{error}</p>}
     </div>
   );
 }

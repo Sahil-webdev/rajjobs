@@ -187,6 +187,7 @@ export default function EditCoursePage() {
               editorData={formData.description}
               setEditorData={(val: string) => setFormData({ ...formData, description: val })}
               handleOnUpdate={(val: string) => setFormData({ ...formData, description: val })}
+              uploadFolder="course-content"
             />
           </div>
 
@@ -225,6 +226,7 @@ export default function EditCoursePage() {
           <ImageUploader
             currentImage={formData.thumbnailUrl}
             onUpload={(url: string) => setFormData({ ...formData, thumbnailUrl: url })}
+            folder="course-thumbnails"
             label="Course Thumbnail (Recommended: 1050x600px)"
           />
         </div>
