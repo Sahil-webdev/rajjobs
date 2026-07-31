@@ -1,9 +1,13 @@
 import React from "react";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 
-// Server-side fetch function
-async function getExamData(slug: string) {
+const SITE_URL = "https://www.rajjobs.com";
+const DEFAULT_OG_IMAGE = `${SITE_URL}/logo3.png`;
+
+// Cached per server render, so metadata and page HTML use one consistent record.
+const getExamData = cache(async (slug: string) => {
   try {
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/public/exam-details/${slug}`;
     
@@ -25,7 +29,7 @@ async function getExamData(slug: string) {
     console.error('Error fetching exam data:', error);
     return null;
   }
-}
+});
 
 // Server-side fetch function for related posts
 async function getRelatedExams(slug: string) {
@@ -52,6 +56,33 @@ async function getRelatedExams(slug: string) {
   }
 }
 
+function absoluteUrl(value?: string) {
+  if (!value) return undefined;
+  try {
+    return new URL(value, SITE_URL).toString();
+  } catch {
+    return undefined;
+  }
+}
+
+function getArticleImage(examData: any): string {
+  if (examData.posterImage) {
+    const posterImage = absoluteUrl(examData.posterImage);
+    if (posterImage) return posterImage;
+  }
+  const imageMatch = typeof examData.formattedNote === "string"
+    ? examData.formattedNote.match(/<img[^>]+src=["']([^"']+)["']/i)
+    : null;
+  return absoluteUrl(imageMatch?.[1]) || DEFAULT_OG_IMAGE;
+}
+
+function articleDescription(examData: any) {
+  return (examData.seoData?.seoDescription || examData.metaDescription || examData.title || "RajJobs exam details")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 160);
+}
+
 // Generate dynamic metadata for SEO
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const unwrappedParams = await params;
@@ -63,6 +94,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description: 'The requested exam details could not be found.',
     };
   }
+
+  const description = articleDescription(examData);
+  const canonicalUrl = `${SITE_URL}/exams/${unwrappedParams.slug}`;
+  const image = getArticleImage(examData);
 
   // Extract keywords from tags and content
   const keywords = [
@@ -77,14 +112,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   return {
     title: examData.title,
-    // seoDescription = separate 160-char Google-only meta desc; fallback to first 160 chars of page description
-    description: examData.seoData?.seoDescription || examData.metaDescription?.slice(0, 160),
+    description,
     keywords: keywords,
     authors: [{ name: examData.postedBy || 'RajJobs Admin' }],
     openGraph: {
       title: examData.title,
-      description: examData.seoData?.seoDescription || examData.metaDescription?.slice(0, 160),
-      images: [],
+      url: canonicalUrl,
+      siteName: 'RajJobs',
+      description,
+      images: [{ url: image, width: 1200, height: 630, alt: examData.title }],
       type: 'article',
       publishedTime: examData.createdAt,
       modifiedTime: examData.lastUpdated,
@@ -93,11 +129,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     twitter: {
       card: 'summary_large_image',
       title: examData.title,
-      description: examData.seoData?.seoDescription || examData.metaDescription?.slice(0, 160),
-      images: [],
+      description,
+      images: [image],
     },
     alternates: {
-      canonical: `https://www.rajjobs.com/exams/${unwrappedParams.slug}`,
+      canonical: canonicalUrl,
     },
     robots: {
       index: examData.status === 'published',
@@ -122,29 +158,21 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
   // Fetch related exams
   const relatedExams = await getRelatedExams(unwrappedParams.slug);
 
-  // Debug: Log formattedNote data on website
-  console.log('========================================');
-  console.log('🌐 WEBSITE - Exam Data Loaded');
-  console.log('========================================');
-  console.log('📄 Exam Title:', examData.title);
-  console.log('� Exam Slug:', examData.slug);
-  console.log('📝 formattedNote present:', examData.formattedNote ? 'YES' : 'NO');
-  console.log('📝 formattedNote type:', typeof examData.formattedNote);
-  console.log('📝 formattedNote length:', examData.formattedNote?.length || 0);
-  console.log('📝 formattedNote isString:', typeof examData.formattedNote === 'string');
-  console.log('📝 formattedNote value:', examData.formattedNote);
-  console.log('📝 formattedNote preview:', examData.formattedNote?.substring(0, 300) || 'Empty');
-  console.log('🔍 All exam data keys:', Object.keys(examData));
-  console.log('========================================');
+  const canonicalUrl = `${SITE_URL}/exams/${unwrappedParams.slug}`;
+  const description = articleDescription(examData);
+  const image = getArticleImage(examData);
+  const publishedDate = examData.createdAt || examData.updatedAt || new Date().toISOString();
+  const modifiedDate = examData.lastUpdated || examData.updatedAt || publishedDate;
 
-  // Generate JSON-LD structured data for Google
+  // JSON-LD is emitted into the initial server HTML for article crawlers.
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": examData.title,
-    "description": examData.metaDescription,
-    "datePublished": examData.createdAt,
-    "dateModified": examData.lastUpdated,
+    "description": description,
+    "image": [image],
+    "datePublished": publishedDate,
+    "dateModified": modifiedDate,
     "author": {
       "@type": "Person",
       "name": examData.postedBy || "RajJobs Admin"
@@ -154,55 +182,71 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
       "name": "RajJobs",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://www.rajjobs.com/logo.png"
+        "url": `${SITE_URL}/logo3.png`
       }
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://www.rajjobs.com/exams/${unwrappedParams.slug}`
+      "@id": canonicalUrl
     },
     "keywords": examData.tags?.join(', '),
     "articleSection": examData.category,
+    "inLanguage": "en-IN",
+    "isAccessibleForFree": true,
+  };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": SITE_URL },
+      { "@type": "ListItem", "position": 2, "name": "Exams", "item": `${SITE_URL}/exams` },
+      { "@type": "ListItem", "position": 3, "name": examData.title, "item": canonicalUrl },
+    ],
   };
   return (
     <>
       {/* JSON-LD Structured Data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
 
       <div className="min-h-screen bg-slate-50">
         <div className="mx-auto max-w-2xl px-4 py-6">
           
+          <article itemScope itemType="https://schema.org/Article">
           {/* Title & Meta */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-5">
+          <header className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-5">
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <span className="px-2.5 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
                 {examData.category}
               </span>
-              <span className="text-xs text-slate-500">
-                Updated: {new Date(examData.lastUpdated).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
-              </span>
+              <time className="text-xs text-slate-500" dateTime={modifiedDate} itemProp="dateModified">
+                Updated: {new Date(modifiedDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </time>
               <span className="text-xs text-slate-500">•</span>
               <span className="text-xs text-slate-600">
                 Posted by: <span className="font-semibold text-slate-900">{examData.postedBy || "Admin"}</span>
               </span>
             </div>
-            <h1 className="text-xl md:text-2xl font-bold text-slate-900 mb-3">
+            <h1 className="text-xl md:text-2xl font-bold text-slate-900 mb-3" itemProp="headline">
               {examData.title}
             </h1>
-            <p className="text-slate-700 text-sm leading-relaxed">{examData.metaDescription}</p>
-          </div>
+            <p className="text-slate-700 text-sm leading-relaxed" itemProp="description">{description}</p>
+          </header>
 
           {/* Main Content - formatted note displayed as primary content */}
           {examData.formattedNote && examData.formattedNote.trim().length > 0 && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-5">
+            <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-5" aria-label="Exam details" itemProp="articleBody">
               <div 
                 className="exam-content"
                 dangerouslySetInnerHTML={{ __html: examData.formattedNote }}
               />
-            </div>
+            </section>
           )}
 
           {/* Quick Highlights */}
@@ -608,6 +652,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
 
           
 
+          </article>
         </div>
       </div>
     </>

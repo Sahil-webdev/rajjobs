@@ -29,6 +29,7 @@ const publicTestSeries = require('./routes/public/test-series');
 const publicEnquiry = require('./routes/public/enquiry');
 const publicNotifications = require('./routes/public/notifications');
 const publicPdfProxy = require('./routes/public/pdf-proxy');
+const publicExamPage = require('./routes/public/exam-page');
 
 const PORT = process.env.PORT;
 
@@ -49,6 +50,16 @@ const originCandidates = [
   .filter(Boolean);
 
 const allowedOrigins = Array.from(new Set(originCandidates));
+const isDevelopment = process.env.NODE_ENV !== 'production';
+const isLocalDevelopmentOrigin = (origin) => {
+  try {
+    const url = new URL(origin);
+    return (url.hostname === 'localhost' || url.hostname === '127.0.0.1')
+      && (url.protocol === 'http:' || url.protocol === 'https:');
+  } catch {
+    return false;
+  }
+};
 const path = require('path');
 
 app.use(express.json({ limit: '50mb' }));
@@ -59,6 +70,9 @@ app.use(
     origin: (origin, callback) => {
       if (!origin) return callback(null, true); // allow mobile apps / curl
       if (allowedOrigins.includes(origin)) return callback(null, true);
+      // Next selects a free port automatically during local development
+      // (for example 3003 when 3000–3002 are busy).
+      if (isDevelopment && isLocalDevelopmentOrigin(origin)) return callback(null, true);
       return callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
@@ -73,6 +87,9 @@ app.use('/uploads', (req, res, next) => {
   res.setHeader('Content-Disposition', 'inline'); // open in browser, not force-download
   next();
 }, express.static(path.join(__dirname, '../uploads')));
+
+// Stylesheet for the plain server-rendered public exam pages.
+app.use('/_render', express.static(path.join(__dirname, '../public')));
 
 app.use('/api/auth', authRoutes);
 
@@ -103,6 +120,7 @@ app.use('/api/public/notifications', publicNotifications);
 // PDF proxy — fetches any PDF URL and serves it with Content-Type:application/pdf
 // so the browser opens it natively instead of downloading
 app.use('/api/public/pdf-proxy', publicPdfProxy);
+app.use('/_render', publicExamPage);
 
 // Example protected admin route
 app.get('/api/admin/dashboard', verifyAccessToken, requireAdmin, (req, res) => {
