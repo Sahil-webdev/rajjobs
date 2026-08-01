@@ -32,7 +32,6 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
     status: "published" as "draft" | "published", // Changed default to published
     postedBy: "J. Kaushik",
     seoData: {
-      focusKeyword: "",
       seoDescription: "",
       metaKeywords: [] as string[],
     }
@@ -44,13 +43,14 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
   const [showPreview, setShowPreview] = useState(false);
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
 
-  // Auto-generate slug from title
+  // Generate the initial slug from the title. Once an admin customises the
+  // slug, preserve that custom URL while the title continues to be edited.
   useEffect(() => {
-    if (formData.title && !isSlugManuallyEdited) {
+    if (formData.title && !isEdit && !isSlugManuallyEdited) {
       const slug = slugify(formData.title);
       setFormData(prev => ({ ...prev, slug }));
     }
-  }, [formData.title, isSlugManuallyEdited]);
+  }, [formData.title, isEdit, isSlugManuallyEdited]);
 
   // Load exam data for editing
   useEffect(() => {
@@ -77,9 +77,13 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
           formattedNote: data.data.formattedNote || "",
           status: data.data.status || "draft",
           postedBy: data.data.postedBy || "J. Kaushik",
-          seoData: data.data.seoData || prev.seoData
+          seoData: {
+            seoDescription: data.data.seoData?.seoDescription || "",
+            metaKeywords: Array.isArray(data.data.seoData?.metaKeywords)
+              ? data.data.seoData.metaKeywords
+              : [],
+          }
         }));
-        setIsSlugManuallyEdited(true);
       } else {
         setError(data.message || "Failed to load exam details");
       }
@@ -221,7 +225,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
                 setIsSlugManuallyEdited(true);
                 setFormData(prev => ({ ...prev, slug: slugify(e.target.value) }));
               }}
-              placeholder="ssc-cgl-2024-notification"
+              placeholder="Slug will be generated from the title"
               style={{
                 width: '100%',
                 padding: '10px 14px',
@@ -307,6 +311,19 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
 
         </div>
 
+        {/* SEO Tool */}
+        <div style={{ background: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
+          <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '20px', color: '#3b82f6' }}>
+            🎯 SEO Tool
+          </h3>
+          <SEOEditor
+            seoData={formData.seoData}
+            examTitle={formData.title}
+            slug={formData.slug}
+            onChange={(seoData) => setFormData({ ...formData, seoData })}
+          />
+        </div>
+
         {/* Main Content Editor */}
         <div style={{ background: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
           <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '20px', color: '#3b82f6' }}>
@@ -322,19 +339,6 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
               setFormData(prev => ({ ...prev, formattedNote: html }));
             }}
             uploadFolder="exam-details"
-          />
-        </div>
-
-        {/* SEO Tool */}
-        <div style={{ background: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
-          <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '20px', color: '#8b5cf6' }}>
-            🎯 SEO Tool
-          </h3>
-          <SEOEditor
-            seoData={formData.seoData}
-            examTitle={formData.title}
-            slug={formData.slug}
-            onChange={(seoData) => setFormData({ ...formData, seoData })}
           />
         </div>
 

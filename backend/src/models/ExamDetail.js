@@ -47,7 +47,6 @@ const examDetailSchema = new mongoose.Schema({
   
   // SEO
   seoData: {
-    focusKeyword: { type: String, default: '' },
     seoDescription: { type: String, default: '' },
     metaKeywords: { type: [String], default: [] },
   }

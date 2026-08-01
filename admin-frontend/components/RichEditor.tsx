@@ -41,6 +41,8 @@ const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate
   const latestDataRef = useRef(editorData || "");
   const hasInitialisedRef = useRef(false);
   const formRef = useRef<HTMLFormElement | null>(null);
+  const pdfSelectionBookmarksRef = useRef<any>(null);
+  const pdfSelectedTextRef = useRef("");
   const [toolbarHidden, setToolbarHidden] = useState(false);
   const [status, setStatus] = useState("Loading CKEditor Full build...");
   const [error, setError] = useState("");
@@ -258,6 +260,86 @@ const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate
     }
   };
 
+  const preparePdfUpload = (event: React.MouseEvent<HTMLLabelElement>) => {
+    const editor = editorRef.current;
+    if (!editor || editor.status !== "ready") {
+      event.preventDefault();
+      setError("Editor is not ready yet. Please wait a moment and try again.");
+      return;
+    }
+
+    editor.focus();
+    const selection = editor.getSelection();
+    const selectedText = selection?.getSelectedText()?.trim() || "";
+    if (!selectedText) {
+      event.preventDefault();
+      window.alert("पहले editor में उस word या text को select करें जिस पर PDF link लगाना है.");
+      return;
+    }
+
+    // The file picker temporarily moves focus out of CKEditor. Bookmarks keep
+    // the exact selected text available until the R2 upload completes.
+    pdfSelectionBookmarksRef.current = selection.createBookmarks2(true);
+    pdfSelectedTextRef.current = selectedText;
+    setError("");
+  };
+
+  const insertPdfLink = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const input = event.target;
+    const file = input.files?.[0];
+    input.value = "";
+    if (!file) return;
+
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      window.alert("सिर्फ PDF file चुनें.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      window.alert("PDF file 10 MB से छोटी होनी चाहिए.");
+      return;
+    }
+
+    setStatus("Uploading PDF to media storage…");
+    setError("");
+    try {
+      const body = new FormData();
+      body.append("pdf", file);
+      const response = await api.post("/api/admin/file/upload-pdf", body);
+      const source = response.data?.data?.url;
+      const editor = editorRef.current;
+      const CKEDITOR = window.CKEDITOR;
+      const bookmarks = pdfSelectionBookmarksRef.current;
+      const selectedText = pdfSelectedTextRef.current || file.name;
+
+      if (!editor || !CKEDITOR || typeof source !== "string") {
+        throw new Error("PDF upload completed but the editor is no longer available.");
+      }
+
+      editor.focus();
+      if (bookmarks) editor.getSelection().selectBookmarks(bookmarks);
+
+      const link = new CKEDITOR.dom.element("a");
+      link.setAttribute("href", source);
+      link.setAttribute("target", "_blank");
+      link.setAttribute("rel", "noopener noreferrer");
+      link.setAttribute("title", `Open PDF: ${file.name}`);
+      link.setStyle("color", "#2563eb");
+      link.setStyle("font-weight", "600");
+      link.setStyle("text-decoration", "underline");
+      link.setText(selectedText);
+      editor.insertElement(link);
+
+      pdfSelectionBookmarksRef.current = null;
+      pdfSelectedTextRef.current = "";
+      syncEditorData(editor);
+      setStatus("PDF uploaded to Cloudflare R2 and linked to the selected text.");
+    } catch (uploadError: any) {
+      const message = uploadError?.response?.data?.message || uploadError?.message || "PDF upload failed.";
+      setError(message);
+      setStatus("PDF upload failed.");
+    }
+  };
+
   return (
     <div id="editorContainer" className={toolbarHidden ? "hide-toolbar" : ""}>
       <div style={editorHeaderStyle}>
@@ -273,6 +355,10 @@ const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate
             Insert Image
           </label>
           <input type="file" id="ckCustomImage" accept="image/*" hidden onChange={insertCustomImage} />
+          <label id="customPdfBtn" htmlFor="ckCustomPdf" onClick={preparePdfUpload} style={actionButtonStyle}>
+            Attach PDF to Selected Text
+          </label>
+          <input type="file" id="ckCustomPdf" accept="application/pdf,.pdf" hidden onChange={insertPdfLink} />
         </div>
       </div>
 
