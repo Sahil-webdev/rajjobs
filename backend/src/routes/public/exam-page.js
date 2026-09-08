@@ -46,6 +46,65 @@ function formatDate(value) {
   }).format(date);
 }
 
+function formatNumber(value) {
+  return new Intl.NumberFormat('en-IN').format(Number(value));
+}
+
+function isJobPosting(exam) {
+  const job = exam.jobDetails;
+  return Boolean(
+    job?.isJobPosting
+    && String(job.organizationName || '').trim()
+    && job.lastDateToApply
+    && Number(job.totalPosts) > 0
+  );
+}
+
+function jobPostingSchema(exam, canonicalUrl, description) {
+  const job = exam.jobDetails;
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'JobPosting',
+    title: exam.title,
+    description,
+    datePosted: (exam.createdAt || exam.updatedAt).toISOString(),
+    validThrough: new Date(job.lastDateToApply).toISOString(),
+    employmentType: job.employmentType || 'FULL_TIME',
+    hiringOrganization: {
+      '@type': 'Organization',
+      name: job.organizationName,
+    },
+    jobLocation: {
+      '@type': 'Place',
+      address: {
+        '@type': 'PostalAddress',
+        addressCountry: 'IN',
+      },
+    },
+    identifier: {
+      '@type': 'PropertyValue',
+      name: 'RajJobs',
+      value: exam._id.toString(),
+    },
+    url: canonicalUrl,
+    totalJobOpenings: Number(job.totalPosts),
+  };
+
+  if (job.minSalary != null || job.maxSalary != null) {
+    schema.baseSalary = {
+      '@type': 'MonetaryAmount',
+      currency: 'INR',
+      value: {
+        '@type': 'QuantitativeValue',
+        minValue: job.minSalary ?? job.maxSalary,
+        maxValue: job.maxSalary ?? job.minSalary,
+        unitText: 'MONTH',
+      },
+    };
+  }
+  return schema;
+}
+
 function jsonForScript(value) {
   return JSON.stringify(value, null, 2).replace(/</g, '\\u003c');
 }
@@ -95,6 +154,20 @@ function pageTemplate(exam, relatedExams) {
       { '@type': 'ListItem', position: 3, name: exam.title, item: canonicalUrl },
     ],
   };
+  const jobSchema = isJobPosting(exam)
+    ? jobPostingSchema(exam, canonicalUrl, description)
+    : null;
+  const jobHighlightsHtml = jobSchema ? `
+          <section class="job-highlights" aria-label="Job highlights">
+            <h2>Job Highlights</h2>
+            <dl>
+              <div><dt>Organization</dt><dd>${escapeHtml(exam.jobDetails.organizationName)}</dd></div>
+              <div><dt>Total Posts</dt><dd>${formatNumber(exam.jobDetails.totalPosts)}</dd></div>
+              <div><dt>Last Date to Apply</dt><dd>${formatDate(exam.jobDetails.lastDateToApply)}</dd></div>
+              <div><dt>Employment Type</dt><dd>${escapeHtml((exam.jobDetails.employmentType || 'FULL_TIME').replace(/_/g, ' '))}</dd></div>
+              ${exam.jobDetails.minSalary != null || exam.jobDetails.maxSalary != null ? `<div><dt>Salary</dt><dd>₹${formatNumber(exam.jobDetails.minSalary ?? exam.jobDetails.maxSalary)}${exam.jobDetails.maxSalary != null && exam.jobDetails.maxSalary !== exam.jobDetails.minSalary ? ` – ₹${formatNumber(exam.jobDetails.maxSalary)}` : ''} / month</dd></div>` : ''}
+            </dl>
+          </section>` : '';
   const relatedHtml = relatedExams.length
     ? relatedExams.map((item) => `
           <li>
@@ -147,6 +220,7 @@ function pageTemplate(exam, relatedExams) {
   </script>
   <script type="application/ld+json">${jsonForScript(articleSchema)}</script>
   <script type="application/ld+json">${jsonForScript(breadcrumbSchema)}</script>
+  ${jobSchema ? `<script type="application/ld+json">${jsonForScript(jobSchema)}</script>` : ''}
 </head>
 <body>
   <header class="site-header">
@@ -181,6 +255,7 @@ function pageTemplate(exam, relatedExams) {
         <section class="article-content" itemprop="articleBody">
           ${articleBody}
         </section>
+        ${jobHighlightsHtml}
       </article>
 
       <aside class="sidebar" aria-label="Related exams">

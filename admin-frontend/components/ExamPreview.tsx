@@ -11,6 +11,15 @@ interface ExamPreviewProps {
     formattedNote: string;
     status: string;
     postedBy: string;
+    jobDetails?: {
+      isJobPosting?: boolean;
+      organizationName?: string;
+      lastDateToApply?: string;
+      totalPosts?: string | number;
+      minSalary?: string | number;
+      maxSalary?: string | number;
+      employmentType?: string;
+    };
     seoData?: {
       seoDescription?: string;
     };
@@ -47,6 +56,13 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
   // Provide default values for optional properties to avoid TypeScript errors
   const enabledSections = formData.enabledSections || {};
   const seoData = formData.seoData || {};
+  const jobDetails = formData.jobDetails;
+  const showJobHighlights = Boolean(
+    jobDetails?.isJobPosting
+    && jobDetails.organizationName
+    && jobDetails.lastDateToApply
+    && Number(jobDetails.totalPosts) > 0
+  );
   
   const currentDate = new Date().toLocaleDateString('en-IN', { 
     day: 'numeric', 
@@ -105,6 +121,41 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
                 {seoData.seoDescription || formData.metaDescription || "No description provided"}
               </p>
             </div>
+
+            {showJobHighlights && (
+              <section className="bg-white rounded-xl border border-blue-200 shadow-sm overflow-hidden">
+                <div className="px-5 py-3 bg-blue-50 border-b border-blue-100">
+                  <h2 className="text-base font-bold text-blue-950">Job Highlights</h2>
+                </div>
+                <dl className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-slate-200">
+                  <div className="p-4">
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Organization</dt>
+                    <dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails!.organizationName}</dd>
+                  </div>
+                  <div className="p-4">
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Posts</dt>
+                    <dd className="mt-1 text-sm font-semibold text-slate-900">{Number(jobDetails!.totalPosts).toLocaleString('en-IN')}</dd>
+                  </div>
+                  <div className="p-4 border-t border-slate-200">
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Last Date to Apply</dt>
+                    <dd className="mt-1 text-sm font-semibold text-slate-900">{new Date(jobDetails!.lastDateToApply!).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd>
+                  </div>
+                  <div className="p-4 border-t border-slate-200">
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Employment Type</dt>
+                    <dd className="mt-1 text-sm font-semibold text-slate-900">{(jobDetails!.employmentType || 'FULL_TIME').replace(/_/g, ' ')}</dd>
+                  </div>
+                  {(jobDetails!.minSalary != null && jobDetails!.minSalary !== '' || jobDetails!.maxSalary != null && jobDetails!.maxSalary !== '') && (
+                    <div className="p-4 border-t border-slate-200 sm:col-span-2">
+                      <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Monthly Salary</dt>
+                      <dd className="mt-1 text-sm font-semibold text-slate-900">
+                        ₹{Number(jobDetails!.minSalary || jobDetails!.maxSalary).toLocaleString('en-IN')}
+                        {jobDetails!.maxSalary != null && jobDetails!.maxSalary !== '' && jobDetails!.maxSalary !== jobDetails!.minSalary ? ` – ₹${Number(jobDetails!.maxSalary).toLocaleString('en-IN')}` : ''}
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+              </section>
+            )}
 
             {/* Main Content - Formatted Note */}
             {formData.formattedNote && formData.formattedNote.trim().length > 0 && (

@@ -27,7 +27,7 @@ const examDetailSchema = new mongoose.Schema({
     type: String,
     default: '' // Optional field - not required
   },
-  
+
   // Main Content
   formattedNote: {
     type: String,
@@ -44,7 +44,23 @@ const examDetailSchema = new mongoose.Schema({
     type: String,
     default: 'Admin'
   },
-  
+
+  // Kept separate from the editor HTML so genuine vacancy pages can generate
+  // accurate JobPosting structured data and a public job highlights card.
+  jobDetails: {
+    isJobPosting: { type: Boolean, default: false },
+    organizationName: { type: String, trim: true, default: '' },
+    lastDateToApply: { type: Date, default: null },
+    totalPosts: { type: Number, min: 1, default: null },
+    minSalary: { type: Number, min: 0, default: null },
+    maxSalary: { type: Number, min: 0, default: null },
+    employmentType: {
+      type: String,
+      enum: ['FULL_TIME', 'PART_TIME', 'CONTRACTOR', 'TEMPORARY', 'INTERN'],
+      default: 'FULL_TIME'
+    }
+  },
+
   // SEO
   seoData: {
     seoDescription: { type: String, default: '' },

@@ -31,6 +31,15 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
     formattedNote: "", // Main content
     status: "published" as "draft" | "published", // Changed default to published
     postedBy: "J. Kaushik",
+    jobDetails: {
+      isJobPosting: false,
+      organizationName: "",
+      lastDateToApply: "",
+      totalPosts: "",
+      minSalary: "",
+      maxSalary: "",
+      employmentType: "FULL_TIME",
+    },
     seoData: {
       seoDescription: "",
       metaKeywords: [] as string[],
@@ -77,6 +86,17 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
           formattedNote: data.data.formattedNote || "",
           status: data.data.status || "draft",
           postedBy: data.data.postedBy || "J. Kaushik",
+          jobDetails: {
+            isJobPosting: Boolean(data.data.jobDetails?.isJobPosting),
+            organizationName: data.data.jobDetails?.organizationName || "",
+            lastDateToApply: data.data.jobDetails?.lastDateToApply
+              ? new Date(data.data.jobDetails.lastDateToApply).toISOString().slice(0, 10)
+              : "",
+            totalPosts: data.data.jobDetails?.totalPosts != null ? String(data.data.jobDetails.totalPosts) : "",
+            minSalary: data.data.jobDetails?.minSalary != null ? String(data.data.jobDetails.minSalary) : "",
+            maxSalary: data.data.jobDetails?.maxSalary != null ? String(data.data.jobDetails.maxSalary) : "",
+            employmentType: data.data.jobDetails?.employmentType || "FULL_TIME",
+          },
           seoData: {
             seoDescription: data.data.seoData?.seoDescription || "",
             metaKeywords: Array.isArray(data.data.seoData?.metaKeywords)
@@ -308,6 +328,61 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
             </div>
           </div>
 
+          <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '700', color: '#1e40af', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={formData.jobDetails.isJobPosting}
+                onChange={(e) => setFormData(prev => ({
+                  ...prev,
+                  jobDetails: { ...prev.jobDetails, isJobPosting: e.target.checked },
+                }))}
+                style={{ width: '18px', height: '18px' }}
+              />
+              This is a real job vacancy (enable Google for Jobs schema)
+            </label>
+            <p style={{ margin: '8px 0 0 28px', fontSize: '13px', color: '#6b7280' }}>
+              Select only for actual recruitment/vacancy notifications—not syllabus, result, admit card, or exam updates.
+            </p>
+
+            {formData.jobDetails.isJobPosting && (
+              <div style={{ marginTop: '18px', padding: '18px', borderRadius: '10px', background: '#eff6ff', border: '1px solid #bfdbfe' }}>
+                <h4 style={{ margin: '0 0 16px', color: '#1e3a8a', fontSize: '16px' }}>Job Details for Google for Jobs</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '16px' }}>
+                  <label style={{ fontWeight: '600', fontSize: '14px', color: '#374151' }}>
+                    Organization Name *
+                    <input required type="text" value={formData.jobDetails.organizationName} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, organizationName: e.target.value } }))} placeholder="e.g., Railway Recruitment Board" style={{ ...inputStyle, marginTop: '8px' }} />
+                  </label>
+                  <label style={{ fontWeight: '600', fontSize: '14px', color: '#374151' }}>
+                    Last Date to Apply *
+                    <input required type="date" value={formData.jobDetails.lastDateToApply} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, lastDateToApply: e.target.value } }))} style={{ ...inputStyle, marginTop: '8px' }} />
+                  </label>
+                  <label style={{ fontWeight: '600', fontSize: '14px', color: '#374151' }}>
+                    Total Posts *
+                    <input required type="number" min="1" step="1" value={formData.jobDetails.totalPosts} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, totalPosts: e.target.value } }))} placeholder="e.g., 22195" style={{ ...inputStyle, marginTop: '8px' }} />
+                  </label>
+                  <label style={{ fontWeight: '600', fontSize: '14px', color: '#374151' }}>
+                    Employment Type
+                    <select value={formData.jobDetails.employmentType} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, employmentType: e.target.value } }))} style={{ ...inputStyle, marginTop: '8px' }}>
+                      <option value="FULL_TIME">Full Time</option>
+                      <option value="PART_TIME">Part Time</option>
+                      <option value="CONTRACTOR">Contract</option>
+                      <option value="TEMPORARY">Temporary</option>
+                      <option value="INTERN">Internship</option>
+                    </select>
+                  </label>
+                  <label style={{ fontWeight: '600', fontSize: '14px', color: '#374151' }}>
+                    Minimum Salary (optional, ₹)
+                    <input type="number" min="0" value={formData.jobDetails.minSalary} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, minSalary: e.target.value } }))} placeholder="e.g., 18000" style={{ ...inputStyle, marginTop: '8px' }} />
+                  </label>
+                  <label style={{ fontWeight: '600', fontSize: '14px', color: '#374151' }}>
+                    Maximum Salary (optional, ₹)
+                    <input type="number" min="0" value={formData.jobDetails.maxSalary} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, maxSalary: e.target.value } }))} placeholder="e.g., 56900" style={{ ...inputStyle, marginTop: '8px' }} />
+                  </label>
+                </div>
+              </div>
+            )}
+          </div>
 
         </div>
 
@@ -414,4 +489,15 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
     </div>
   );
 }
+
+const inputStyle: React.CSSProperties = {
+  display: 'block',
+  width: '100%',
+  padding: '10px 14px',
+  border: '1px solid #d1d5db',
+  borderRadius: '6px',
+  fontSize: '14px',
+  outline: 'none',
+  background: '#fff',
+};
 

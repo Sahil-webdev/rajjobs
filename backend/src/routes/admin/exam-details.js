@@ -3,6 +3,23 @@ const router = express.Router();
 const ExamDetail = require('../../models/ExamDetail');
 const asyncHandler = require('../../utils/asyncHandler');
 
+function validateJobDetails(jobDetails = {}) {
+  if (!jobDetails.isJobPosting) return null;
+  if (!String(jobDetails.organizationName || '').trim()) return 'Organization Name is required for a job vacancy.';
+  if (!jobDetails.lastDateToApply || Number.isNaN(new Date(jobDetails.lastDateToApply).getTime())) {
+    return 'Last Date to Apply is required for a job vacancy.';
+  }
+  if (!Number.isInteger(Number(jobDetails.totalPosts)) || Number(jobDetails.totalPosts) < 1) {
+    return 'Total Posts must be at least 1 for a job vacancy.';
+  }
+  if (jobDetails.minSalary !== '' && jobDetails.maxSalary !== ''
+    && jobDetails.minSalary != null && jobDetails.maxSalary != null
+    && Number(jobDetails.minSalary) > Number(jobDetails.maxSalary)) {
+    return 'Minimum Salary cannot be greater than Maximum Salary.';
+  }
+  return null;
+}
+
 // @route   GET /api/admin/exam-details
 // @desc    Get all exam details (with filters)
 // @access  Private/Admin
@@ -63,8 +80,12 @@ router.post('/', asyncHandler(async (req, res) => {
     formattedNote,
     status,
     postedBy,
-    seoData
+    seoData,
+    jobDetails
   } = req.body;
+
+  const jobDetailsError = validateJobDetails(jobDetails);
+  if (jobDetailsError) return res.status(400).json({ success: false, message: jobDetailsError });
 
   const examDetail = await ExamDetail.create({
     title,
@@ -74,7 +95,8 @@ router.post('/', asyncHandler(async (req, res) => {
     formattedNote,
     status,
     postedBy,
-    seoData
+    seoData,
+    jobDetails
   });
 
   res.status(201).json({
@@ -97,8 +119,12 @@ router.put('/:id', asyncHandler(async (req, res) => {
     formattedNote,
     status,
     postedBy,
-    seoData
+    seoData,
+    jobDetails
   } = req.body;
+
+  const jobDetailsError = validateJobDetails(jobDetails);
+  if (jobDetailsError) return res.status(400).json({ success: false, message: jobDetailsError });
 
   const examDetail = await ExamDetail.findByIdAndUpdate(
     req.params.id,
@@ -110,7 +136,8 @@ router.put('/:id', asyncHandler(async (req, res) => {
       formattedNote,
       status,
       postedBy,
-      seoData
+      seoData,
+      jobDetails
     },
     { 
       new: true,

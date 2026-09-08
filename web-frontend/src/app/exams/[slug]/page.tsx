@@ -2,6 +2,7 @@ import React from "react";
 import { cache } from "react";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import SchemaMarkup from "@/components/SchemaMarkup";
 
 const SITE_URL = "https://www.rajjobs.com";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/logo3.png`;
@@ -203,17 +204,45 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
       { "@type": "ListItem", "position": 3, "name": examData.title, "item": canonicalUrl },
     ],
   };
+  const jobDetails = examData.jobDetails;
+  const isJobPosting = Boolean(
+    jobDetails?.isJobPosting
+    && jobDetails.organizationName?.trim()
+    && jobDetails.lastDateToApply
+    && Number(jobDetails.totalPosts) > 0
+  );
+  const jobPostingJsonLd = isJobPosting ? {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: examData.title,
+    description,
+    datePosted: publishedDate,
+    validThrough: new Date(jobDetails.lastDateToApply).toISOString(),
+    employmentType: jobDetails.employmentType || "FULL_TIME",
+    hiringOrganization: { "@type": "Organization", name: jobDetails.organizationName },
+    jobLocation: {
+      "@type": "Place",
+      address: { "@type": "PostalAddress", addressCountry: "IN" },
+    },
+    identifier: { "@type": "PropertyValue", name: "RajJobs", value: String(examData._id) },
+    url: canonicalUrl,
+    totalJobOpenings: Number(jobDetails.totalPosts),
+    ...(jobDetails.minSalary != null || jobDetails.maxSalary != null ? {
+      baseSalary: {
+        "@type": "MonetaryAmount",
+        currency: "INR",
+        value: {
+          "@type": "QuantitativeValue",
+          minValue: jobDetails.minSalary ?? jobDetails.maxSalary,
+          maxValue: jobDetails.maxSalary ?? jobDetails.minSalary,
+          unitText: "MONTH",
+        },
+      },
+    } : {}),
+  } : null;
   return (
     <>
-      {/* JSON-LD Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
-      />
+      <SchemaMarkup schemas={[jsonLd, breadcrumbJsonLd, ...(jobPostingJsonLd ? [jobPostingJsonLd] : [])]} />
 
       <div className="min-h-screen bg-slate-50">
         <div className="mx-auto max-w-2xl px-4 py-6">
@@ -238,6 +267,19 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
             </h1>
             <p className="text-slate-700 text-sm leading-relaxed" itemProp="description">{description}</p>
           </header>
+
+          {isJobPosting && (
+            <section className="bg-blue-50 rounded-xl border border-blue-200 overflow-hidden mb-5" aria-label="Job highlights">
+              <h2 className="px-5 py-3 bg-blue-100 border-b border-blue-200 text-base font-bold text-blue-950">Job Highlights</h2>
+              <dl className="grid grid-cols-1 sm:grid-cols-2">
+                <div className="px-5 py-3 border-b sm:border-r border-blue-200"><dt className="text-xs font-bold text-slate-600">Organization</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails.organizationName}</dd></div>
+                <div className="px-5 py-3 border-b border-blue-200"><dt className="text-xs font-bold text-slate-600">Total Posts</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{new Intl.NumberFormat('en-IN').format(Number(jobDetails.totalPosts))}</dd></div>
+                <div className="px-5 py-3 border-b sm:border-r border-blue-200"><dt className="text-xs font-bold text-slate-600">Last Date to Apply</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{new Date(jobDetails.lastDateToApply).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd></div>
+                <div className="px-5 py-3 border-b border-blue-200"><dt className="text-xs font-bold text-slate-600">Employment Type</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{(jobDetails.employmentType || 'FULL_TIME').replace(/_/g, ' ')}</dd></div>
+                {(jobDetails.minSalary != null || jobDetails.maxSalary != null) && <div className="px-5 py-3 sm:col-span-2"><dt className="text-xs font-bold text-slate-600">Salary</dt><dd className="mt-1 text-sm font-semibold text-slate-900">₹{new Intl.NumberFormat('en-IN').format(Number(jobDetails.minSalary ?? jobDetails.maxSalary))}{jobDetails.maxSalary != null && jobDetails.maxSalary !== jobDetails.minSalary ? ` – ₹${new Intl.NumberFormat('en-IN').format(Number(jobDetails.maxSalary))}` : ''} / month</dd></div>}
+              </dl>
+            </section>
+          )}
 
           {/* Main Content - formatted note displayed as primary content */}
           {examData.formattedNote && examData.formattedNote.trim().length > 0 && (

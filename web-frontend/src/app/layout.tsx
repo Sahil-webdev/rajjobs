@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import Footer from "@/components/footer";
+import SchemaMarkup from "@/components/SchemaMarkup";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,6 +15,22 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+const siteSchemas = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "RajJobs",
+    url: "https://www.rajjobs.com",
+    logo: "https://www.rajjobs.com/logo3.png",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "RajJobs",
+    url: "https://www.rajjobs.com",
+  },
+];
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.rajjobs.com"),
@@ -41,6 +58,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <SchemaMarkup schemas={siteSchemas} />
         <Navbar />
         <main className="bg-white min-h-screen">{children}</main>
         <Footer />
