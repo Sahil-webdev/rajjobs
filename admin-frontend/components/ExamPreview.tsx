@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 interface ExamPreviewProps {
   formData: {
@@ -20,6 +20,7 @@ interface ExamPreviewProps {
       maxSalary?: string | number;
       employmentType?: string;
     };
+    faqs?: Array<{ question: string; answer: string }>;
     seoData?: {
       seoDescription?: string;
     };
@@ -63,6 +64,9 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
     && jobDetails.lastDateToApply
     && Number(jobDetails.totalPosts) > 0
   );
+  const jobHighlightsMarker = "[[JOB_HIGHLIGHTS]]";
+  const hasJobHighlightsMarker = formData.formattedNote.includes(jobHighlightsMarker);
+  const articleParts = formData.formattedNote.split(/<p[^>]*>\s*\[\[JOB_HIGHLIGHTS\]\]\s*<\/p>|\[\[JOB_HIGHLIGHTS\]\]/gi);
   
   const currentDate = new Date().toLocaleDateString('en-IN', { 
     day: 'numeric', 
@@ -122,7 +126,7 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
               </p>
             </div>
 
-            {showJobHighlights && (
+            {showJobHighlights && !hasJobHighlightsMarker && (
               <section className="bg-white rounded-xl border border-blue-200 shadow-sm overflow-hidden">
                 <div className="px-5 py-3 bg-blue-50 border-b border-blue-100">
                   <h2 className="text-base font-bold text-blue-950">Job Highlights</h2>
@@ -158,18 +162,35 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
             )}
 
             {/* Main Content - Formatted Note */}
-            {formData.formattedNote && formData.formattedNote.trim().length > 0 && (
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-                <div 
-                  className="formatted-content prose prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: formData.formattedNote }}
-                  style={{ 
-                    whiteSpace: 'pre-wrap',
-                    lineHeight: '1.8',
-                    color: '#1f2937'
-                  }}
-                />
-              </div>
+            {formData.formattedNote && formData.formattedNote.trim().length > 0 && articleParts.map((part, index) => (
+              <React.Fragment key={index}>
+                {part.trim() && <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><div className="formatted-content prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: part }} style={{ whiteSpace: 'pre-wrap', lineHeight: '1.8', color: '#1f2937' }} /></div>}
+                {showJobHighlights && hasJobHighlightsMarker && index < articleParts.length - 1 && (
+                  <section className="bg-white rounded-xl border border-blue-200 shadow-sm overflow-hidden">
+                    <div className="px-5 py-3 bg-blue-50 border-b border-blue-100"><h2 className="text-base font-bold text-blue-950">Job Highlights</h2></div>
+                    <dl className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-slate-200">
+                      <div className="p-4"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Organization</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails!.organizationName}</dd></div>
+                      <div className="p-4"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Posts</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{Number(jobDetails!.totalPosts).toLocaleString('en-IN')}</dd></div>
+                      <div className="p-4 border-t border-slate-200"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Last Date to Apply</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{new Date(jobDetails!.lastDateToApply!).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd></div>
+                      <div className="p-4 border-t border-slate-200"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Employment Type</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{(jobDetails!.employmentType || 'FULL_TIME').replace(/_/g, ' ')}</dd></div>
+                    </dl>
+                  </section>
+                )}
+              </React.Fragment>
+            ))}
+
+            {formData.faqs && formData.faqs.length > 0 && (
+              <section className="bg-blue-50 rounded-xl border border-blue-200 p-5">
+                <h2 className="text-lg font-bold text-blue-950 mb-3">Frequently Asked Questions</h2>
+                <div className="divide-y divide-blue-200 border-y border-blue-200">
+                  {formData.faqs.map((faq, index) => (
+                    <details key={index} className="py-3">
+                      <summary className="cursor-pointer font-semibold text-blue-900">{faq.question || `Question ${index + 1}`}</summary>
+                      <p className="mt-2 mb-0 text-sm leading-6 text-slate-700 whitespace-pre-line">{faq.answer || 'Answer will appear here.'}</p>
+                    </details>
+                  ))}
+                </div>
+              </section>
             )}
 
             {/* Quick Highlights */}

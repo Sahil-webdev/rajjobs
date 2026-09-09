@@ -40,6 +40,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
       maxSalary: "",
       employmentType: "FULL_TIME",
     },
+    faqs: [] as Array<{ question: string; answer: string }>,
     seoData: {
       seoDescription: "",
       metaKeywords: [] as string[],
@@ -97,6 +98,12 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
             maxSalary: data.data.jobDetails?.maxSalary != null ? String(data.data.jobDetails.maxSalary) : "",
             employmentType: data.data.jobDetails?.employmentType || "FULL_TIME",
           },
+          faqs: Array.isArray(data.data.faqs)
+            ? data.data.faqs.map((faq: { question?: string; answer?: string }) => ({
+                question: faq.question || "",
+                answer: faq.answer || "",
+              }))
+            : [],
           seoData: {
             seoDescription: data.data.seoData?.seoDescription || "",
             metaKeywords: Array.isArray(data.data.seoData?.metaKeywords)
@@ -386,6 +393,34 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
 
         </div>
 
+        {/* Visible FAQs + FAQPage structured data */}
+        <div style={{ background: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', alignItems: 'flex-start', marginBottom: '16px' }}>
+            <div>
+              <h3 style={{ fontSize: '20px', fontWeight: '600', margin: 0, color: '#3b82f6' }}>❓ Frequently Asked Questions</h3>
+              <p style={{ margin: '7px 0 0', fontSize: '13px', color: '#6b7280' }}>These questions and answers will be visible on the exam page and automatically receive FAQ schema.</p>
+            </div>
+            <button type="button" onClick={() => setFormData(prev => ({ ...prev, faqs: [...prev.faqs, { question: '', answer: '' }] }))} style={{ padding: '9px 14px', border: 'none', borderRadius: '7px', background: '#2563eb', color: '#fff', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>+ Add FAQ</button>
+          </div>
+
+          {formData.faqs.length === 0 ? (
+            <p style={{ margin: 0, padding: '16px', border: '1px dashed #cbd5e1', borderRadius: '8px', color: '#64748b', fontSize: '14px', textAlign: 'center' }}>No FAQs added. Add only FAQs that readers can genuinely find helpful.</p>
+          ) : (
+            <div style={{ display: 'grid', gap: '14px' }}>
+              {formData.faqs.map((faq, index) => (
+                <div key={index} style={{ padding: '16px', border: '1px solid #dbeafe', background: '#f8fbff', borderRadius: '9px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', marginBottom: '10px' }}>
+                    <strong style={{ color: '#1e3a8a', fontSize: '14px' }}>FAQ {index + 1}</strong>
+                    <button type="button" onClick={() => setFormData(prev => ({ ...prev, faqs: prev.faqs.filter((_, faqIndex) => faqIndex !== index) }))} style={{ padding: '5px 9px', border: '1px solid #fecaca', borderRadius: '6px', color: '#dc2626', background: '#fff', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>Remove</button>
+                  </div>
+                  <input required type="text" value={faq.question} onChange={(e) => setFormData(prev => ({ ...prev, faqs: prev.faqs.map((item, faqIndex) => faqIndex === index ? { ...item, question: e.target.value } : item) }))} placeholder="Question, e.g., What is the last date to apply?" style={{ ...inputStyle, marginBottom: '10px' }} />
+                  <textarea required value={faq.answer} onChange={(e) => setFormData(prev => ({ ...prev, faqs: prev.faqs.map((item, faqIndex) => faqIndex === index ? { ...item, answer: e.target.value } : item) }))} placeholder="Write a clear, factual answer" rows={3} style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* SEO Tool */}
         <div style={{ background: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
           <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '20px', color: '#3b82f6' }}>
@@ -414,6 +449,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
               setFormData(prev => ({ ...prev, formattedNote: html }));
             }}
             uploadFolder="exam-details"
+            allowJobHighlights
           />
         </div>
 

@@ -79,6 +79,7 @@ function getArticleImage(examData: any): string {
 
 function articleDescription(examData: any) {
   return (examData.seoData?.seoDescription || examData.metaDescription || examData.title || "RajJobs exam details")
+    .replace(/\[\[JOB_HIGHLIGHTS\]\]/gi, " ")
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 160);
@@ -205,6 +206,12 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
     ],
   };
   const jobDetails = examData.jobDetails;
+  const faqs = (Array.isArray(examData.faqs) ? examData.faqs : [])
+    .map((faq: { question?: string; answer?: string }) => ({
+      question: String(faq.question || '').trim(),
+      answer: String(faq.answer || '').trim(),
+    }))
+    .filter((faq: { question: string; answer: string }) => faq.question && faq.answer);
   const isJobPosting = Boolean(
     jobDetails?.isJobPosting
     && jobDetails.organizationName?.trim()
@@ -240,9 +247,34 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
       },
     } : {}),
   } : null;
+  const faqJsonLd = faqs.length ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq: { question: string; answer: string }) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: { "@type": "Answer", text: faq.answer },
+    })),
+  } : null;
+  const jobHighlightsMarker = "[[JOB_HIGHLIGHTS]]";
+  const rawArticleHtml = examData.formattedNote || "";
+  const hasJobHighlightsMarker = rawArticleHtml.includes(jobHighlightsMarker) || /data-job-highlights=(?:"true"|'true'|true)/i.test(rawArticleHtml);
+  const articleParts = rawArticleHtml.split(/<div\b(?=[^>]*\bdata-job-highlights=(?:"true"|'true'|true))[^>]*>[\s\S]*?<\/div>|<p[^>]*>\s*\[\[JOB_HIGHLIGHTS\]\]\s*<\/p>|\[\[JOB_HIGHLIGHTS\]\]/gi);
+  const jobHighlightsCard = isJobPosting ? (
+    <section className="bg-blue-50 rounded-xl border border-blue-200 overflow-hidden mb-5" aria-label="Job highlights">
+      <h2 className="px-5 py-3 bg-blue-100 border-b border-blue-200 text-base font-bold text-blue-950">Job Highlights</h2>
+      <dl className="grid grid-cols-1 sm:grid-cols-2">
+        <div className="px-5 py-3 border-b sm:border-r border-blue-200"><dt className="text-xs font-bold text-slate-600">Organization</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails.organizationName}</dd></div>
+        <div className="px-5 py-3 border-b border-blue-200"><dt className="text-xs font-bold text-slate-600">Total Posts</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{new Intl.NumberFormat('en-IN').format(Number(jobDetails.totalPosts))}</dd></div>
+        <div className="px-5 py-3 border-b sm:border-r border-blue-200"><dt className="text-xs font-bold text-slate-600">Last Date to Apply</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{new Date(jobDetails.lastDateToApply).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd></div>
+        <div className="px-5 py-3 border-b border-blue-200"><dt className="text-xs font-bold text-slate-600">Employment Type</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{(jobDetails.employmentType || 'FULL_TIME').replace(/_/g, ' ')}</dd></div>
+        {(jobDetails.minSalary != null || jobDetails.maxSalary != null) && <div className="px-5 py-3 sm:col-span-2"><dt className="text-xs font-bold text-slate-600">Salary</dt><dd className="mt-1 text-sm font-semibold text-slate-900">₹{new Intl.NumberFormat('en-IN').format(Number(jobDetails.minSalary ?? jobDetails.maxSalary))}{jobDetails.maxSalary != null && jobDetails.maxSalary !== jobDetails.minSalary ? ` – ₹${new Intl.NumberFormat('en-IN').format(Number(jobDetails.maxSalary))}` : ''} / month</dd></div>}
+      </dl>
+    </section>
+  ) : null;
   return (
     <>
-      <SchemaMarkup schemas={[jsonLd, breadcrumbJsonLd, ...(jobPostingJsonLd ? [jobPostingJsonLd] : [])]} />
+      <SchemaMarkup schemas={[jsonLd, breadcrumbJsonLd, ...(jobPostingJsonLd ? [jobPostingJsonLd] : []), ...(faqJsonLd ? [faqJsonLd] : [])]} />
 
       <div className="min-h-screen bg-slate-50">
         <div className="mx-auto max-w-2xl px-4 py-6">
@@ -268,26 +300,27 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
             <p className="text-slate-700 text-sm leading-relaxed" itemProp="description">{description}</p>
           </header>
 
-          {isJobPosting && (
-            <section className="bg-blue-50 rounded-xl border border-blue-200 overflow-hidden mb-5" aria-label="Job highlights">
-              <h2 className="px-5 py-3 bg-blue-100 border-b border-blue-200 text-base font-bold text-blue-950">Job Highlights</h2>
-              <dl className="grid grid-cols-1 sm:grid-cols-2">
-                <div className="px-5 py-3 border-b sm:border-r border-blue-200"><dt className="text-xs font-bold text-slate-600">Organization</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails.organizationName}</dd></div>
-                <div className="px-5 py-3 border-b border-blue-200"><dt className="text-xs font-bold text-slate-600">Total Posts</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{new Intl.NumberFormat('en-IN').format(Number(jobDetails.totalPosts))}</dd></div>
-                <div className="px-5 py-3 border-b sm:border-r border-blue-200"><dt className="text-xs font-bold text-slate-600">Last Date to Apply</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{new Date(jobDetails.lastDateToApply).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd></div>
-                <div className="px-5 py-3 border-b border-blue-200"><dt className="text-xs font-bold text-slate-600">Employment Type</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{(jobDetails.employmentType || 'FULL_TIME').replace(/_/g, ' ')}</dd></div>
-                {(jobDetails.minSalary != null || jobDetails.maxSalary != null) && <div className="px-5 py-3 sm:col-span-2"><dt className="text-xs font-bold text-slate-600">Salary</dt><dd className="mt-1 text-sm font-semibold text-slate-900">₹{new Intl.NumberFormat('en-IN').format(Number(jobDetails.minSalary ?? jobDetails.maxSalary))}{jobDetails.maxSalary != null && jobDetails.maxSalary !== jobDetails.minSalary ? ` – ₹${new Intl.NumberFormat('en-IN').format(Number(jobDetails.maxSalary))}` : ''} / month</dd></div>}
-              </dl>
-            </section>
-          )}
+          {isJobPosting && !hasJobHighlightsMarker && jobHighlightsCard}
 
           {/* Main Content - formatted note displayed as primary content */}
-          {examData.formattedNote && examData.formattedNote.trim().length > 0 && (
-            <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-5" aria-label="Exam details" itemProp="articleBody">
-              <div 
-                className="exam-content"
-                dangerouslySetInnerHTML={{ __html: examData.formattedNote }}
-              />
+          {rawArticleHtml.trim().length > 0 && articleParts.map((part: string, index: number) => (
+            <React.Fragment key={index}>
+              {part.trim().length > 0 && <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-5" aria-label="Exam details" itemProp="articleBody"><div className="exam-content" dangerouslySetInnerHTML={{ __html: part }} /></section>}
+              {isJobPosting && hasJobHighlightsMarker && index < articleParts.length - 1 && jobHighlightsCard}
+            </React.Fragment>
+          ))}
+
+          {faqs.length > 0 && (
+            <section className="bg-blue-50 rounded-xl border border-blue-200 p-5 mb-5" aria-label="Frequently asked questions">
+              <h2 className="text-lg font-bold text-blue-950 mb-3">Frequently Asked Questions</h2>
+              <div className="divide-y divide-blue-200 border-y border-blue-200">
+                {faqs.map((faq: { question: string; answer: string }, index: number) => (
+                  <details key={index} className="py-3 group">
+                    <summary className="cursor-pointer font-semibold text-blue-900 pr-6">{faq.question}</summary>
+                    <p className="mt-2 mb-0 text-sm leading-6 text-slate-700 whitespace-pre-line">{faq.answer}</p>
+                  </details>
+                ))}
+              </div>
             </section>
           )}
 

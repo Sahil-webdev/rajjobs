@@ -20,6 +20,21 @@ function validateJobDetails(jobDetails = {}) {
   return null;
 }
 
+function normalizeFaqs(faqs) {
+  if (faqs == null) return { faqs: [] };
+  if (!Array.isArray(faqs)) return { error: 'FAQs must be a list.' };
+  if (faqs.length > 20) return { error: 'You can add up to 20 FAQs per page.' };
+
+  const cleaned = faqs.map((faq) => ({
+    question: String(faq?.question || '').trim(),
+    answer: String(faq?.answer || '').trim(),
+  }));
+  if (cleaned.some((faq) => !faq.question || !faq.answer)) {
+    return { error: 'Every FAQ needs both a question and an answer.' };
+  }
+  return { faqs: cleaned };
+}
+
 // @route   GET /api/admin/exam-details
 // @desc    Get all exam details (with filters)
 // @access  Private/Admin
@@ -81,11 +96,14 @@ router.post('/', asyncHandler(async (req, res) => {
     status,
     postedBy,
     seoData,
-    jobDetails
+    jobDetails,
+    faqs
   } = req.body;
 
   const jobDetailsError = validateJobDetails(jobDetails);
   if (jobDetailsError) return res.status(400).json({ success: false, message: jobDetailsError });
+  const faqResult = normalizeFaqs(faqs);
+  if (faqResult.error) return res.status(400).json({ success: false, message: faqResult.error });
 
   const examDetail = await ExamDetail.create({
     title,
@@ -96,7 +114,8 @@ router.post('/', asyncHandler(async (req, res) => {
     status,
     postedBy,
     seoData,
-    jobDetails
+    jobDetails,
+    faqs: faqResult.faqs
   });
 
   res.status(201).json({
@@ -120,11 +139,14 @@ router.put('/:id', asyncHandler(async (req, res) => {
     status,
     postedBy,
     seoData,
-    jobDetails
+    jobDetails,
+    faqs
   } = req.body;
 
   const jobDetailsError = validateJobDetails(jobDetails);
   if (jobDetailsError) return res.status(400).json({ success: false, message: jobDetailsError });
+  const faqResult = normalizeFaqs(faqs);
+  if (faqResult.error) return res.status(400).json({ success: false, message: faqResult.error });
 
   const examDetail = await ExamDetail.findByIdAndUpdate(
     req.params.id,
@@ -137,7 +159,8 @@ router.put('/:id', asyncHandler(async (req, res) => {
       status,
       postedBy,
       seoData,
-      jobDetails
+      jobDetails,
+      faqs: faqResult.faqs
     },
     { 
       new: true,

@@ -61,6 +61,14 @@ const examDetailSchema = new mongoose.Schema({
     }
   },
 
+  // These FAQs are rendered visibly on the public page. Keeping them as
+  // structured fields lets us emit accurate FAQPage JSON-LD.
+  faqs: [{
+    _id: false,
+    question: { type: String, required: true, trim: true },
+    answer: { type: String, required: true, trim: true }
+  }],
+
   // SEO
   seoData: {
     seoDescription: { type: String, default: '' },

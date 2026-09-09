@@ -5,6 +5,15 @@ const asyncHandler = require('../../utils/asyncHandler');
 
 const SITE_URL = (process.env.PUBLIC_SITE_URL || 'https://www.rajjobs.com').replace(/\/$/, '');
 const GA_MEASUREMENT_ID = 'G-V3KR48H637';
+const JOB_HIGHLIGHTS_MARKER = '[[JOB_HIGHLIGHTS]]';
+const JOB_HIGHLIGHTS_PLACEHOLDER_PATTERN = /<div\b(?=[^>]*\bdata-job-highlights=(?:"true"|'true'|true))[^>]*>[\s\S]*?<\/div>/gi;
+const JOB_HIGHLIGHTS_MARKER_PATTERN = /<p[^>]*>\s*\[\[JOB_HIGHLIGHTS\]\]\s*<\/p>|\[\[JOB_HIGHLIGHTS\]\]/gi;
+
+function stripJobHighlightsMarker(value = '') {
+  return String(value)
+    .replace(JOB_HIGHLIGHTS_PLACEHOLDER_PATTERN, ' ')
+    .replace(JOB_HIGHLIGHTS_MARKER_PATTERN, ' ');
+}
 
 function escapeHtml(value = '') {
   return String(value)
@@ -16,7 +25,7 @@ function escapeHtml(value = '') {
 }
 
 function plainText(html = '') {
-  return String(html)
+  return stripJobHighlightsMarker(html)
     .replace(/<[^>]*>/g, ' ')
     .replace(/&nbsp;/gi, ' ')
     .replace(/&amp;/gi, '&')
@@ -105,6 +114,15 @@ function jobPostingSchema(exam, canonicalUrl, description) {
   return schema;
 }
 
+function validFaqs(exam) {
+  return (Array.isArray(exam.faqs) ? exam.faqs : [])
+    .map((faq) => ({
+      question: String(faq?.question || '').trim(),
+      answer: String(faq?.answer || '').trim(),
+    }))
+    .filter((faq) => faq.question && faq.answer);
+}
+
 function jsonForScript(value) {
   return JSON.stringify(value, null, 2).replace(/</g, '\\u003c');
 }
@@ -157,6 +175,16 @@ function pageTemplate(exam, relatedExams) {
   const jobSchema = isJobPosting(exam)
     ? jobPostingSchema(exam, canonicalUrl, description)
     : null;
+  const faqs = validFaqs(exam);
+  const faqSchema = faqs.length ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+    })),
+  } : null;
   const jobHighlightsHtml = jobSchema ? `
           <section class="job-highlights" aria-label="Job highlights">
             <h2>Job Highlights</h2>
@@ -168,6 +196,11 @@ function pageTemplate(exam, relatedExams) {
               ${exam.jobDetails.minSalary != null || exam.jobDetails.maxSalary != null ? `<div><dt>Salary</dt><dd>₹${formatNumber(exam.jobDetails.minSalary ?? exam.jobDetails.maxSalary)}${exam.jobDetails.maxSalary != null && exam.jobDetails.maxSalary !== exam.jobDetails.minSalary ? ` – ₹${formatNumber(exam.jobDetails.maxSalary)}` : ''} / month</dd></div>` : ''}
             </dl>
           </section>` : '';
+  const faqHtml = faqs.length ? `
+          <section class="faq-section" aria-label="Frequently asked questions">
+            <h2>Frequently Asked Questions</h2>
+            ${faqs.map((faq) => `<details><summary>${escapeHtml(faq.question)}</summary><p>${escapeHtml(faq.answer)}</p></details>`).join('')}
+          </section>` : '';
   const relatedHtml = relatedExams.length
     ? relatedExams.map((item) => `
           <li>
@@ -178,9 +211,17 @@ function pageTemplate(exam, relatedExams) {
 
   // formattedNote is authored by authenticated administrators in CKEditor and is
   // intentionally preserved as HTML so article tables, links and R2 images render.
-  const articleBody = exam.formattedNote?.trim()
+  const rawArticleBody = exam.formattedNote?.trim()
     ? exam.formattedNote
     : '<p>Exam details will be updated shortly.</p>';
+  const hasJobHighlightsMarker = rawArticleBody.includes(JOB_HIGHLIGHTS_MARKER) || JOB_HIGHLIGHTS_PLACEHOLDER_PATTERN.test(rawArticleBody);
+  JOB_HIGHLIGHTS_PLACEHOLDER_PATTERN.lastIndex = 0;
+  // The editor's marker is replaced on the server, so it is never exposed to
+  // readers. If job fields are not enabled, the marker simply disappears.
+  const articleBody = rawArticleBody
+    .replace(JOB_HIGHLIGHTS_PLACEHOLDER_PATTERN, jobHighlightsHtml)
+    .replace(JOB_HIGHLIGHTS_MARKER_PATTERN, jobHighlightsHtml);
+  const fallbackJobHighlightsHtml = jobSchema && !hasJobHighlightsMarker ? jobHighlightsHtml : '';
 
   return `<!doctype html>
 <html lang="en">
@@ -221,6 +262,7 @@ function pageTemplate(exam, relatedExams) {
   <script type="application/ld+json">${jsonForScript(articleSchema)}</script>
   <script type="application/ld+json">${jsonForScript(breadcrumbSchema)}</script>
   ${jobSchema ? `<script type="application/ld+json">${jsonForScript(jobSchema)}</script>` : ''}
+  ${faqSchema ? `<script type="application/ld+json">${jsonForScript(faqSchema)}</script>` : ''}
 </head>
 <body>
   <header class="site-header">
@@ -255,7 +297,8 @@ function pageTemplate(exam, relatedExams) {
         <section class="article-content" itemprop="articleBody">
           ${articleBody}
         </section>
-        ${jobHighlightsHtml}
+        ${fallbackJobHighlightsHtml}
+        ${faqHtml}
       </article>
 
       <aside class="sidebar" aria-label="Related exams">

@@ -8,6 +8,7 @@ interface EditorProps {
   setEditorData: (html: string) => void;
   handleOnUpdate: (html: string, field: string) => void;
   uploadFolder?: string;
+  allowJobHighlights?: boolean;
 }
 
 declare global {
@@ -18,6 +19,17 @@ declare global {
 
 const CKEDITOR_SCRIPT_URL = "https://cdn.ckeditor.com/4.22.1/full/ckeditor.js";
 const CKEDITOR_SCRIPT_ID = "rajjobs-ckeditor4-full";
+const JOB_HIGHLIGHTS_MARKER = "[[JOB_HIGHLIGHTS]]";
+const JOB_HIGHLIGHTS_PLACEHOLDER_PATTERN = /<p[^>]*>\s*\[\[JOB_HIGHLIGHTS\]\]\s*<\/p>|\[\[JOB_HIGHLIGHTS\]\]/gi;
+
+function jobHighlightsPlaceholder() {
+  return `<div data-job-highlights="true" contenteditable="false" style="margin:16px 0;padding:16px;border:1px solid #bfdbfe;border-radius:10px;background:#eff6ff;color:#172554;cursor:default;"><strong style="font-size:18px;">💼 Job Highlights</strong><br><span style="display:inline-block;margin-top:7px;color:#475569;">Live Organization, Posts, Last Date and Salary details will appear here on the website.</span><span style="display:none;">${JOB_HIGHLIGHTS_MARKER}</span></div>`;
+}
+
+function normaliseJobHighlightsMarker(html: string) {
+  if (!html.includes(JOB_HIGHLIGHTS_MARKER) || html.includes('data-job-highlights="true"')) return html;
+  return html.replace(JOB_HIGHLIGHTS_PLACEHOLDER_PATTERN, jobHighlightsPlaceholder());
+}
 
 const FULL_TOOLBAR = [
   { name: "document", items: ["Source", "-", "Save", "NewPage", "Preview", "Print", "-", "Templates"] },
@@ -36,7 +48,7 @@ const FULL_TOOLBAR = [
   { name: "about", items: ["About"] },
 ];
 
-const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate, uploadFolder = "editor-images" }) => {
+const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate, uploadFolder = "editor-images", allowJobHighlights = false }) => {
   const editorRef = useRef<any>(null);
   const latestDataRef = useRef(editorData || "");
   const hasInitialisedRef = useRef(false);
@@ -100,6 +112,7 @@ const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate
           versionCheck: false,
           toolbarCanCollapse: true,
           toolbar: FULL_TOOLBAR,
+          extraAllowedContent: "div[data-job-highlights,contenteditable]{*}(*);span{*}(*)",
         });
         editorRef.current = editor;
         hasInitialisedRef.current = true;
@@ -122,7 +135,13 @@ const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate
             return;
           }
 
-          if (latestDataRef.current) editor.setData(latestDataRef.current);
+          const initialData = allowJobHighlights ? normaliseJobHighlightsMarker(latestDataRef.current) : latestDataRef.current;
+          if (initialData !== latestDataRef.current) {
+            latestDataRef.current = initialData;
+            setEditorData(initialData);
+            handleOnUpdate(initialData, "description");
+          }
+          if (initialData) editor.setData(initialData);
           setStatus(`CKEditor ${CKEDITOR.version} Full build loaded — ${visibleItems.length} tools available.`);
 
           const form = editor.element.$.closest("form") as HTMLFormElement | null;
@@ -189,14 +208,39 @@ const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate
   }, []);
 
   useEffect(() => {
-    latestDataRef.current = editorData || "";
+    const nextData = allowJobHighlights ? normaliseJobHighlightsMarker(editorData || "") : (editorData || "");
+    latestDataRef.current = nextData;
     const editor = editorRef.current;
     if (editor && editor.status === "ready" && editor.getData() !== latestDataRef.current) {
       editor.setData(latestDataRef.current);
     }
-  }, [editorData]);
+    if (nextData !== editorData) {
+      setEditorData(nextData);
+      handleOnUpdate(nextData, "description");
+    }
+  }, [allowJobHighlights, editorData, handleOnUpdate, setEditorData]);
 
   const toggleToolbar = () => setToolbarHidden((previous) => !previous);
+
+  const insertJobHighlights = () => {
+    const editor = editorRef.current;
+    if (!editor || editor.status !== "ready") {
+      setError("Editor is not ready yet. Please wait a moment and try again.");
+      return;
+    }
+    if (editor.getData().includes(JOB_HIGHLIGHTS_MARKER)) {
+      window.alert("Job Highlights block is already in this article. Move the existing marker instead of adding a second one.");
+      return;
+    }
+
+    editor.focus();
+    // The card keeps one hidden marker so the backend can replace it with live
+    // job data, while editors see a readable visual block instead of shortcode.
+    editor.insertHtml(`${jobHighlightsPlaceholder()}<p><br></p>`);
+    syncEditorData(editor);
+    setError("");
+    setStatus("Job Highlights marker inserted. The public page will show the live job box exactly here.");
+  };
 
   const insertCustomLink = () => {
     const editor = editorRef.current;
@@ -351,6 +395,11 @@ const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate
           <button type="button" id="customLinkBtn" onClick={insertCustomLink} style={actionButtonStyle}>
             Add Link
           </button>
+          {allowJobHighlights && (
+            <button type="button" id="jobHighlightsBtn" onClick={insertJobHighlights} title="Place the dynamic Job Highlights box at the current cursor position" style={actionButtonStyle}>
+              Insert Job Highlights
+            </button>
+          )}
           <label id="customImageBtn" htmlFor="ckCustomImage" style={actionButtonStyle}>
             Insert Image
           </label>
