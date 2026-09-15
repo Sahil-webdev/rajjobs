@@ -9,13 +9,11 @@ function validateJobDetails(jobDetails = {}) {
   if (!jobDetails.lastDateToApply || Number.isNaN(new Date(jobDetails.lastDateToApply).getTime())) {
     return 'Last Date to Apply is required for a job vacancy.';
   }
+  if (jobDetails.startDate && Number.isNaN(new Date(jobDetails.startDate).getTime())) {
+    return 'Start Date must be a valid date.';
+  }
   if (!Number.isInteger(Number(jobDetails.totalPosts)) || Number(jobDetails.totalPosts) < 1) {
     return 'Total Posts must be at least 1 for a job vacancy.';
-  }
-  if (jobDetails.minSalary !== '' && jobDetails.maxSalary !== ''
-    && jobDetails.minSalary != null && jobDetails.maxSalary != null
-    && Number(jobDetails.minSalary) > Number(jobDetails.maxSalary)) {
-    return 'Minimum Salary cannot be greater than Maximum Salary.';
   }
   return null;
 }

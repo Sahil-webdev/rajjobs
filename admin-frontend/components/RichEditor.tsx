@@ -53,6 +53,7 @@ const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate
   const latestDataRef = useRef(editorData || "");
   const hasInitialisedRef = useRef(false);
   const formRef = useRef<HTMLFormElement | null>(null);
+  const imageSelectionBookmarksRef = useRef<any>(null);
   const pdfSelectionBookmarksRef = useRef<any>(null);
   const pdfSelectedTextRef = useRef("");
   const [toolbarHidden, setToolbarHidden] = useState(false);
@@ -270,12 +271,20 @@ const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate
     const file = input.files?.[0];
     input.value = "";
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      window.alert("सिर्फ image file चुनें.");
+    const allowedImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp", "image/avif"];
+    if (!allowedImageTypes.includes(file.type)) {
+      window.alert("सिर्फ JPG, PNG, GIF, WebP, BMP या AVIF image चुनें.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      window.alert("Image file 5 MB से छोटी होनी चाहिए.");
       return;
     }
 
-    const altText = window.prompt("Image alt text:", file.name) || "";
+    const suggestedAltText = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
+    const promptedAltText = window.prompt("SEO के लिए image Alt Text लिखें:", suggestedAltText);
+    if (promptedAltText === null) return;
+    const altText = promptedAltText.trim().slice(0, 160);
     setStatus("Uploading image to media storage…");
     setError("");
     try {
@@ -286,15 +295,23 @@ const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate
       const source = response.data?.url;
       const editor = editorRef.current;
       const CKEDITOR = window.CKEDITOR;
-      if (!editor || !CKEDITOR || typeof source !== "string") return;
+      if (!editor || !CKEDITOR || typeof source !== "string" || !source.startsWith("http")) {
+        throw new Error("Image upload completed but no valid image URL was returned.");
+      }
 
+      editor.focus();
+      if (imageSelectionBookmarksRef.current) {
+        editor.getSelection().selectBookmarks(imageSelectionBookmarksRef.current);
+      }
       const image = new CKEDITOR.dom.element("img");
       image.setAttribute("src", source);
       image.setAttribute("alt", altText);
+      image.setAttribute("loading", "lazy");
       image.setStyle("max-width", "100%");
       image.setStyle("height", "auto");
       editor.insertElement(image);
       editor.insertHtml("<p><br></p>");
+      imageSelectionBookmarksRef.current = null;
       syncEditorData(editor);
       setStatus("Image uploaded to Cloudflare R2.");
     } catch (uploadError: any) {
@@ -302,6 +319,19 @@ const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate
       setError(message);
       setStatus("Image upload failed.");
     }
+  };
+
+  const prepareImageUpload = (event: React.MouseEvent<HTMLLabelElement>) => {
+    const editor = editorRef.current;
+    if (!editor || editor.status !== "ready") {
+      event.preventDefault();
+      setError("Editor is not ready yet. Please wait a moment and try again.");
+      return;
+    }
+    editor.focus();
+    const selection = editor.getSelection();
+    imageSelectionBookmarksRef.current = selection?.createBookmarks2(true) || null;
+    setError("");
   };
 
   const preparePdfUpload = (event: React.MouseEvent<HTMLLabelElement>) => {
@@ -400,7 +430,7 @@ const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate
               Insert Job Highlights
             </button>
           )}
-          <label id="customImageBtn" htmlFor="ckCustomImage" style={actionButtonStyle}>
+          <label id="customImageBtn" htmlFor="ckCustomImage" onClick={prepareImageUpload} style={actionButtonStyle}>
             Insert Image
           </label>
           <input type="file" id="ckCustomImage" accept="image/*" hidden onChange={insertCustomImage} />

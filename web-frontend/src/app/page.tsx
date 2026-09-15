@@ -147,10 +147,10 @@ export default function Home() {
   return (
     <main className="bg-white">
       {/* Hero Section (Classic) */}
-      <section className="w-full bg-white py-10 md:pb-10 md:pt-0">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center px-4 gap-10 md:gap-0 min-h-[420px] md:min-h-[500px]">
+      <section className="w-full bg-white pt-6 pb-8 md:pt-8 md:pb-8">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center px-4 gap-8 md:gap-0 min-h-[390px] md:min-h-[440px]">
           {/* Left: Text */}
-          <div className="flex-1 flex flex-col justify-center text-center md:text-left h-full pt-20">
+          <div className="flex-1 flex flex-col justify-center text-center md:text-left h-full pt-6 md:pt-10">
             <h1 className="text-4xl md:text-5xl font-extrabold text-black mb-4 leading-tight">
               Welcome to <span className="text-[#2B3586]">RajJobs</span>
             </h1>
@@ -193,8 +193,8 @@ export default function Home() {
             </div>
           </div>
           {/* Right: Fade Carousel Graphic (positioned as before) */}
-          <div className="flex-1 flex justify-center md:justify-end mt-10 md:mt-0">
-            <div className="relative w-[320px] h-[320px] md:w-[420px] md:h-[420px] lg:w-[500px] lg:h-[500px]">
+          <div className="flex-1 flex justify-center md:justify-end mt-4 md:mt-0">
+            <div className="relative w-[280px] h-[280px] md:w-[350px] md:h-[350px] lg:w-[420px] lg:h-[420px]">
               {heroImages.map((img, idx) => (
                 <Image
                   key={img.src}

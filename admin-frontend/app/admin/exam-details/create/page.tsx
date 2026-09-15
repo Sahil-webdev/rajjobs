@@ -34,8 +34,12 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
     jobDetails: {
       isJobPosting: false,
       organizationName: "",
+      postName: "",
+      startDate: "",
       lastDateToApply: "",
       totalPosts: "",
+      qualification: "",
+      ageLimit: "",
       minSalary: "",
       maxSalary: "",
       employmentType: "FULL_TIME",
@@ -90,10 +94,16 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
           jobDetails: {
             isJobPosting: Boolean(data.data.jobDetails?.isJobPosting),
             organizationName: data.data.jobDetails?.organizationName || "",
+            postName: data.data.jobDetails?.postName || "",
+            startDate: data.data.jobDetails?.startDate
+              ? new Date(data.data.jobDetails.startDate).toISOString().slice(0, 10)
+              : "",
             lastDateToApply: data.data.jobDetails?.lastDateToApply
               ? new Date(data.data.jobDetails.lastDateToApply).toISOString().slice(0, 10)
               : "",
             totalPosts: data.data.jobDetails?.totalPosts != null ? String(data.data.jobDetails.totalPosts) : "",
+            qualification: data.data.jobDetails?.qualification || "",
+            ageLimit: data.data.jobDetails?.ageLimit || "",
             minSalary: data.data.jobDetails?.minSalary != null ? String(data.data.jobDetails.minSalary) : "",
             maxSalary: data.data.jobDetails?.maxSalary != null ? String(data.data.jobDetails.maxSalary) : "",
             employmentType: data.data.jobDetails?.employmentType || "FULL_TIME",
@@ -361,6 +371,14 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
                     <input required type="text" value={formData.jobDetails.organizationName} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, organizationName: e.target.value } }))} placeholder="e.g., Railway Recruitment Board" style={{ ...inputStyle, marginTop: '8px' }} />
                   </label>
                   <label style={{ fontWeight: '600', fontSize: '14px', color: '#374151' }}>
+                    Post Name (optional)
+                    <input type="text" value={formData.jobDetails.postName} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, postName: e.target.value } }))} placeholder="e.g., Staff Nurse" style={{ ...inputStyle, marginTop: '8px' }} />
+                  </label>
+                  <label style={{ fontWeight: '600', fontSize: '14px', color: '#374151' }}>
+                    Application Start Date (optional)
+                    <input type="date" value={formData.jobDetails.startDate} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, startDate: e.target.value } }))} style={{ ...inputStyle, marginTop: '8px' }} />
+                  </label>
+                  <label style={{ fontWeight: '600', fontSize: '14px', color: '#374151' }}>
                     Last Date to Apply *
                     <input required type="date" value={formData.jobDetails.lastDateToApply} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, lastDateToApply: e.target.value } }))} style={{ ...inputStyle, marginTop: '8px' }} />
                   </label>
@@ -379,12 +397,20 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
                     </select>
                   </label>
                   <label style={{ fontWeight: '600', fontSize: '14px', color: '#374151' }}>
-                    Minimum Salary (optional, ₹)
-                    <input type="number" min="0" value={formData.jobDetails.minSalary} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, minSalary: e.target.value } }))} placeholder="e.g., 18000" style={{ ...inputStyle, marginTop: '8px' }} />
+                    Qualification (optional)
+                    <input type="text" value={formData.jobDetails.qualification} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, qualification: e.target.value } }))} placeholder="e.g., B.Sc. Nursing" style={{ ...inputStyle, marginTop: '8px' }} />
                   </label>
                   <label style={{ fontWeight: '600', fontSize: '14px', color: '#374151' }}>
-                    Maximum Salary (optional, ₹)
-                    <input type="number" min="0" value={formData.jobDetails.maxSalary} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, maxSalary: e.target.value } }))} placeholder="e.g., 56900" style={{ ...inputStyle, marginTop: '8px' }} />
+                    Age Limit (optional)
+                    <input type="text" value={formData.jobDetails.ageLimit} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, ageLimit: e.target.value } }))} placeholder="e.g., 18 to 30 years" style={{ ...inputStyle, marginTop: '8px' }} />
+                  </label>
+                  <label style={{ fontWeight: '600', fontSize: '14px', color: '#374151' }}>
+                    Minimum Salary (optional)
+                    <input type="text" value={formData.jobDetails.minSalary} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, minSalary: e.target.value } }))} placeholder="e.g., ₹18,000 or As per rules" style={{ ...inputStyle, marginTop: '8px' }} />
+                  </label>
+                  <label style={{ fontWeight: '600', fontSize: '14px', color: '#374151' }}>
+                    Maximum Salary (optional)
+                    <input type="text" value={formData.jobDetails.maxSalary} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, maxSalary: e.target.value } }))} placeholder="e.g., ₹56,900 or As per rules" style={{ ...inputStyle, marginTop: '8px' }} />
                   </label>
                 </div>
               </div>

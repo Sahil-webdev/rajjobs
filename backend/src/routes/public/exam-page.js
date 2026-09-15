@@ -59,6 +59,18 @@ function formatNumber(value) {
   return new Intl.NumberFormat('en-IN').format(Number(value));
 }
 
+function numericSalary(value) {
+  const text = String(value ?? '').trim();
+  return /^\d+(?:\.\d+)?$/.test(text) ? Number(text) : null;
+}
+
+function salaryText(job) {
+  const values = [job.minSalary, job.maxSalary]
+    .map((value) => String(value ?? '').trim())
+    .filter(Boolean);
+  return [...new Set(values)].join(' – ');
+}
+
 function isJobPosting(exam) {
   const job = exam.jobDetails;
   return Boolean(
@@ -74,7 +86,7 @@ function jobPostingSchema(exam, canonicalUrl, description) {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'JobPosting',
-    title: exam.title,
+    title: job.postName || exam.title,
     description,
     datePosted: (exam.createdAt || exam.updatedAt).toISOString(),
     validThrough: new Date(job.lastDateToApply).toISOString(),
@@ -99,17 +111,28 @@ function jobPostingSchema(exam, canonicalUrl, description) {
     totalJobOpenings: Number(job.totalPosts),
   };
 
-  if (job.minSalary != null || job.maxSalary != null) {
+  const minSalary = numericSalary(job.minSalary);
+  const maxSalary = numericSalary(job.maxSalary);
+  if (minSalary != null || maxSalary != null) {
     schema.baseSalary = {
       '@type': 'MonetaryAmount',
       currency: 'INR',
       value: {
         '@type': 'QuantitativeValue',
-        minValue: job.minSalary ?? job.maxSalary,
-        maxValue: job.maxSalary ?? job.minSalary,
+        minValue: minSalary ?? maxSalary,
+        maxValue: maxSalary ?? minSalary,
         unitText: 'MONTH',
       },
     };
+  }
+  if (job.startDate) schema.jobStartDate = new Date(job.startDate).toISOString();
+  if (job.qualification) schema.qualifications = job.qualification;
+  if (job.ageLimit) {
+    schema.additionalProperty = [{
+      '@type': 'PropertyValue',
+      name: 'Age Limit',
+      value: job.ageLimit,
+    }];
   }
   return schema;
 }
@@ -191,9 +214,13 @@ function pageTemplate(exam, relatedExams) {
             <dl>
               <div><dt>Organization</dt><dd>${escapeHtml(exam.jobDetails.organizationName)}</dd></div>
               <div><dt>Total Posts</dt><dd>${formatNumber(exam.jobDetails.totalPosts)}</dd></div>
+              ${exam.jobDetails.postName ? `<div><dt>Post Name</dt><dd>${escapeHtml(exam.jobDetails.postName)}</dd></div>` : ''}
+              ${exam.jobDetails.startDate ? `<div><dt>Application Start Date</dt><dd>${formatDate(exam.jobDetails.startDate)}</dd></div>` : ''}
               <div><dt>Last Date to Apply</dt><dd>${formatDate(exam.jobDetails.lastDateToApply)}</dd></div>
               <div><dt>Employment Type</dt><dd>${escapeHtml((exam.jobDetails.employmentType || 'FULL_TIME').replace(/_/g, ' '))}</dd></div>
-              ${exam.jobDetails.minSalary != null || exam.jobDetails.maxSalary != null ? `<div><dt>Salary</dt><dd>₹${formatNumber(exam.jobDetails.minSalary ?? exam.jobDetails.maxSalary)}${exam.jobDetails.maxSalary != null && exam.jobDetails.maxSalary !== exam.jobDetails.minSalary ? ` – ₹${formatNumber(exam.jobDetails.maxSalary)}` : ''} / month</dd></div>` : ''}
+              ${exam.jobDetails.qualification ? `<div><dt>Qualification</dt><dd>${escapeHtml(exam.jobDetails.qualification)}</dd></div>` : ''}
+              ${exam.jobDetails.ageLimit ? `<div><dt>Age Limit</dt><dd>${escapeHtml(exam.jobDetails.ageLimit)}</dd></div>` : ''}
+              ${salaryText(exam.jobDetails) ? `<div><dt>Salary</dt><dd>${escapeHtml(salaryText(exam.jobDetails))}</dd></div>` : ''}
             </dl>
           </section>` : '';
   const faqHtml = faqs.length ? `
@@ -292,7 +319,6 @@ function pageTemplate(exam, relatedExams) {
             <span>Posted by ${escapeHtml(author)}</span>
           </div>
           <h1 itemprop="headline">${escapeHtml(exam.title)}</h1>
-          <p class="summary" itemprop="description">${escapeHtml(description)}</p>
         </header>
         <section class="article-content" itemprop="articleBody">
           ${articleBody}

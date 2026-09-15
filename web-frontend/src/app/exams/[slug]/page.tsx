@@ -85,6 +85,17 @@ function articleDescription(examData: any) {
     .slice(0, 160);
 }
 
+function numericSalary(value: unknown): number | null {
+  const text = String(value ?? '').trim();
+  return /^\d+(?:\.\d+)?$/.test(text) ? Number(text) : null;
+}
+
+function salaryText(jobDetails: any): string {
+  return [...new Set([jobDetails?.minSalary, jobDetails?.maxSalary]
+    .map((value) => String(value ?? '').trim())
+    .filter(Boolean))].join(' – ');
+}
+
 // Generate dynamic metadata for SEO
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const unwrappedParams = await params;
@@ -206,6 +217,9 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
     ],
   };
   const jobDetails = examData.jobDetails;
+  const jobSalaryText = salaryText(jobDetails);
+  const minimumSalary = numericSalary(jobDetails?.minSalary);
+  const maximumSalary = numericSalary(jobDetails?.maxSalary);
   const faqs = (Array.isArray(examData.faqs) ? examData.faqs : [])
     .map((faq: { question?: string; answer?: string }) => ({
       question: String(faq.question || '').trim(),
@@ -221,7 +235,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
   const jobPostingJsonLd = isJobPosting ? {
     "@context": "https://schema.org",
     "@type": "JobPosting",
-    title: examData.title,
+    title: jobDetails.postName || examData.title,
     description,
     datePosted: publishedDate,
     validThrough: new Date(jobDetails.lastDateToApply).toISOString(),
@@ -234,14 +248,19 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
     identifier: { "@type": "PropertyValue", name: "RajJobs", value: String(examData._id) },
     url: canonicalUrl,
     totalJobOpenings: Number(jobDetails.totalPosts),
-    ...(jobDetails.minSalary != null || jobDetails.maxSalary != null ? {
+    ...(jobDetails.startDate ? { jobStartDate: new Date(jobDetails.startDate).toISOString() } : {}),
+    ...(jobDetails.qualification ? { qualifications: jobDetails.qualification } : {}),
+    ...(jobDetails.ageLimit ? {
+      additionalProperty: [{ "@type": "PropertyValue", name: "Age Limit", value: jobDetails.ageLimit }],
+    } : {}),
+    ...(minimumSalary != null || maximumSalary != null ? {
       baseSalary: {
         "@type": "MonetaryAmount",
         currency: "INR",
         value: {
           "@type": "QuantitativeValue",
-          minValue: jobDetails.minSalary ?? jobDetails.maxSalary,
-          maxValue: jobDetails.maxSalary ?? jobDetails.minSalary,
+          minValue: minimumSalary ?? maximumSalary,
+          maxValue: maximumSalary ?? minimumSalary,
           unitText: "MONTH",
         },
       },
@@ -266,9 +285,13 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
       <dl className="grid grid-cols-1 sm:grid-cols-2">
         <div className="px-5 py-3 border-b sm:border-r border-blue-200"><dt className="text-xs font-bold text-slate-600">Organization</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails.organizationName}</dd></div>
         <div className="px-5 py-3 border-b border-blue-200"><dt className="text-xs font-bold text-slate-600">Total Posts</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{new Intl.NumberFormat('en-IN').format(Number(jobDetails.totalPosts))}</dd></div>
+        {jobDetails.postName && <div className="px-5 py-3 border-b sm:border-r border-blue-200"><dt className="text-xs font-bold text-slate-600">Post Name</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails.postName}</dd></div>}
+        {jobDetails.startDate && <div className="px-5 py-3 border-b border-blue-200"><dt className="text-xs font-bold text-slate-600">Application Start Date</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{new Date(jobDetails.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd></div>}
         <div className="px-5 py-3 border-b sm:border-r border-blue-200"><dt className="text-xs font-bold text-slate-600">Last Date to Apply</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{new Date(jobDetails.lastDateToApply).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd></div>
         <div className="px-5 py-3 border-b border-blue-200"><dt className="text-xs font-bold text-slate-600">Employment Type</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{(jobDetails.employmentType || 'FULL_TIME').replace(/_/g, ' ')}</dd></div>
-        {(jobDetails.minSalary != null || jobDetails.maxSalary != null) && <div className="px-5 py-3 sm:col-span-2"><dt className="text-xs font-bold text-slate-600">Salary</dt><dd className="mt-1 text-sm font-semibold text-slate-900">₹{new Intl.NumberFormat('en-IN').format(Number(jobDetails.minSalary ?? jobDetails.maxSalary))}{jobDetails.maxSalary != null && jobDetails.maxSalary !== jobDetails.minSalary ? ` – ₹${new Intl.NumberFormat('en-IN').format(Number(jobDetails.maxSalary))}` : ''} / month</dd></div>}
+        {jobDetails.qualification && <div className="px-5 py-3 border-b sm:border-r border-blue-200"><dt className="text-xs font-bold text-slate-600">Qualification</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails.qualification}</dd></div>}
+        {jobDetails.ageLimit && <div className="px-5 py-3 border-b border-blue-200"><dt className="text-xs font-bold text-slate-600">Age Limit</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails.ageLimit}</dd></div>}
+        {jobSalaryText && <div className="px-5 py-3 sm:col-span-2"><dt className="text-xs font-bold text-slate-600">Salary</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobSalaryText}</dd></div>}
       </dl>
     </section>
   ) : null;
@@ -297,7 +320,6 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
             <h1 className="text-xl md:text-2xl font-bold text-slate-900 mb-3" itemProp="headline">
               {examData.title}
             </h1>
-            <p className="text-slate-700 text-sm leading-relaxed" itemProp="description">{description}</p>
           </header>
 
           {isJobPosting && !hasJobHighlightsMarker && jobHighlightsCard}

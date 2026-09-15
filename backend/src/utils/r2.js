@@ -24,6 +24,10 @@ const client = isR2Configured
       // R2 endpoints are account-scoped. Keep the bucket in the request path
       // (`/<bucket>/<key>`) instead of creating a virtual-host bucket subdomain.
       forcePathStyle: true,
+      // R2 can occasionally close a TLS connection mid-request. Let the AWS
+      // client retry transient storage failures before reporting an error.
+      maxAttempts: 3,
+      retryMode: 'standard',
       credentials: {
         accessKeyId: process.env.R2_ACCESS_KEY_ID,
         secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
@@ -65,13 +69,19 @@ async function uploadBuffer({ buffer, originalName, contentType, folder = 'image
   }
 
   const key = keyFor(folder, originalName);
-  await client.send(new PutObjectCommand({
-    Bucket: process.env.R2_BUCKET_NAME,
-    Key: key,
-    Body: buffer,
-    ContentType: contentType || 'application/octet-stream',
-    CacheControl: 'public, max-age=31536000, immutable',
-  }));
+  try {
+    await client.send(new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME,
+      Key: key,
+      Body: buffer,
+      ContentType: contentType || 'application/octet-stream',
+      CacheControl: 'public, max-age=31536000, immutable',
+    }));
+  } catch (error) {
+    const storageError = new Error(`R2 upload failed: ${error.message || 'Unknown storage error'}`);
+    storageError.code = error.code || error.name || 'R2_UPLOAD_FAILED';
+    throw storageError;
+  }
 
   return {
     key,

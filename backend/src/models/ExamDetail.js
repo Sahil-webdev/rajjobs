@@ -50,10 +50,14 @@ const examDetailSchema = new mongoose.Schema({
   jobDetails: {
     isJobPosting: { type: Boolean, default: false },
     organizationName: { type: String, trim: true, default: '' },
+    postName: { type: String, trim: true, default: '' },
+    startDate: { type: Date, default: null },
     lastDateToApply: { type: Date, default: null },
     totalPosts: { type: Number, min: 1, default: null },
-    minSalary: { type: Number, min: 0, default: null },
-    maxSalary: { type: Number, min: 0, default: null },
+    qualification: { type: String, trim: true, default: '' },
+    ageLimit: { type: String, trim: true, default: '' },
+    minSalary: { type: String, trim: true, default: '' },
+    maxSalary: { type: String, trim: true, default: '' },
     employmentType: {
       type: String,
       enum: ['FULL_TIME', 'PART_TIME', 'CONTRACTOR', 'TEMPORARY', 'INTERN'],

@@ -18,7 +18,7 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+      <nav className="sticky top-0 z-50 bg-blue-50 border-b border-blue-200 shadow-[0_1px_4px_rgba(37,99,235,0.10)]">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between gap-4">
             {/* Logo */}
@@ -44,8 +44,8 @@ export function Navbar() {
                     href={item.href}
                     className={`px-3 py-2 rounded-md text-sm font-medium transition ${
                       isActive
-                        ? "bg-blue-50 text-blue-600 border border-blue-200"
-                        : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+                        ? "bg-blue-600 text-white border border-blue-600"
+                        : "text-slate-700 hover:text-blue-700 hover:bg-white"
                     }`}
                   >
                     {item.label}
@@ -56,7 +56,7 @@ export function Navbar() {
 
             {/* Mobile toggle */}
             <button
-              className="md:hidden inline-flex items-center justify-center rounded-md border border-gray-200 p-2 text-gray-700 hover:bg-gray-50"
+              className="md:hidden inline-flex items-center justify-center rounded-md border border-blue-200 bg-white p-2 text-blue-800 hover:bg-blue-100"
               onClick={() => setOpen((prev) => !prev)}
               aria-label="Toggle navigation"
             >
@@ -78,7 +78,7 @@ export function Navbar() {
           {/* Mobile menu */}
           {open && (
             <div className="md:hidden pb-4">
-              <div className="flex flex-col gap-2 rounded-lg border border-gray-100 bg-white p-3 shadow-sm">
+              <div className="flex flex-col gap-2 rounded-lg border border-blue-200 bg-white p-3 shadow-sm">
                 {navLinks.map((item) => {
                   const isActive = pathname === item.href;
                   return (
@@ -87,8 +87,8 @@ export function Navbar() {
                       href={item.href}
                       className={`rounded-md px-3 py-2 text-sm font-medium transition ${
                         isActive
-                          ? "bg-blue-50 text-blue-600 border border-blue-200"
-                          : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                          ? "bg-blue-600 text-white border border-blue-600"
+                          : "text-slate-700 hover:bg-blue-50 hover:text-blue-700"
                       }`}
                       onClick={() => setOpen(false)}
                     >

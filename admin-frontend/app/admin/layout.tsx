@@ -4,6 +4,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api, { setAuthToken } from '../../lib/api';
 import Sidebar from '../../components/Sidebar';
+import AdminToast, { notifyAdminToast } from '../../components/AdminToast';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -97,6 +98,29 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     
     verifyAuth();
   }, [router]);
+
+  // Course pages still use native fetch. This keeps bottom-right toasts
+  // consistent with axios-based admin pages without changing every form.
+  useEffect(() => {
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+      const response = await originalFetch(...args);
+      const request = args[0];
+      const init = args[1];
+      const url = typeof request === 'string' ? request : request instanceof Request ? request.url : '';
+      const method = (init?.method || (request instanceof Request ? request.method : 'GET')).toUpperCase();
+      if (response.ok && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method) && url.includes('/api/admin/') && !url.includes('/api/admin/file/')) {
+        let message = method === 'DELETE' ? 'Deleted successfully.' : method === 'POST' ? 'Created successfully.' : 'Updated successfully.';
+        try {
+          const body = await response.clone().json();
+          message = body?.message || message;
+        } catch (_) {}
+        notifyAdminToast({ message });
+      }
+      return response;
+    };
+    return () => { window.fetch = originalFetch; };
+  }, []);
 
   if (loading) {
     return (
@@ -256,6 +280,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </div>
         <div className="container">{children}</div>
       </div>
+      <AdminToast />
       <button className="mobile-menu-toggle" onClick={toggleSidebar}>
         ☰
       </button>

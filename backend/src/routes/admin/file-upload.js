@@ -30,12 +30,22 @@ const pdfUpload = multer({
 const imageUpload = multer({
   storage: multer.memoryStorage(),
   fileFilter: (req, file, cb) => {
-    const allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'];
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp', 'image/avif'];
     if (allowedMimes.includes(file.mimetype)) return cb(null, true);
-    return cb(new Error('Only JPEG, PNG, GIF, WebP, and BMP images are allowed!'), false);
+    return cb(new Error('Only JPG, PNG, GIF, WebP, BMP, and AVIF images are allowed.'), false);
   },
   limits: { fileSize: 5 * 1024 * 1024 },
 });
+
+function runImageUpload(req, res, next) {
+  imageUpload.single('upload')(req, res, (error) => {
+    if (!error) return next();
+    if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ error: { message: 'Image must be 5 MB or smaller.' } });
+    }
+    return res.status(400).json({ error: { message: error.message || 'Invalid image upload.' } });
+  });
+}
 
 router.post('/upload-pdf', requireR2, pdfUpload.single('pdf'), async (req, res) => {
   try {
@@ -64,7 +74,7 @@ router.post('/upload-pdf', requireR2, pdfUpload.single('pdf'), async (req, res) 
   }
 });
 
-router.post('/upload-image', requireR2, imageUpload.single('upload'), async (req, res) => {
+router.post('/upload-image', requireR2, runImageUpload, async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: { message: 'No file uploaded' } });
 
@@ -79,7 +89,12 @@ router.post('/upload-image', requireR2, imageUpload.single('upload'), async (req
     return res.json({ url: result.url, storage: 'r2' });
   } catch (error) {
     console.error('R2 image upload error:', error.message);
-    return res.status(500).json({ error: { message: error.message || 'Image upload failed' } });
+    return res.status(502).json({
+      error: {
+        message: 'Image storage is temporarily unavailable. Please try again.',
+        code: error.code || 'R2_UPLOAD_FAILED',
+      },
+    });
   }
 });
 

@@ -14,8 +14,12 @@ interface ExamPreviewProps {
     jobDetails?: {
       isJobPosting?: boolean;
       organizationName?: string;
+      postName?: string;
+      startDate?: string;
       lastDateToApply?: string;
       totalPosts?: string | number;
+      qualification?: string;
+      ageLimit?: string;
       minSalary?: string | number;
       maxSalary?: string | number;
       employmentType?: string;
@@ -58,6 +62,9 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
   const enabledSections = formData.enabledSections || {};
   const seoData = formData.seoData || {};
   const jobDetails = formData.jobDetails;
+  const jobSalaryText = [...new Set([jobDetails?.minSalary, jobDetails?.maxSalary]
+    .map((value) => String(value ?? '').trim())
+    .filter(Boolean))].join(' – ');
   const showJobHighlights = Boolean(
     jobDetails?.isJobPosting
     && jobDetails.organizationName
@@ -140,6 +147,14 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
                     <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Posts</dt>
                     <dd className="mt-1 text-sm font-semibold text-slate-900">{Number(jobDetails!.totalPosts).toLocaleString('en-IN')}</dd>
                   </div>
+                  {jobDetails!.postName && <div className="p-4 border-t border-slate-200">
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Post Name</dt>
+                    <dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails!.postName}</dd>
+                  </div>}
+                  {jobDetails!.startDate && <div className="p-4 border-t border-slate-200">
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Application Start Date</dt>
+                    <dd className="mt-1 text-sm font-semibold text-slate-900">{new Date(jobDetails!.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd>
+                  </div>}
                   <div className="p-4 border-t border-slate-200">
                     <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Last Date to Apply</dt>
                     <dd className="mt-1 text-sm font-semibold text-slate-900">{new Date(jobDetails!.lastDateToApply!).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd>
@@ -148,13 +163,18 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
                     <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Employment Type</dt>
                     <dd className="mt-1 text-sm font-semibold text-slate-900">{(jobDetails!.employmentType || 'FULL_TIME').replace(/_/g, ' ')}</dd>
                   </div>
-                  {(jobDetails!.minSalary != null && jobDetails!.minSalary !== '' || jobDetails!.maxSalary != null && jobDetails!.maxSalary !== '') && (
+                  {jobDetails!.qualification && <div className="p-4 border-t border-slate-200">
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Qualification</dt>
+                    <dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails!.qualification}</dd>
+                  </div>}
+                  {jobDetails!.ageLimit && <div className="p-4 border-t border-slate-200">
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Age Limit</dt>
+                    <dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails!.ageLimit}</dd>
+                  </div>}
+                  {jobSalaryText && (
                     <div className="p-4 border-t border-slate-200 sm:col-span-2">
-                      <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Monthly Salary</dt>
-                      <dd className="mt-1 text-sm font-semibold text-slate-900">
-                        ₹{Number(jobDetails!.minSalary || jobDetails!.maxSalary).toLocaleString('en-IN')}
-                        {jobDetails!.maxSalary != null && jobDetails!.maxSalary !== '' && jobDetails!.maxSalary !== jobDetails!.minSalary ? ` – ₹${Number(jobDetails!.maxSalary).toLocaleString('en-IN')}` : ''}
-                      </dd>
+                      <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Salary</dt>
+                      <dd className="mt-1 text-sm font-semibold text-slate-900">{jobSalaryText}</dd>
                     </div>
                   )}
                 </dl>
@@ -171,8 +191,13 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
                     <dl className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-slate-200">
                       <div className="p-4"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Organization</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails!.organizationName}</dd></div>
                       <div className="p-4"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Posts</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{Number(jobDetails!.totalPosts).toLocaleString('en-IN')}</dd></div>
+                      {jobDetails!.postName && <div className="p-4 border-t border-slate-200"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Post Name</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails!.postName}</dd></div>}
+                      {jobDetails!.startDate && <div className="p-4 border-t border-slate-200"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Application Start Date</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{new Date(jobDetails!.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd></div>}
                       <div className="p-4 border-t border-slate-200"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Last Date to Apply</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{new Date(jobDetails!.lastDateToApply!).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd></div>
                       <div className="p-4 border-t border-slate-200"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Employment Type</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{(jobDetails!.employmentType || 'FULL_TIME').replace(/_/g, ' ')}</dd></div>
+                      {jobDetails!.qualification && <div className="p-4 border-t border-slate-200"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Qualification</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails!.qualification}</dd></div>}
+                      {jobDetails!.ageLimit && <div className="p-4 border-t border-slate-200"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Age Limit</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails!.ageLimit}</dd></div>}
+                      {jobSalaryText && <div className="p-4 border-t border-slate-200 sm:col-span-2"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Salary</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobSalaryText}</dd></div>}
                     </dl>
                   </section>
                 )}

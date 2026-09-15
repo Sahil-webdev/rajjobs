@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { notifyAdminToast } from '@/components/AdminToast';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
 
@@ -48,7 +49,18 @@ function onTokenRefreshed(newToken: string) {
 // accessToken in localStorage, then replay the original failed request.
 // Only redirect to /login if the refresh itself fails (truly expired session).
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const method = response.config.method?.toUpperCase();
+    const url = response.config.url || '';
+    if (typeof window !== 'undefined'
+      && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method || '')
+      && url.includes('/api/admin/')
+      && !url.includes('/api/admin/file/')) {
+      const fallback = method === 'DELETE' ? 'Deleted successfully.' : method === 'POST' ? 'Created successfully.' : 'Updated successfully.';
+      notifyAdminToast({ message: response.data?.message || fallback });
+    }
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
 
