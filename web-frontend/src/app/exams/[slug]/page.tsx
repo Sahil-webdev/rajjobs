@@ -91,9 +91,7 @@ function numericSalary(value: unknown): number | null {
 }
 
 function salaryText(jobDetails: any): string {
-  return [...new Set([jobDetails?.minSalary, jobDetails?.maxSalary]
-    .map((value) => String(value ?? '').trim())
-    .filter(Boolean))].join(' – ');
+  return String(jobDetails?.salary || jobDetails?.minSalary || '').trim();
 }
 
 // Generate dynamic metadata for SEO
@@ -218,8 +216,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
   };
   const jobDetails = examData.jobDetails;
   const jobSalaryText = salaryText(jobDetails);
-  const minimumSalary = numericSalary(jobDetails?.minSalary);
-  const maximumSalary = numericSalary(jobDetails?.maxSalary);
+  const numericJobSalary = numericSalary(jobSalaryText);
   const faqs = (Array.isArray(examData.faqs) ? examData.faqs : [])
     .map((faq: { question?: string; answer?: string }) => ({
       question: String(faq.question || '').trim(),
@@ -253,14 +250,14 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
     ...(jobDetails.ageLimit ? {
       additionalProperty: [{ "@type": "PropertyValue", name: "Age Limit", value: jobDetails.ageLimit }],
     } : {}),
-    ...(minimumSalary != null || maximumSalary != null ? {
+    ...(numericJobSalary != null ? {
       baseSalary: {
         "@type": "MonetaryAmount",
         currency: "INR",
         value: {
           "@type": "QuantitativeValue",
-          minValue: minimumSalary ?? maximumSalary,
-          maxValue: maximumSalary ?? minimumSalary,
+          minValue: numericJobSalary,
+          maxValue: numericJobSalary,
           unitText: "MONTH",
         },
       },
@@ -280,18 +277,18 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ slu
   const hasJobHighlightsMarker = rawArticleHtml.includes(jobHighlightsMarker) || /data-job-highlights=(?:"true"|'true'|true)/i.test(rawArticleHtml);
   const articleParts = rawArticleHtml.split(/<div\b(?=[^>]*\bdata-job-highlights=(?:"true"|'true'|true))[^>]*>[\s\S]*?<\/div>|<p[^>]*>\s*\[\[JOB_HIGHLIGHTS\]\]\s*<\/p>|\[\[JOB_HIGHLIGHTS\]\]/gi);
   const jobHighlightsCard = isJobPosting ? (
-    <section className="bg-blue-50 rounded-xl border border-blue-200 overflow-hidden mb-5" aria-label="Job highlights">
-      <h2 className="px-5 py-3 bg-blue-100 border-b border-blue-200 text-base font-bold text-blue-950">Job Highlights</h2>
-      <dl className="grid grid-cols-1 sm:grid-cols-2">
-        <div className="px-5 py-3 border-b sm:border-r border-blue-200"><dt className="text-xs font-bold text-slate-600">Organization</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails.organizationName}</dd></div>
-        <div className="px-5 py-3 border-b border-blue-200"><dt className="text-xs font-bold text-slate-600">Total Posts</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{new Intl.NumberFormat('en-IN').format(Number(jobDetails.totalPosts))}</dd></div>
-        {jobDetails.postName && <div className="px-5 py-3 border-b sm:border-r border-blue-200"><dt className="text-xs font-bold text-slate-600">Post Name</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails.postName}</dd></div>}
-        {jobDetails.startDate && <div className="px-5 py-3 border-b border-blue-200"><dt className="text-xs font-bold text-slate-600">Application Start Date</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{new Date(jobDetails.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd></div>}
-        <div className="px-5 py-3 border-b sm:border-r border-blue-200"><dt className="text-xs font-bold text-slate-600">Last Date to Apply</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{new Date(jobDetails.lastDateToApply).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd></div>
-        <div className="px-5 py-3 border-b border-blue-200"><dt className="text-xs font-bold text-slate-600">Employment Type</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{(jobDetails.employmentType || 'FULL_TIME').replace(/_/g, ' ')}</dd></div>
-        {jobDetails.qualification && <div className="px-5 py-3 border-b sm:border-r border-blue-200"><dt className="text-xs font-bold text-slate-600">Qualification</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails.qualification}</dd></div>}
-        {jobDetails.ageLimit && <div className="px-5 py-3 border-b border-blue-200"><dt className="text-xs font-bold text-slate-600">Age Limit</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails.ageLimit}</dd></div>}
-        {jobSalaryText && <div className="px-5 py-3 sm:col-span-2"><dt className="text-xs font-bold text-slate-600">Salary</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobSalaryText}</dd></div>}
+    <section className="overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-[0_8px_24px_rgba(37,99,235,0.08)] mb-5" aria-label="Job highlights">
+      <h2 className="border-b border-blue-200 bg-gradient-to-br from-blue-50 to-slate-50 px-5 py-4 text-lg font-bold tracking-tight text-blue-950">Job Highlights</h2>
+      <dl>
+        <div className="grid min-h-14 grid-cols-[minmax(0,31%)_minmax(0,69%)] items-center gap-5 border-b border-blue-100 px-5 py-3.5"><dt className="text-xs font-bold tracking-wide text-slate-600">Organization</dt><dd className="break-words border-l border-blue-100 pl-5 text-right text-[15px] font-bold leading-6 text-slate-900">{jobDetails.organizationName}</dd></div>
+        <div className="grid min-h-14 grid-cols-[minmax(0,31%)_minmax(0,69%)] items-center gap-5 border-b border-blue-100 bg-blue-50/30 px-5 py-3.5"><dt className="text-xs font-bold tracking-wide text-slate-600">Total Posts</dt><dd className="break-words border-l border-blue-100 pl-5 text-right text-[15px] font-bold leading-6 text-slate-900">{new Intl.NumberFormat('en-IN').format(Number(jobDetails.totalPosts))}</dd></div>
+        {jobDetails.postName && <div className="grid min-h-14 grid-cols-[minmax(0,31%)_minmax(0,69%)] items-center gap-5 border-b border-blue-100 px-5 py-3.5"><dt className="text-xs font-bold tracking-wide text-slate-600">Post Name</dt><dd className="break-words border-l border-blue-100 pl-5 text-right text-[15px] font-bold leading-6 text-slate-900">{jobDetails.postName}</dd></div>}
+        {jobDetails.startDate && <div className="grid min-h-14 grid-cols-[minmax(0,31%)_minmax(0,69%)] items-center gap-5 border-b border-blue-100 bg-blue-50/30 px-5 py-3.5"><dt className="text-xs font-bold tracking-wide text-slate-600">Application Start Date</dt><dd className="break-words border-l border-blue-100 pl-5 text-right text-[15px] font-bold leading-6 text-slate-900">{new Date(jobDetails.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd></div>}
+        <div className="grid min-h-14 grid-cols-[minmax(0,31%)_minmax(0,69%)] items-center gap-5 border-b border-blue-100 px-5 py-3.5"><dt className="text-xs font-bold tracking-wide text-slate-600">Last Date to Apply</dt><dd className="break-words border-l border-blue-100 pl-5 text-right text-[15px] font-bold leading-6 text-slate-900">{new Date(jobDetails.lastDateToApply).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd></div>
+        <div className="grid min-h-14 grid-cols-[minmax(0,31%)_minmax(0,69%)] items-center gap-5 border-b border-blue-100 bg-blue-50/30 px-5 py-3.5"><dt className="text-xs font-bold tracking-wide text-slate-600">Employment Type</dt><dd className="break-words border-l border-blue-100 pl-5 text-right text-[15px] font-bold leading-6 text-slate-900">{(jobDetails.employmentType || 'FULL_TIME').replace(/_/g, ' ')}</dd></div>
+        {jobDetails.qualification && <div className="grid min-h-14 grid-cols-[minmax(0,31%)_minmax(0,69%)] items-center gap-5 border-b border-blue-100 px-5 py-3.5"><dt className="text-xs font-bold tracking-wide text-slate-600">Qualification</dt><dd className="break-words border-l border-blue-100 pl-5 text-right text-[15px] font-bold leading-6 text-slate-900">{jobDetails.qualification}</dd></div>}
+        {jobDetails.ageLimit && <div className="grid min-h-14 grid-cols-[minmax(0,31%)_minmax(0,69%)] items-center gap-5 border-b border-blue-100 bg-blue-50/30 px-5 py-3.5"><dt className="text-xs font-bold tracking-wide text-slate-600">Age Limit</dt><dd className="break-words border-l border-blue-100 pl-5 text-right text-[15px] font-bold leading-6 text-slate-900">{jobDetails.ageLimit}</dd></div>}
+        {jobSalaryText && <div className="grid min-h-14 grid-cols-[minmax(0,31%)_minmax(0,69%)] items-center gap-5 px-5 py-3.5"><dt className="text-xs font-bold tracking-wide text-slate-600">Salary</dt><dd className="break-words border-l border-blue-100 pl-5 text-right text-[15px] font-bold leading-6 text-slate-900">{jobSalaryText}</dd></div>}
       </dl>
     </section>
   ) : null;

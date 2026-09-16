@@ -39,16 +39,26 @@ h1 { margin: 14px 0 12px; font-size: clamp(24px, 4vw, 36px); line-height: 1.25; 
 .article-content p, .article-content li { font-size: 16px; }
 .article-content img { display: block; max-width: 100%; height: auto; margin: 18px auto; border-radius: 8px; }
 .article-content table { width: 100%; border-collapse: collapse; margin: 20px 0; overflow: hidden; }
-.article-content th, .article-content td { padding: 10px 12px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+.article-content th, .article-content td { padding: 10px 12px; border: 1px solid var(--line); vertical-align: top; }
+.article-content td { text-align: left; }
+/* Table headings are centered by default, matching the editor/browser table convention. */
+.article-content th { text-align: center; }
+/* CKEditor may save alignment as either an inline style or an align attribute.
+   Preserve the author's selected table-header/cell alignment on the public page. */
+.article-content th[align="center"], .article-content td[align="center"], .article-content th[style*="text-align:center"], .article-content td[style*="text-align:center"], .article-content th[style*="text-align: center"], .article-content td[style*="text-align: center"] { text-align: center !important; }
+.article-content th[align="right"], .article-content td[align="right"], .article-content th[style*="text-align:right"], .article-content td[style*="text-align:right"], .article-content th[style*="text-align: right"], .article-content td[style*="text-align: right"] { text-align: right !important; }
+/* In CKEditor, alignment can be stored on a paragraph/span inside a table cell. */
+.article-content th > [align="center"], .article-content td > [align="center"], .article-content th > [style*="text-align:center"], .article-content td > [style*="text-align:center"], .article-content th > [style*="text-align: center"], .article-content td > [style*="text-align: center"], .article-content th > .cke_align_center, .article-content td > .cke_align_center { text-align: center !important; }
+.article-content th:has(> [align="center"]), .article-content td:has(> [align="center"]), .article-content th:has(> [style*="text-align:center"]), .article-content td:has(> [style*="text-align:center"]), .article-content th:has(> [style*="text-align: center"]), .article-content td:has(> [style*="text-align: center"]), .article-content th:has(> .cke_align_center), .article-content td:has(> .cke_align_center) { text-align: center !important; }
 .article-content th { background: #eff6ff; }
 .article-content blockquote { margin: 20px 0; padding: 12px 16px; border-left: 4px solid var(--blue); background: #f8fafc; }
 .article-content iframe { max-width: 100%; }
-.job-highlights { margin: 0 28px 28px; border: 1px solid #bfdbfe; border-radius: 10px; overflow: hidden; }
-.job-highlights h2 { margin: 0; padding: 13px 16px; font-size: 19px; background: #eff6ff; color: #1e3a8a; }
-.job-highlights dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; }
-.job-highlights dl > div { padding: 12px 16px; border-top: 1px solid #dbeafe; }
-.job-highlights dt { color: #475569; font-size: 13px; font-weight: 700; }
-.job-highlights dd { margin: 3px 0 0; color: #0f172a; font-weight: 600; }
+.job-highlights { margin: 0 28px 28px; border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 4px 14px rgb(15 23 42 / 7%); }
+.job-highlights h2 { margin: 0; padding: 15px 20px; font-size: 20px; line-height: 1.25; letter-spacing: -.01em; background: #eff6ff; color: #1e3a8a; border-bottom: 1px solid #cbd5e1; }
+.job-highlights dl { display: block; margin: 0; }
+.job-highlights dl > div { display: grid; grid-template-columns: minmax(155px, 32%) minmax(0, 68%); align-items: stretch; border-top: 1px solid #dbeafe; }
+.job-highlights dt { display: flex; align-items: center; padding: 14px 18px; background: #eefaff; color: #334155; font-size: 14px; font-weight: 700; line-height: 1.45; }
+.job-highlights dd { display: flex; align-items: center; min-width: 0; margin: 0; padding: 14px 18px; border-left: 1px solid #cfe2f3; color: #172033; font-size: 15px; font-weight: 700; line-height: 1.5; text-align: left; overflow-wrap: anywhere; }
 
 .faq-section { margin: 0 28px 28px; padding: 20px; border: 1px solid #dbeafe; border-radius: 10px; background: #f8fbff; }
 .faq-section h2 { margin: 0 0 12px; color: #172554; font-size: 20px; }
@@ -86,6 +96,9 @@ h1 { margin: 14px 0 12px; font-size: clamp(24px, 4vw, 36px); line-height: 1.25; 
   .article-content { padding: 16px; }
   .job-highlights { margin: 0 16px 16px; }
   .faq-section { margin: 0 16px 16px; }
-  .job-highlights dl { grid-template-columns: 1fr; }
+  .job-highlights h2 { padding: 14px 16px; font-size: 18px; }
+  .job-highlights dl > div { grid-template-columns: minmax(110px, 38%) minmax(0, 62%); }
+  .job-highlights dt, .job-highlights dd { padding: 12px; }
+  .job-highlights dd { font-size: 14px; }
   .article-content th, .article-content td { padding: 8px; font-size: 14px; }
 }

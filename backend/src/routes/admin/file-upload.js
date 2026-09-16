@@ -34,14 +34,14 @@ const imageUpload = multer({
     if (allowedMimes.includes(file.mimetype)) return cb(null, true);
     return cb(new Error('Only JPG, PNG, GIF, WebP, BMP, and AVIF images are allowed.'), false);
   },
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 25 * 1024 * 1024 },
 });
 
 function runImageUpload(req, res, next) {
   imageUpload.single('upload')(req, res, (error) => {
     if (!error) return next();
     if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
-      return res.status(413).json({ error: { message: 'Image must be 5 MB or smaller.' } });
+      return res.status(413).json({ error: { message: 'Image must be 25 MB or smaller.' } });
     }
     return res.status(400).json({ error: { message: error.message || 'Invalid image upload.' } });
   });

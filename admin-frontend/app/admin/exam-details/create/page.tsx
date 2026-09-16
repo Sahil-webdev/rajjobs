@@ -40,8 +40,7 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
       totalPosts: "",
       qualification: "",
       ageLimit: "",
-      minSalary: "",
-      maxSalary: "",
+      salary: "",
       employmentType: "FULL_TIME",
     },
     faqs: [] as Array<{ question: string; answer: string }>,
@@ -104,8 +103,9 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
             totalPosts: data.data.jobDetails?.totalPosts != null ? String(data.data.jobDetails.totalPosts) : "",
             qualification: data.data.jobDetails?.qualification || "",
             ageLimit: data.data.jobDetails?.ageLimit || "",
-            minSalary: data.data.jobDetails?.minSalary != null ? String(data.data.jobDetails.minSalary) : "",
-            maxSalary: data.data.jobDetails?.maxSalary != null ? String(data.data.jobDetails.maxSalary) : "",
+            salary: data.data.jobDetails?.salary != null
+              ? String(data.data.jobDetails.salary)
+              : data.data.jobDetails?.minSalary != null ? String(data.data.jobDetails.minSalary) : "",
             employmentType: data.data.jobDetails?.employmentType || "FULL_TIME",
           },
           faqs: Array.isArray(data.data.faqs)
@@ -404,13 +404,9 @@ export default function CreateExamPage({ examId }: CreateExamPageProps = {}) {
                     Age Limit (optional)
                     <input type="text" value={formData.jobDetails.ageLimit} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, ageLimit: e.target.value } }))} placeholder="e.g., 18 to 30 years" style={{ ...inputStyle, marginTop: '8px' }} />
                   </label>
-                  <label style={{ fontWeight: '600', fontSize: '14px', color: '#374151' }}>
-                    Minimum Salary (optional)
-                    <input type="text" value={formData.jobDetails.minSalary} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, minSalary: e.target.value } }))} placeholder="e.g., ₹18,000 or As per rules" style={{ ...inputStyle, marginTop: '8px' }} />
-                  </label>
-                  <label style={{ fontWeight: '600', fontSize: '14px', color: '#374151' }}>
-                    Maximum Salary (optional)
-                    <input type="text" value={formData.jobDetails.maxSalary} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, maxSalary: e.target.value } }))} placeholder="e.g., ₹56,900 or As per rules" style={{ ...inputStyle, marginTop: '8px' }} />
+                  <label style={{ fontWeight: '600', fontSize: '14px', color: '#374151', gridColumn: '1 / -1' }}>
+                    Salary (optional)
+                    <input type="text" value={formData.jobDetails.salary} onChange={(e) => setFormData(prev => ({ ...prev, jobDetails: { ...prev.jobDetails, salary: e.target.value } }))} placeholder="e.g., ₹18,000 – ₹56,900, Level 6 Pay Matrix, or As per rules" style={{ ...inputStyle, marginTop: '8px' }} />
                   </label>
                 </div>
               </div>

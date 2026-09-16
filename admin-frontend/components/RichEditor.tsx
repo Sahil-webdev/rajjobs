@@ -276,8 +276,8 @@ const RichEditor: FC<EditorProps> = ({ editorData, setEditorData, handleOnUpdate
       window.alert("सिर्फ JPG, PNG, GIF, WebP, BMP या AVIF image चुनें.");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      window.alert("Image file 5 MB से छोटी होनी चाहिए.");
+    if (file.size > 25 * 1024 * 1024) {
+      window.alert("Image file 25 MB से छोटी होनी चाहिए.");
       return;
     }
 

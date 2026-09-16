@@ -20,8 +20,7 @@ interface ExamPreviewProps {
       totalPosts?: string | number;
       qualification?: string;
       ageLimit?: string;
-      minSalary?: string | number;
-      maxSalary?: string | number;
+      salary?: string | number;
       employmentType?: string;
     };
     faqs?: Array<{ question: string; answer: string }>;
@@ -60,11 +59,8 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
 
   // Provide default values for optional properties to avoid TypeScript errors
   const enabledSections = formData.enabledSections || {};
-  const seoData = formData.seoData || {};
   const jobDetails = formData.jobDetails;
-  const jobSalaryText = [...new Set([jobDetails?.minSalary, jobDetails?.maxSalary]
-    .map((value) => String(value ?? '').trim())
-    .filter(Boolean))].join(' – ');
+  const jobSalaryText = String(jobDetails?.salary || '').trim();
   const showJobHighlights = Boolean(
     jobDetails?.isJobPosting
     && jobDetails.organizationName
@@ -72,14 +68,41 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
     && Number(jobDetails.totalPosts) > 0
   );
   const jobHighlightsMarker = "[[JOB_HIGHLIGHTS]]";
-  const hasJobHighlightsMarker = formData.formattedNote.includes(jobHighlightsMarker);
-  const articleParts = formData.formattedNote.split(/<p[^>]*>\s*\[\[JOB_HIGHLIGHTS\]\]\s*<\/p>|\[\[JOB_HIGHLIGHTS\]\]/gi);
+  const hasJobHighlightsMarker = formData.formattedNote.includes(jobHighlightsMarker)
+    || /data-job-highlights=(?:"true"|'true'|true)/i.test(formData.formattedNote);
+  const articleParts = formData.formattedNote.split(/<div\b(?=[^>]*\bdata-job-highlights=(?:"true"|'true'|true))[^>]*>[\s\S]*?<\/div>|<p[^>]*>\s*\[\[JOB_HIGHLIGHTS\]\]\s*<\/p>|\[\[JOB_HIGHLIGHTS\]\]/gi);
   
-  const currentDate = new Date().toLocaleDateString('en-IN', { 
+  const currentDate = new Date().toLocaleDateString('en-IN', {
     day: 'numeric', 
     month: 'long', 
     year: 'numeric' 
   });
+
+  const jobRows = showJobHighlights ? [
+    ['Organization', jobDetails!.organizationName],
+    ['Total Posts', Number(jobDetails!.totalPosts).toLocaleString('en-IN')],
+    ...(jobDetails!.postName ? [['Post Name', jobDetails!.postName]] : []),
+    ...(jobDetails!.startDate ? [['Application Start Date', new Date(jobDetails!.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })]] : []),
+    ['Last Date to Apply', new Date(jobDetails!.lastDateToApply!).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })],
+    ['Employment Type', (jobDetails!.employmentType || 'FULL_TIME').replace(/_/g, ' ')],
+    ...(jobDetails!.qualification ? [['Qualification', jobDetails!.qualification]] : []),
+    ...(jobDetails!.ageLimit ? [['Age Limit', jobDetails!.ageLimit]] : []),
+    ...(jobSalaryText ? [['Salary', jobSalaryText]] : []),
+  ] as Array<[string, string]> : [];
+
+  const PreviewJobHighlights = () => (
+    <section className="mb-7 overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm" aria-label="Job highlights">
+      <h2 className="border-b border-slate-300 bg-blue-50 px-5 py-4 text-xl font-bold text-blue-900">Job Highlights</h2>
+      <dl>
+        {jobRows.map(([label, value]) => (
+          <div key={label} className="grid grid-cols-[minmax(145px,32%)_minmax(0,68%)] border-b border-blue-100 last:border-b-0 sm:grid-cols-[minmax(165px,32%)_minmax(0,68%)]">
+            <dt className="flex items-center bg-cyan-50 px-4 py-3 text-sm font-bold text-slate-700">{label}</dt>
+            <dd className="m-0 flex min-w-0 items-center border-l border-sky-200 px-4 py-3 text-[15px] font-bold leading-6 text-slate-900 break-words">{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
 
   return (
     <div 
@@ -87,7 +110,7 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
       onClick={onClose}
     >
       <div 
-        className="bg-white w-full max-w-4xl my-8 mx-4 rounded-xl shadow-2xl"
+        className="bg-white w-full max-w-7xl my-8 mx-4 rounded-xl shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -108,11 +131,29 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
         </div>
 
         {/* Preview Content - Mimics website layout */}
-        <div className="bg-slate-50 p-6 max-h-[80vh] overflow-y-auto">
-          <div className="mx-auto max-w-2xl space-y-5">
+        <div className="max-h-[80vh] overflow-y-auto bg-slate-50 p-4 sm:p-6">
+          <style>{`
+            .preview-article-content { color: #1f2937; line-height: 1.65; }
+            .preview-article-content > :first-child { margin-top: 0; }
+            .preview-article-content > :last-child { margin-bottom: 0; }
+            .preview-article-content p { margin: 0 0 1rem; }
+            .preview-article-content h1, .preview-article-content h2, .preview-article-content h3, .preview-article-content h4 { margin: 1.5rem 0 .7rem; line-height: 1.3; color: #0f172a; }
+            .preview-article-content ul, .preview-article-content ol { margin: .75rem 0; padding-left: 1.5rem; }
+            .preview-article-content li { margin: .35rem 0; }
+            .preview-article-content mark, .preview-article-content [style*="background-color"] { background-color: transparent !important; }
+            .preview-article-content table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 14px; }
+            .preview-article-content th, .preview-article-content td { padding: 10px 12px; border: 1px solid #dbe3ef; vertical-align: top; }
+            .preview-article-content th { background: #eff6ff; color: #172033; font-weight: 700; text-align: center; }
+            .preview-article-content td { color: #1f2937; text-align: left; }
+            .preview-article-content th[align="center"], .preview-article-content td[align="center"], .preview-article-content th[style*="text-align:center"], .preview-article-content td[style*="text-align:center"], .preview-article-content th[style*="text-align: center"], .preview-article-content td[style*="text-align: center"] { text-align: center !important; }
+            .preview-article-content th[align="right"], .preview-article-content td[align="right"], .preview-article-content th[style*="text-align:right"], .preview-article-content td[style*="text-align:right"], .preview-article-content th[style*="text-align: right"], .preview-article-content td[style*="text-align: right"] { text-align: right !important; }
+            .preview-article-content th > [align="center"], .preview-article-content td > [align="center"], .preview-article-content th > [style*="text-align:center"], .preview-article-content td > [style*="text-align:center"], .preview-article-content th > [style*="text-align: center"], .preview-article-content td > [style*="text-align: center"] { text-align: center !important; }
+          `}</style>
+          <div className="mx-auto max-w-2xl">
+            <article className="space-y-5 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             
             {/* Title & Meta */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+            <header className="border-b border-slate-200 p-6 sm:p-7">
               <div className="flex flex-wrap items-center gap-2 mb-3">
                 <span className="px-2.5 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
                   {formData.category || 'SSC'}
@@ -125,82 +166,18 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
                   Posted by: <span className="font-semibold text-slate-900">{formData.postedBy || "J. Kaushik"}</span>
                 </span>
               </div>
-              <h1 className="text-xl md:text-2xl font-bold text-slate-900 mb-3">
+              <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">
                 {formData.title || "Untitled Exam"}
               </h1>
-              <p className="text-slate-700 text-sm leading-relaxed">
-                {seoData.seoDescription || formData.metaDescription || "No description provided"}
-              </p>
-            </div>
+            </header>
 
-            {showJobHighlights && !hasJobHighlightsMarker && (
-              <section className="bg-white rounded-xl border border-blue-200 shadow-sm overflow-hidden">
-                <div className="px-5 py-3 bg-blue-50 border-b border-blue-100">
-                  <h2 className="text-base font-bold text-blue-950">Job Highlights</h2>
-                </div>
-                <dl className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-slate-200">
-                  <div className="p-4">
-                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Organization</dt>
-                    <dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails!.organizationName}</dd>
-                  </div>
-                  <div className="p-4">
-                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Posts</dt>
-                    <dd className="mt-1 text-sm font-semibold text-slate-900">{Number(jobDetails!.totalPosts).toLocaleString('en-IN')}</dd>
-                  </div>
-                  {jobDetails!.postName && <div className="p-4 border-t border-slate-200">
-                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Post Name</dt>
-                    <dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails!.postName}</dd>
-                  </div>}
-                  {jobDetails!.startDate && <div className="p-4 border-t border-slate-200">
-                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Application Start Date</dt>
-                    <dd className="mt-1 text-sm font-semibold text-slate-900">{new Date(jobDetails!.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd>
-                  </div>}
-                  <div className="p-4 border-t border-slate-200">
-                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Last Date to Apply</dt>
-                    <dd className="mt-1 text-sm font-semibold text-slate-900">{new Date(jobDetails!.lastDateToApply!).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd>
-                  </div>
-                  <div className="p-4 border-t border-slate-200">
-                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Employment Type</dt>
-                    <dd className="mt-1 text-sm font-semibold text-slate-900">{(jobDetails!.employmentType || 'FULL_TIME').replace(/_/g, ' ')}</dd>
-                  </div>
-                  {jobDetails!.qualification && <div className="p-4 border-t border-slate-200">
-                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Qualification</dt>
-                    <dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails!.qualification}</dd>
-                  </div>}
-                  {jobDetails!.ageLimit && <div className="p-4 border-t border-slate-200">
-                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Age Limit</dt>
-                    <dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails!.ageLimit}</dd>
-                  </div>}
-                  {jobSalaryText && (
-                    <div className="p-4 border-t border-slate-200 sm:col-span-2">
-                      <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Salary</dt>
-                      <dd className="mt-1 text-sm font-semibold text-slate-900">{jobSalaryText}</dd>
-                    </div>
-                  )}
-                </dl>
-              </section>
-            )}
+            {showJobHighlights && !hasJobHighlightsMarker && <PreviewJobHighlights />}
 
             {/* Main Content - Formatted Note */}
             {formData.formattedNote && formData.formattedNote.trim().length > 0 && articleParts.map((part, index) => (
               <React.Fragment key={index}>
-                {part.trim() && <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><div className="formatted-content prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: part }} style={{ whiteSpace: 'pre-wrap', lineHeight: '1.8', color: '#1f2937' }} /></div>}
-                {showJobHighlights && hasJobHighlightsMarker && index < articleParts.length - 1 && (
-                  <section className="bg-white rounded-xl border border-blue-200 shadow-sm overflow-hidden">
-                    <div className="px-5 py-3 bg-blue-50 border-b border-blue-100"><h2 className="text-base font-bold text-blue-950">Job Highlights</h2></div>
-                    <dl className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-slate-200">
-                      <div className="p-4"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Organization</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails!.organizationName}</dd></div>
-                      <div className="p-4"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Posts</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{Number(jobDetails!.totalPosts).toLocaleString('en-IN')}</dd></div>
-                      {jobDetails!.postName && <div className="p-4 border-t border-slate-200"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Post Name</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails!.postName}</dd></div>}
-                      {jobDetails!.startDate && <div className="p-4 border-t border-slate-200"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Application Start Date</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{new Date(jobDetails!.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd></div>}
-                      <div className="p-4 border-t border-slate-200"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Last Date to Apply</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{new Date(jobDetails!.lastDateToApply!).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</dd></div>
-                      <div className="p-4 border-t border-slate-200"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Employment Type</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{(jobDetails!.employmentType || 'FULL_TIME').replace(/_/g, ' ')}</dd></div>
-                      {jobDetails!.qualification && <div className="p-4 border-t border-slate-200"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Qualification</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails!.qualification}</dd></div>}
-                      {jobDetails!.ageLimit && <div className="p-4 border-t border-slate-200"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Age Limit</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobDetails!.ageLimit}</dd></div>}
-                      {jobSalaryText && <div className="p-4 border-t border-slate-200 sm:col-span-2"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Salary</dt><dd className="mt-1 text-sm font-semibold text-slate-900">{jobSalaryText}</dd></div>}
-                    </dl>
-                  </section>
-                )}
+                {part.trim() && <section className="px-6 pb-1 sm:px-7"><div className="preview-article-content" dangerouslySetInnerHTML={{ __html: part }} /></section>}
+                {showJobHighlights && hasJobHighlightsMarker && index < articleParts.length - 1 && <PreviewJobHighlights />}
               </React.Fragment>
             ))}
 
@@ -410,7 +387,8 @@ export default function ExamPreview({ formData, isOpen, onClose }: ExamPreviewPr
               </div>
             )}
 
-          </div>
+            </article>
+        </div>
         </div>
 
         {/* Footer */}

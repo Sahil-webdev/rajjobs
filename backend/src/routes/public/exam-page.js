@@ -65,10 +65,9 @@ function numericSalary(value) {
 }
 
 function salaryText(job) {
-  const values = [job.minSalary, job.maxSalary]
-    .map((value) => String(value ?? '').trim())
-    .filter(Boolean);
-  return [...new Set(values)].join(' – ');
+  // `minSalary` is only a read fallback for posts created before the single
+  // Salary field was introduced. New posts save only `salary`.
+  return String(job.salary || job.minSalary || '').trim();
 }
 
 function isJobPosting(exam) {
@@ -111,16 +110,15 @@ function jobPostingSchema(exam, canonicalUrl, description) {
     totalJobOpenings: Number(job.totalPosts),
   };
 
-  const minSalary = numericSalary(job.minSalary);
-  const maxSalary = numericSalary(job.maxSalary);
-  if (minSalary != null || maxSalary != null) {
+  const salary = numericSalary(salaryText(job));
+  if (salary != null) {
     schema.baseSalary = {
       '@type': 'MonetaryAmount',
       currency: 'INR',
       value: {
         '@type': 'QuantitativeValue',
-        minValue: minSalary ?? maxSalary,
-        maxValue: maxSalary ?? minSalary,
+        minValue: salary,
+        maxValue: salary,
         unitText: 'MONTH',
       },
     };
