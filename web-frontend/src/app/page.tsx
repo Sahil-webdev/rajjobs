@@ -39,6 +39,22 @@ type TestSeries = {
   createdAt: string;
 };
 
+// Course descriptions are written with the admin rich-text editor. Cards need a
+// short text preview, not the editor's HTML markup (for example, `<p>`/`<strong>`).
+function courseDescriptionText(value?: string) {
+  if (!value) return "";
+
+  return value
+    // Handle descriptions saved as either HTML or HTML-escaped HTML.
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&amp;/gi, "&")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export default function Home() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [testSeries, setTestSeries] = useState<TestSeries[]>([]);
@@ -331,9 +347,9 @@ export default function Home() {
                       <h4 className="mb-2 text-lg font-semibold text-slate-900 line-clamp-1">
                         {course.title}
                       </h4>
-                      {course.description && (
+                      {courseDescriptionText(course.description) && (
                         <p className="mb-4 text-sm text-slate-600 line-clamp-2">
-                          {course.description}
+                          {courseDescriptionText(course.description)}
                         </p>
                       )}
                       <div className="flex items-center justify-between mt-auto">
